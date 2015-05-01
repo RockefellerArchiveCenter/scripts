@@ -14,14 +14,12 @@ if [ "$(ls -A $WWW)" ]; then
         #Make a large file with proportions of 1.9w to 1h
         convert $file[0] -gravity 'North' -crop '100%x53%+0+0' `echo $file | sed 's/\.pdf$/\_thumbfb.jpg/'`
 
-        #reset file permissions
-        for file in `ls *.*`; do
-            sudo chmod 664 $file
-        done
+
+    done
+    #reset file permissions
+    for file in `ls *.*`; do
+        sudo chmod 664 $file
     done
     else
         echo 'No files to convert'
 fi
-
-
-#in another script: move files, change permissions
