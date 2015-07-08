@@ -20,15 +20,15 @@ auth = requests.post(baseURL + '/users/'+user+'/login?password='+password).json(
 session = auth["session"]
 headers = {'X-ArchivesSpace-Session':session}
 
-# Gets the IDs of all resources in the repository
+# Gets the IDs of all digital objects in the repository
 doIds = requests.get(baseURL + '/repositories/'+repository+'/digital_objects?all_ids=true', headers=headers)
 
-# Exports EAD for all resources whose IDs contain 'FA'
+# Exports METS for all digital objects
 for id in doIds.json():
     digital_object = (requests.get(baseURL + '/repositories/'+repository+'/digital_objects/' + str(id), headers=headers)).json()
     doID = digital_object["digital_object_id"]
     mets = requests.get(baseURL + '/repositories/'+repository+'/digital_objects/mets/'+str(id)+'.xml', headers=headers).text
-        
+
     if not os.path.exists(destination):
         os.makedirs(destination)
     f = open(destination+doID+'.xml', 'w')
