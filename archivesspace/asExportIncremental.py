@@ -74,5 +74,7 @@ if len(uriList) > 0:
                 f.close
                 print '... done!'
     print 'All METS records associated with updated and published finding aids exported'
+    #run script to version
+    print 'Versioning files and pushing to Github'
+    os.system("gitVersion.sh")
 print 'All done!'
-#And now, for our next trick, version in Git
