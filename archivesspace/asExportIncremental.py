@@ -105,9 +105,11 @@ def handleDigitalObject(digital_object):
 
 headers = authenticate()
 
+# last export time
 with open(lastExportFilepath, 'rb') as pickle_handle:
     lastExport = str(pickle.load(pickle_handle))
 
+# store the current time
 with open(lastExportFilepath, 'wb') as pickle_handle:
     pickle.dump(int(time.time()), pickle_handle)
 
