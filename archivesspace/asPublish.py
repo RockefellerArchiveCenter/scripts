@@ -6,13 +6,13 @@ import json
 import sys
 
 # the base URL of your ArchivesSpace installation
-baseURL = 'http://192.168.50.7:8089'
+baseURL = 'http://localhost:8089'
 # the id of your repository
 repository = '2'
 # the username to authenticate with
-user = 'api-bot'
+user = 'admin'
 # the password for the username above
-password = 'rockefe1ler'
+password = 'admin'
 # a list of resource IDs to publish
 publishIDs = ["FA001",
 "FA002",

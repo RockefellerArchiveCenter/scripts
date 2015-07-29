@@ -7,8 +7,9 @@ REMOTE=github
 #the branch of the remote repository to push to
 BRANCH=master
 
-cd $REPO;
-
-git add .
-git commit -m 'automated commit'
-git push $REMOTE $BRANCH;
+if cd $REPO
+  then
+  git add .
+  git commit -m 'automated commit'
+  git push $REMOTE $BRANCH;
+fi
