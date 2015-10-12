@@ -3,7 +3,7 @@
 import os, requests, json, sys, ConfigParser
 
 config = ConfigParser.ConfigParser()
-config.read('local_settings.cfg')
+config.read('publish_local_settings.cfg')
 
 dictionary = {'baseURL': config.get('ArchivesSpace', 'baseURL'), 'repository':config.get('ArchivesSpace', 'repository'), 'user': config.get('ArchivesSpace', 'user'), 'password': config.get('ArchivesSpace', 'password')}
 repositoryBaseURL = '{baseURL}/repositories/{repository}'.format(**dictionary)
