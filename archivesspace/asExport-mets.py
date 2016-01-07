@@ -5,15 +5,15 @@ import requests
 import json
 
 # the base URL of your ArchivesSpace installation
-baseURL = 'http://your-aspace-url:8089'
+baseURL = 'http://localhost:8089'
 # the id of your repository
-repository = 'repository-number'
+repository = '2'
 # the username to authenticate with
-user = 'username'
+user = 'admin'
 # the password for the username above
-password = 'password'
+password = 'admin'
 # export destination
-destination = 'path/to/export/destination'
+destination = '/path/to/export/location/'
 
 # authenticates the session
 auth = requests.post(baseURL + '/users/'+user+'/login?password='+password).json()
@@ -29,9 +29,9 @@ for id in doIds.json():
     doID = digital_object["digital_object_id"]
     mets = requests.get(baseURL + '/repositories/'+repository+'/digital_objects/mets/'+str(id)+'.xml', headers=headers).text
 
-    if not os.path.exists(destination):
-        os.makedirs(destination)
-    f = open(destination+doID+'.xml', 'w')
+    if not os.path.exists(os.path.join(destination, doID)):
+        os.makedirs(os.path.join(destination, doID))
+    f = open(os.path.join(destination, doID, doID)+'.xml', 'w+')
     f.write(mets.encode('utf-8'))
     f.close
     print doID + ' exported to ' + destination
