@@ -19,6 +19,11 @@ For further instructions on installing the Requests module through easy_install,
 
 Save `asExport-associatedMets.py`, `asExport-ead.py`, `asExport-mets.py`, and `asPublish.py` to your Python installation directory.
 
+##Usage
+In the console or terminal, navigate to the directory containing the script you want and execute the script.
+*   On Windows this will be `asExport-ead.py`
+*   On Mac or Linux systems you can simply type `./asExport-ead.py`
+
 ##asExport-ead.py
 Creates EAD files from resource records. Export can be scoped to specific records by using an optional argument to match against the resource ID. (Python)
 
