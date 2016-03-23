@@ -1,6 +1,24 @@
 #archivesspace
 These scripts export data from ArchivesSpace in a variety of formats.
 
+##Requirements
+*   Python
+*   Requests module
+*   ConfigParser
+
+## Installation
+
+Download [Python](https://www.python.org/downloads/) (must be 2.7 or higher).
+
+If using Python 3 or higher, note that URLLib2 and ConfigParser have been renamed. Please see [here](http://stackoverflow.com/questions/16597865/is-there-a-library-for-urllib2-for-python-which-we-can-download) for support for URLLib2 and [here](http://stackoverflow.com/questions/14087598/python-3-3-importerror-no-module-named-configparser) for support for ConfigParser. 
+
+For further instructions on including Python in your PATH variable see [here](https://docs.python.org/2/using/windows.html).
+For instructions on installing Python on Linux, see [here](http://docs.python-guide.org/en/latest/starting/install/linux/).
+
+For further instructions on installing the Requests module through easy_install, see [here](http://stackoverflow.com/questions/17309288/importerror-no-module-named-requests).
+
+Save `asExport-associatedMets.py`, `asExport-ead.py`, `asExport-mets.py`, and `asPublish.py` to your Python installation directory.
+
 ##asExport-ead.py
 Creates EAD files from resource records. Export can be scoped to specific records by using an optional argument to match against the resource ID. (Python)
 
@@ -24,3 +42,5 @@ This script requires a local configurations file, which should be created in the
     [Export]
     # a list of resource IDs to publish
     publishIDs = ["FA001", "FA002","FA003"]
+
+You can use the `config_settings.py` file found [here] (https://github.com/RockefellerArchiveCenter/templates/blob/master/config_setup.py) to automatically create a `local_settings.cfg` file.
