@@ -1,1 +1,3 @@
 archivesspace/local_settings.cfg
+archivesspace/*.csv
+archivesspace/log.txt
