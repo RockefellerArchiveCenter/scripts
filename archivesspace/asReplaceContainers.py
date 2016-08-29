@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
-import os, requests, json, sys, logging, ConfigParser
-# from codecs import encode
-# from codecs import decode
+import os, requests, json, sys, logging, ConfigParser, pandas
 
 config = ConfigParser.ConfigParser()
 config.read('local_settings.cfg')
@@ -18,8 +16,14 @@ dictionary = {'baseURL': config.get('ArchivesSpace', 'baseURL'), 'repository':co
 repositoryBaseURL = '{baseURL}/repositories/{repository}'.format(**dictionary)
 resourceURL = '{baseURL}'.format(**dictionary)
 
-replace_containers = ['/repositories/2/top_containers/132174', '/repositories/2/top_containers/132178']
-keep_containers = ['/repositories/2/top_containers/132173', '/repositories/2/top_containers/132177']
+column_names = ['keep_uri', 'replace_uri']
+data = pandas.read_csv('containers.csv', names=column_names)
+
+replace_containers = data.replace_uri.tolist()
+keep_containers = data.keep_uri.tolist()
+
+# replace_containers = ['/repositories/2/top_containers/132174', '/repositories/2/top_containers/132178']
+# keep_containers = ['/repositories/2/top_containers/132173', '/repositories/2/top_containers/132177']
 
 # authenticates the session
 auth = requests.post('{baseURL}/users/{user}/login?password={password}&expiring=false'.format(**dictionary)).json()
@@ -33,12 +37,14 @@ def checkArchivalObject(archival_object, aoId, headers):
 				if ('sub_container' in instance):
 					if (instance['sub_container']['top_container']['ref'] == container_uri):
 						instance['sub_container']['top_container']['ref'] = keep_containers[index]
-						print archival_object
 						post = requests.post(repositoryBaseURL + '/archival_objects/'+str(aoId), headers=headers, data=json.dumps(archival_object))
 						print 'Container '+replace_containers[index]+' was replaced with container '+keep_containers[index]+' in archival object '+str(aoId)
 						logging.info('Container '+replace_containers[index]+' was replaced with container '+keep_containers[index]+' in archival object '+str(aoId))
 	else:
 		pass
+
+print replace_containers
+print keep_containers
 
 print 'Getting a list of archival objects'
 aoIds = requests.get(repositoryBaseURL + '/archival_objects?all_ids=true', headers=headers).json()
