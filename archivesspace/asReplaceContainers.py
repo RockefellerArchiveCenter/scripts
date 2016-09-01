@@ -22,9 +22,6 @@ data = pandas.read_csv('containers.csv', names=column_names)
 replace_containers = data.replace_uri.tolist()
 keep_containers = data.keep_uri.tolist()
 
-# replace_containers = ['/repositories/2/top_containers/132174', '/repositories/2/top_containers/132178']
-# keep_containers = ['/repositories/2/top_containers/132173', '/repositories/2/top_containers/132177']
-
 # authenticates the session
 auth = requests.post('{baseURL}/users/{user}/login?password={password}&expiring=false'.format(**dictionary)).json()
 session = auth['session']
