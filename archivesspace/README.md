@@ -59,3 +59,6 @@ Compares resource record IDs against a list, then publishes those which are pres
 
 ##asCSV-accessions.py
 Exports accessions data in a comma-separated file format. (Python)
+
+##asNotes.py
+Matches accessrestrict notes to user-input text, checks every archival object in your ArchivesSpace database, deletes any accessrestrict notes with content exactly matching the user input content, and then posts the archival object back without the note.
