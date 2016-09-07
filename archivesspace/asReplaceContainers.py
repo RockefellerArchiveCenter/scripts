@@ -67,7 +67,7 @@ aoIds = getResourceObjects(identifier, headers, resource_containers)
 print aoIds
 logging.info('Find and replace operation started')
 for aoId in aoIds:
-	ao = (requests.get(repositoryBaseURL + '/archival_objects/' + str(aoId), headers=headers)).json()
+	ao = (requests.get('{baseURL}'.format(**dictionary) + str(aoId), headers=headers)).json()
 	print 'Checking archival object ' + str(aoId)
 	checkArchivalObject(ao, aoId, headers)
 logging.info('Find and replace operation ended')
