@@ -21,11 +21,32 @@ data = pandas.read_csv('containers.csv', names=column_names)
 
 replace_containers = data.replace_uri.tolist()
 keep_containers = data.keep_uri.tolist()
+resource_containers = []
 
 # authenticates the session
 auth = requests.post('{baseURL}/users/{user}/login?password={password}&expiring=false'.format(**dictionary)).json()
 session = auth['session']
 headers = {'X-ArchivesSpace-Session':session}
+
+def promptForIdentifier():
+	identifier = raw_input("Please enter a resource identifier: ")
+	if identifier:
+		return identifier
+	else:
+		print "You didn't enter anything!"
+		promptForIdentifier()
+
+def getResourceObjects(identifier, headers, resource_containers):
+	tree = requests.get(repositoryBaseURL + "/resources/" + identifier + "/tree", headers=headers).json()
+	refList = getRefs(tree["children"], resource_containers)
+	return refList
+
+def getRefs(data, resource_containers):
+	for component in data:
+		resource_containers.append(component["record_uri"])
+		if component["has_children"]:
+			getRefs(component["children"], resource_containers)
+	return resource_containers
 
 def checkArchivalObject(archival_object, aoId, headers):
 	if len(archival_object['instances']) > 0:
@@ -40,13 +61,12 @@ def checkArchivalObject(archival_object, aoId, headers):
 	else:
 		pass
 
-print replace_containers
-print keep_containers
-
+identifier = promptForIdentifier()
 print 'Getting a list of archival objects'
-aoIds = requests.get(repositoryBaseURL + '/archival_objects?all_ids=true', headers=headers).json()
+aoIds = getResourceObjects(identifier, headers, resource_containers)
+print aoIds
 logging.info('Find and replace operation started')
-for aoId in reversed(aoIds):
+for aoId in aoIds:
 	ao = (requests.get(repositoryBaseURL + '/archival_objects/' + str(aoId), headers=headers)).json()
 	print 'Checking archival object ' + str(aoId)
 	checkArchivalObject(ao, aoId, headers)
