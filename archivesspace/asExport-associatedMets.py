@@ -4,16 +4,10 @@ import os
 import requests
 import json
 
-# the base URL of your ArchivesSpace installation
-baseURL = 'http://localhost:8089'
-# the id of your repository
-repository = 'repository'
-# the username to authenticate with
-user = 'username'
-# the password for the username above
-password = 'password'
-# export destination
-destination = '/path/to/location/'
+config = ConfigParser.ConfigParser()
+config.read('local_settings.cfg')
+dictionary = {'baseURL': config.get('ArchivesSpace', 'baseURL'), 'repository':config.get('ArchivesSpace', 'repository'), 'user': config.get('ArchivesSpace', 'user'), 'password': config.get('ArchivesSpace', 'password'), 'destination': config.get('Destinations', 'METSdestination')}
+
 #list of identifiers for resources whose digital objects you want to export
 resource_list = ["test123"]
 

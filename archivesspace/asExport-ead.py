@@ -1,19 +1,13 @@
 #!/usr/bin/env python
 
-import os, requests, json, sys, logging
+import os, requests, json, sys, logging, ConfigParser
 
-# the base URL of your ArchivesSpace installation
-baseURL = 'http://localhost:8089'
-# the id of your repository
-repository = '2'
-# the username to authenticate with
-user = 'admin'
-# the password for the username above
-password = 'admin'
+config = ConfigParser.ConfigParser()
+config.read('local_settings.cfg')
+dictionary = {'baseURL': config.get('ArchivesSpace', 'baseURL'), 'repository':config.get('ArchivesSpace', 'repository'), 'user': config.get('ArchivesSpace', 'user'), 'password': config.get('ArchivesSpace', 'password'), 'destination': config.get('Destinations', 'EADdestination')}
+
 # parses arguments, if any. This allows you to pass in an string to match against resource IDs
 exportIds = sys.argv[1]
-# export destination
-destination = '/home/harnold/test/'
 logging.basicConfig(filename='simple-log.txt',format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.DEBUG)
 
 # authenticates the session

@@ -3,14 +3,12 @@
 import os, requests, json, sys, logging, ConfigParser, urllib2
 
 config = ConfigParser.ConfigParser()
-config.read('publish_local_settings.cfg')
+config.read('local_settings.cfg')
 
 # Logging configuration
 logging.basicConfig(filename=config.get('Logging', 'filename'),format=config.get('Logging', 'format', 1), datefmt=config.get('Logging', 'datefmt', 1), level=config.get('Logging', 'level', 0))
 # Sets logging of requests to WARNING to avoid unneccessary info
 logging.getLogger("requests").setLevel(logging.WARNING)
-# Adds randomly generated commit message from external text file
-#commitMessage = line = random.choice(open(config.get('Git', 'commitMessageData')).readlines());
 
 dictionary = {'baseURL': config.get('ArchivesSpace', 'baseURL'), 'repository':config.get('ArchivesSpace', 'repository'), 'user': config.get('ArchivesSpace', 'user'), 'password': config.get('ArchivesSpace', 'password')}
 repositoryBaseURL = '{baseURL}/repositories/{repository}'.format(**dictionary)
@@ -68,7 +66,7 @@ def findBoxFolder(headers):
             boxfolder = u' '.join((ctypeone, cindicatorone)).encode('utf-8').strip()
         elif (ctypeone != 0 and cindicatorone != 0 and ctypetwo != 0 and cindicatortwo != 0):
             boxfolder = u' '.join((ctypeone, cindicatorone, ctypetwo, cindicatortwo)).encode('utf-8').strip()
-        
+
 def deleteAccessRestrict(headers):
 # Deletes AccessRestrict notes that match input notecontent
     notes = ao["notes"]
@@ -78,7 +76,7 @@ def deleteAccessRestrict(headers):
                 for subnote in n["subnotes"]:
                     if notecontent == subnote["content"] and boxfolder != []:
                         del notes[index]
-                        updated = requests.post(repositoryBaseURL + '/archival_objects/' + str(aoId), headers=headers, data=json.dumps(ao)) 
+                        updated = requests.post(repositoryBaseURL + '/archival_objects/' + str(aoId), headers=headers, data=json.dumps(ao))
                         logging.info('Deleted access restrict note with ' + str(notecontent) + ' content from archival object ' + str(aoId) + ' in resource ' + str(resourceID) + ' from ' + str(boxfolder))
                     elif notecontent == subnote["content"] and boxfolder == []:
                         del notes[index]
@@ -86,7 +84,7 @@ def deleteAccessRestrict(headers):
                         logging.info('Deleted access restrict note with ' + str(notecontent) + ' content from archival object ' + str(aoId) + ' in resource ' + str(resourceID) + ' with no instances')
         except:
             pass
-                    
+
 #asks user to input note content
 notecontent = raw_input('Enter accessrestrict note content: ')
 

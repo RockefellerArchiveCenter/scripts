@@ -3,17 +3,11 @@
 import os
 import requests
 import json
+import ConfigParser
 
-# the base URL of your ArchivesSpace installation
-baseURL = 'http://localhost:8089'
-# the id of your repository
-repository = '2'
-# the username to authenticate with
-user = 'admin'
-# the password for the username above
-password = 'admin'
-# export destination
-destination = '/path/to/export/location/'
+config = ConfigParser.ConfigParser()
+config.read('local_settings.cfg')
+dictionary = {'baseURL': config.get('ArchivesSpace', 'baseURL'), 'repository':config.get('ArchivesSpace', 'repository'), 'user': config.get('ArchivesSpace', 'user'), 'password': config.get('ArchivesSpace', 'password'), 'destination': config.get('Destinations', 'METSdestination')}
 
 # authenticates the session
 auth = requests.post(baseURL + '/users/'+user+'/login?password='+password).json()

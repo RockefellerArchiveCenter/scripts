@@ -3,7 +3,7 @@
 import os, requests, json, sys, logging, ConfigParser, urllib2
 
 config = ConfigParser.ConfigParser()
-config.read('publish_local_settings.cfg')
+config.read('local_settings.cfg')
 
 # Logging configuration
 logging.basicConfig(filename=config.get('Logging', 'filename'),format=config.get('Logging', 'format', 1), datefmt=config.get('Logging', 'datefmt', 1), level=config.get('Logging', 'level', 0))
@@ -68,7 +68,7 @@ def findBoxFolder(headers):
             boxfolder = u' '.join((ctypeone, cindicatorone)).encode('utf-8').strip()
         elif (ctypeone != 0 and cindicatorone != 0 and ctypetwo != 0 and cindicatortwo != 0):
             boxfolder = u' '.join((ctypeone, cindicatorone, ctypetwo, cindicatortwo)).encode('utf-8').strip()
-        
+
 def deleteNotes(headers):
 # Deletes AccessRestrict notes that match input notecontent
     notes = ao["notes"]
@@ -78,7 +78,7 @@ def deleteNotes(headers):
                 for subnote in n["subnotes"]:
                     if notecontent == subnote["content"] and boxfolder != []:
                         del notes[index]
-                        updated = requests.post(repositoryBaseURL + '/archival_objects/' + str(aoId), headers=headers, data=json.dumps(ao)) 
+                        updated = requests.post(repositoryBaseURL + '/archival_objects/' + str(aoId), headers=headers, data=json.dumps(ao))
                         logging.info('Deleted access restrict note with ' + str(notecontent) + ' content from archival object ' + str(aoId) + ' in resource ' + str(resourceID) + ' from ' + str(boxfolder))
                     elif notecontent == subnote["content"] and boxfolder == []:
                         del notes[index]
@@ -86,7 +86,7 @@ def deleteNotes(headers):
                         logging.info('Deleted access restrict note with ' + str(notecontent) + ' content from archival object ' + str(aoId) + ' in resource ' + str(resourceID) + ' with no instances')
         except:
             pass
-            
+
 def replaceNotes(headers):
 # Deletes AccessRestrict notes that match input notecontent
     notes = ao["notes"]
@@ -96,7 +96,7 @@ def replaceNotes(headers):
                 for subnote in n["subnotes"]:
                     if notecontent == subnote["content"] and boxfolder != []:
                         subnote["content"] = replacecontent
-                        updated = requests.post(repositoryBaseURL + '/archival_objects/' + str(aoId), headers=headers, data=json.dumps(ao)) 
+                        updated = requests.post(repositoryBaseURL + '/archival_objects/' + str(aoId), headers=headers, data=json.dumps(ao))
                         logging.info('Replacing note with ' + str(notecontent) + ' content with ' + str(replacecontent) + ' content in archival object ' + str(aoId) + ' in resource ' + str(resourceID) + ' from ' + str(boxfolder))
                     elif notecontent == subnote["content"] and boxfolder == []:
                         subnote["content"] = replacecontent
