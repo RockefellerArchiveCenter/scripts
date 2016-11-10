@@ -46,14 +46,11 @@ def getRefs(data, resource_containers):
 			getRefs(component["children"], resource_containers)
 	return resource_containers
 
-def makeCSV():
-	writer=csv.writer(open('Reports.csv', 'wb'))
-	for tpref in list(set(duplicates_list)):
-		writer.writerow([tpref])
-
-def getAOInfo(headers):
+def getAOInfo(ao, headers):
 	global title
 	global refid
+	global dateexpression
+	global display_string
 	global begindate
 	begindate = "0"
 	global enddate
@@ -63,6 +60,7 @@ def getAOInfo(headers):
 	title = ao["title"]
 	dates = ao["dates"]
 	refid = ao["ref_id"]
+	display_string = ao["display_string"]
 	notes = ao["notes"]
 	for index, n in enumerate(dates):
 		try:
@@ -73,34 +71,35 @@ def getAOInfo(headers):
 			 enddate = n["end"]
 		except:
 			 pass
+		try:
+			dateexpression = n["expression"]
+		except:
+			pass
 	for index, n in enumerate(notes):
 		try:
 			if n["type"] == "accessrestrict":
 				for subnote in n["subnotes"]:
-					notecontent = subnote["content"]
+					notecontent = subnote["content"].encode('utf-8')
 		except:
-			notecontent = "FALSE"
+			pass
 	print title
 	print begindate
 	print enddate
 	print refid
 	print notecontent
-
-def writeCSV():
-	myfile = open("CatReports.csv", "wb")
-	row = [title ,begindate ,enddate ,refid ,notecontent]
-	writer.writerow(row)
-	myfile.close
+	with open("CatReports.csv", "a") as f:
+		writer = csv.writer(f)
+		row = [title, display_string, dateexpression, begindate, enddate, refid, notecontent]
+		writer.writerow(row)
 
 identifier = promptForIdentifier()
 aoIds = getResourceObjects(identifier, headers, resource_containers)
 print aoIds
 writer = csv.writer(open("CatReports.csv", "wb"))
-column_headings = ["title", "begindate", "enddate", "refid", "accessrestrict"]
+column_headings = ["title", "display_string", "dateexpression", "begindate", "enddate", "refid", "accessrestrict"]
 writer.writerow(column_headings)
 logging.info('Writing to CSV started')
 for aoId in aoIds:
 	ao = (requests.get('{baseURL}'.format(**dictionary) + str(aoId), headers=headers)).json()
-	getAOInfo(headers)
-	writeCSV()
+	getAOInfo(ao, headers)
 logging.info('Find and replace operation ended')
