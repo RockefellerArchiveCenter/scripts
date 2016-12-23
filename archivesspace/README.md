@@ -64,6 +64,10 @@ Exports accessions data in a comma-separated file format. (Python)
 
 Exports content from user-defined note types in a comma-separated file format. (Python)
 
+## asCSV-titles.py
+
+Exports titles from children of a user-defined resource in a comma-separated file format. (Python)
+
 ## asExport-associatedMets.py
 
 Exports METS files from digital object records associated with a given resource. (Python)
