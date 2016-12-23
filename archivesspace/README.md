@@ -60,6 +60,10 @@ In the console or terminal, navigate to the directory containing the script you 
 
 Exports accessions data in a comma-separated file format. (Python)
 
+## asCSV-notes.py
+
+Exports content from user-defined note types in a comma-separated file format. (Python)
+
 ## asExport-associatedMets.py
 
 Exports METS files from digital object records associated with a given resource. (Python)
