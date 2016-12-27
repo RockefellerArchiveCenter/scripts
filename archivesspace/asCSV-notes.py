@@ -14,28 +14,27 @@ logging.getLogger("requests").setLevel(logging.WARNING)
 # Adds randomly generated commit message from external text file
 #commitMessage = line = random.choice(open(config.get('Git', 'commitMessageData')).readlines());
 
-dictionary = {'baseURL': config.get('ArchivesSpace', 'baseURL'), 'repository':config.get('ArchivesSpace', 'repository'), 'user': config.get('ArchivesSpace', 'user'), 'password': config.get('ArchivesSpace', 'password')}
-repositoryBaseURL = '{baseURL}/repositories/{repository}'.format(**dictionary)
-resourceURL = '{baseURL}'.format(**dictionary)
+dictionary = {'base_url': config.get('ArchivesSpace', 'base_url'), 'repository':config.get('ArchivesSpace', 'repository'), 'user': config.get('ArchivesSpace', 'user'), 'password': config.get('ArchivesSpace', 'password')}
+repository_base_url = '{base_url}/repositories/{repository}'.format(**dictionary)
 
 # authenticates the session
-auth = requests.post('{baseURL}/users/{user}/login?password={password}&expiring=false'.format(**dictionary)).json()
+auth = requests.post('{base_url}/users/{user}/login?password={password}&expiring=false'.format(**dictionary)).json()
 session = auth["session"]
 headers = {'X-ArchivesSpace-Session':session}
 
-def getNoteText(data):
+def get_note_text(data):
 	for note in data["notes"]:
 		try:
 			if note["type"] == note_type:
 				print 'Writing ' + note_type + ' from ' + data["jsonmodel_type"] + ' ' + data["id_0"]
 				if note["jsonmodel_type"] == "note_singlepart":
-					makeRow(note["content"])
+					make_row(note["content"])
 				else:
-					makeRow(note["subnotes"][0]["content"])
+					make_row(note["subnotes"][0]["content"])
 		except:
 			pass
 
-def makeRow(note_text):
+def make_row(note_text):
 	row = []
 	row.append(note_text)
 	writer.writerow(row)
@@ -48,15 +47,15 @@ spreadsheet = 'notes.csv'
 writer = csv.writer(open(spreadsheet, 'w'))
 
 print 'Getting a list of resources'
-resourceIds = requests.get(repositoryBaseURL + '/resources?all_ids=true', headers=headers)
-for resourceId in resourceIds.json():
-	resource = (requests.get(repositoryBaseURL + '/resources/' + str(resourceId), headers=headers)).json()
+resource_ids = requests.get(repository_base_url + '/resources?all_ids=true', headers=headers)
+for resource_id in resource_ids.json():
+	resource = (requests.get(repository_base_url + '/resources/' + str(resource_id), headers=headers)).json()
 	if resource["id_0"].startswith("FA"):
-		getNoteText(resource)
+		get_note_text(resource)
 print 'Getting a list of archival objects'
-aoIds = requests.get(repositoryBaseURL + '/archival_objects?all_ids=true', headers=headers)
-for aoId in aoIds.json():
-	ao = (requests.get(repositoryBaseURL + '/archival_objects/' + str(aoId), headers=headers)).json()
+ao_ids = requests.get(repository_base_url + '/archival_objects?all_ids=true', headers=headers)
+for ao_id in ao_ids.json():
+	ao = (requests.get(repository_base_url + '/archival_objects/' + str(ao_id), headers=headers)).json()
 	if ao["notes"]:
-		getNoteText(ao)
+		get_note_text(ao)
 print 'Done!'
