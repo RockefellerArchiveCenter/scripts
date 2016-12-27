@@ -13,13 +13,13 @@ logging.getLogger("requests").setLevel(logging.WARNING)
 
 config = {'repository':config.get('ArchivesSpace', 'repository'), 'user': config.get('ArchivesSpace', 'user'), 'password': config.get('ArchivesSpace', 'password'), 'baseURL': config.get('ArchivesSpace', 'url'), 'port': config.get('ArchivesSpace', 'port')}
 
-def getTitle(data):
+def get_title(data):
 	for child in data["children"]:
-		makeRow(child["title"])
+		make_row(child["title"])
 		if child["has_children"]:
-			getTitle(child)
+			get_title(child)
 
-def makeRow(note_text):
+def make_row(note_text):
 	row = []
 	row.append(note_text)
 	writer.writerow(row)
@@ -33,5 +33,5 @@ writer = csv.writer(open(spreadsheet, 'w'))
 client = archivesspace.ArchivesSpaceClient(config["baseURL"], config["user"], config["password"], config["port"], config["repository"])
 print 'Getting children of resource ' + resource_id
 data = client.get_resource_component_children('repositories/2/resources/'+str(resource_id))
-getTitle(data)
+get_title(data)
 print 'Done!'
