@@ -21,12 +21,7 @@ def compile_data(data):
 
 def make_row(component):
 	row = []
-	subject_titles = []
-	if component["subjects"]:
-		for subject in subjects:
-			subject_titles.append(subject["title"])
-			subject_titles.join("|")
-	row.append(component["title"], subject_titles)
+	row.append(component["title"].encode("utf-8"))
 	writer.writerow(row)
 
 # have user enter resource identifier
@@ -34,7 +29,10 @@ resource_id = raw_input('Enter resource id: ')
 
 print 'Creating a csv'
 spreadsheet = 'titles.csv'
-writer = csv.writer(open(spreadsheet, 'w'))
+if os.path.exists(spreadsheet):
+	writer = csv.writer(open(spreadsheet, 'a'))
+else:
+	writer = csv.writer(open(spreadsheet, 'w'))
 client = archivesspace.ArchivesSpaceClient(config["baseURL"], config["user"], config["password"], config["port"], config["repository"])
 print 'Getting children of resource ' + resource_id
 data = client.get_resource_component_children('repositories/2/resources/'+str(resource_id))
