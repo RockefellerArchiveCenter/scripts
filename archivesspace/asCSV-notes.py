@@ -11,10 +11,8 @@ config.read('local_settings.cfg')
 logging.basicConfig(filename=config.get('Logging', 'filename'),format=config.get('Logging', 'format', 1), datefmt=config.get('Logging', 'datefmt', 1), level=config.get('Logging', 'level', 0))
 # Sets logging of requests to WARNING to avoid unneccessary info
 logging.getLogger("requests").setLevel(logging.WARNING)
-# Adds randomly generated commit message from external text file
-#commitMessage = line = random.choice(open(config.get('Git', 'commitMessageData')).readlines());
 
-dictionary = {'base_url': config.get('ArchivesSpace', 'base_url'), 'repository':config.get('ArchivesSpace', 'repository'), 'user': config.get('ArchivesSpace', 'user'), 'password': config.get('ArchivesSpace', 'password')}
+dictionary = {'base_url': config.get('ArchivesSpace', 'baseURL'), 'repository':config.get('ArchivesSpace', 'repository'), 'user': config.get('ArchivesSpace', 'user'), 'password': config.get('ArchivesSpace', 'password')}
 repository_base_url = '{base_url}/repositories/{repository}'.format(**dictionary)
 
 # authenticates the session
