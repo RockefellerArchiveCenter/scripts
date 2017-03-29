@@ -56,6 +56,14 @@ In the console or terminal, navigate to the directory containing the script you 
 *   On Windows this will be something like `python asExport-ead.py`
 *   On Mac or Linux systems you can simply type `./asExport-ead.py`
 
+## advancedNoteEdit.py
+
+Finds matching note content and type and replaces it with user-entered note content. (Python)
+
+## asAutoReplaceContainers.py
+
+Deletes and replaces duplicate top containers in a resource record based on whether barcodes have periods (".") or if they are empty.
+
 ## asCSV-accessions.py
 
 Exports accessions data in a comma-separated file format. (Python)
@@ -80,6 +88,10 @@ Creates EAD files from resource records. Export can be scoped to specific record
 
 Exports METS files from all digital object records. (Python)
 
+## asExportAIIFA.py
+
+Exports all resource records containing "FA" in the identifier.
+
 ## asNotes.py
 
 Matches accessrestrict notes to user-input text, checks every archival object in your ArchivesSpace database, deletes any accessrestrict notes with content exactly matching the user input content, and then posts the archival object back without the note.
@@ -98,3 +110,8 @@ Loops over archival objects that are children of a given resource record and rep
     /repositories/2/top_containers/15454,/repositories/2/top_containers/15464
     /repositories/2/top_containers/15469,/repositories/2/top_containers/15477
     /repositories/2/top_containers/15478,/repositories/2/top_containers/15479
+    
+    
+## asWriteCSV.py
+
+Prompts for resource identifier and then writes the title, display_string, dateexpression, begindate, enddate, refid, accessrestrict to a CSV file named `CatReports.csv`.
