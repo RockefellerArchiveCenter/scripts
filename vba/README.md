@@ -1,4 +1,7 @@
-#id_move.vba
+# findReplace.vba
+Searches a sheet (`Sheet2`) in Excel, for find/replace pairs in columns B and C. Searches column A for matching value in column B, and replaces it with value in column C.
+
+# id_move.vba
 Moves files from one directory to another based on matching against a list of IDs in Column A.
 
 ##Requirements
