@@ -63,7 +63,7 @@ Finds matching note content and type and replaces it with user-entered note cont
 
 ## asAutoReplaceContainers.py
 
-Deletes and replaces duplicate top containers in a resource record based on whether barcodes have periods (".") or if they are empty.
+Replaces duplicate top containers in a resource record based on whether barcodes have periods (".") or if they are empty. Only works for resources in which the box number does not restart. Finds all archival objects attached to an AS resource record through the resource id (database id), then loops through all instances in each archival object. Will pass over any digital object instances. Creates two dictionaries of "correct" and "incorrect" barcodes; any barcode with a '.' or empty will be considered incorrect and matched and then replaced with a correct barcode from a matching container indicator.
 
 ## asCSV-accessions.py
 
