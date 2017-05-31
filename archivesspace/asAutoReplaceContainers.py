@@ -100,23 +100,28 @@ def makeLocationsDict(headers):
 		loc_ref = "0"
 		global ind_type
 		ind_type = "0"
-		try:
-			type1 = n["container"]["type_1"]
-		except:
+		if n["instance_type"] == "digital_object":
 			pass
-		try:
-			indicator1 = n["container"]["indicator_1"]
-		except:
-			pass
-		try:
-			ref1 = n["sub_container"]["top_container"]["ref"]
-		except:
-			pass
-		ind_type = indicator1 + type1
-		if len(n["container"]["barcode_1"]) > 0 and "." not in n["container"]["barcode_1"]:
-			keep_dict[ind_type] = ref1
-		elif len(n["container"]["barcode_1"]) == 0 or "." in n["container"]["barcode_1"]:
-			bad_dict[ref1] = ind_type
+		else:
+			try:
+				type1 = n["container"]["type_1"]
+			except:
+				pass
+			try:
+				indicator1 = n["container"]["indicator_1"]
+			except:
+				pass
+			try:
+				ref1 = n["sub_container"]["top_container"]["ref"]
+			except:
+				pass
+			ind_type = indicator1 + type1
+			if "barcode_1" not in n["container"]:
+				bad_dict[ref1] = ind_type
+			elif len(n["container"]["barcode_1"]) > 0 and "." not in n["container"]["barcode_1"]:
+				keep_dict[ind_type] = ref1
+			elif len(n["container"]["barcode_1"]) == 0 or "." in n["container"]["barcode_1"]:
+				bad_dict[ref1] = ind_type
 
 def makeCSV():
 	writer=csv.writer(open('dict.csv', 'wb'))
@@ -147,7 +152,9 @@ def replaceTopContainer(ao, aoId, headers):
 	original ="0"
 	if len(ao['instances']) > 0:
 		for n, instance in enumerate(ao['instances']):
-			if ao["instances"][n]["sub_container"]["top_container"]["ref"] in replace_dict:
+			if ao["instances"][n]["instance_type"] == "digital_object":
+				pass
+			elif ao["instances"][n]["sub_container"]["top_container"]["ref"] in replace_dict:
 				replaced = ao["instances"][n]["sub_container"]["top_container"]["ref"]
 				original = replace_dict[ao["instances"][n]["sub_container"]["top_container"]["ref"]]
 				ao["instances"][n]["sub_container"]["top_container"]["ref"] = replace_dict[ao["instances"][n]["sub_container"]["top_container"]["ref"]]
