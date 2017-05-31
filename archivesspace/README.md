@@ -1,10 +1,11 @@
-#archivesspace
+# archivesspace
 These scripts export data from ArchivesSpace in a variety of formats.
 
-##Requirements
+## Requirements
 *   Python
 *   Requests module
 *   ConfigParser
+*   Some of these scripts require `agentarchives`, a Python library for working with the ArchivesSpace API. Detailed installation instructions are available at [the repository](https://github.com/artefactual-labs/agentarchives/)
 
 ## Installation
 
