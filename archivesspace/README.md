@@ -51,7 +51,7 @@ Some of these scripts require a local configurations file, which should be creat
 
 You can use the `config_settings.py` file found [here] (https://github.com/RockefellerArchiveCenter/templates/blob/master/config_setup.py) to automatically create a `local_settings.cfg` file.
 
-##Usage
+## Usage
 In the console or terminal, navigate to the directory containing the script you want and execute the script.
 *   On Windows this will be something like `python asExport-ead.py`
 *   On Mac or Linux systems you can simply type `./asExport-ead.py`
@@ -110,8 +110,8 @@ Loops over archival objects that are children of a given resource record and rep
     /repositories/2/top_containers/15454,/repositories/2/top_containers/15464
     /repositories/2/top_containers/15469,/repositories/2/top_containers/15477
     /repositories/2/top_containers/15478,/repositories/2/top_containers/15479
-    
-    
+
+
 ## asWriteCSV.py
 
 Prompts for resource identifier and then writes the title, display_string, dateexpression, begindate, enddate, refid, accessrestrict to a CSV file named `CatReports.csv`.
