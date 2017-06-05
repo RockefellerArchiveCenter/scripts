@@ -35,7 +35,7 @@ session = auth['session']
 headers = {'X-ArchivesSpace-Session':session}
 
 def promptForIdentifier():
-	identifier = raw_input("Please enter a resource identifier: ")
+	identifier = raw_input("Please enter an ArchivesSpace resource identifier: ")
 	if identifier:
 		return identifier
 	else:
@@ -167,12 +167,12 @@ def replaceTopContainer(ao, aoId, headers):
 		pass
 
 identifier = promptForIdentifier()
-listreplace = raw_input('Would you like to run the replace operation or obtain a csv of duplicate objects? (replace/list)')
-print 'Getting a list of archival objects'
-aoIds = getResourceObjects(identifier, headers, resource_containers)
-print aoIds
-logging.info('Find and replace operation started')
-if listreplace == 'replace':
+listreplace = raw_input('Would you like to run the replace operation or obtain a csv of duplicate objects? (r/l): ')
+if listreplace == 'r':
+	print 'Getting a list of archival objects'
+	aoIds = getResourceObjects(identifier, headers, resource_containers)
+	print aoIds
+	logging.info('Find and replace operation started')
 	for aoId in aoIds:
 		ao = (requests.get('{baseURL}'.format(**dictionary) + str(aoId), headers=headers)).json()
 		print 'Checking archival object ' + str(aoId)
@@ -181,10 +181,17 @@ if listreplace == 'replace':
 	for aoId in aoIds:
 		ao = (requests.get('{baseURL}'.format(**dictionary) + str(aoId), headers=headers)).json()
 		replaceTopContainer(ao, aoId, headers)
-elif listreplace == 'list':
+if listreplace == 'l':
+	print 'Getting a list of archival objects'
+	aoIds = getResourceObjects(identifier, headers, resource_containers)
+	print aoIds
+	logging.info('Writing duplicate objects to dict.csv')
 	for aoId in aoIds:
 		ao = (requests.get('{baseURL}'.format(**dictionary) + str(aoId), headers=headers)).json()
 		print 'Checking archival object ' + str(aoId)
 		makeDuplicatesList(headers)
 	makeCSV()
-logging.info('Find and replace operation ended')
+else:
+	print "Sorry, I don't understand the option you just entered."
+	sys.exit()
+logging.info('Find and replace operation ended.')
