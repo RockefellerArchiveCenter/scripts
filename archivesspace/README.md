@@ -77,6 +77,10 @@ Exports content from user-defined note types in a comma-separated file format. (
 
 Exports titles from children of a user-defined resource in a comma-separated file format. (Python)
 
+## asDeleteOrphanContainers.py
+
+Searches all top containers in your ArchivesSpace database and looks for the collection link is greater than zero. If not, it deletes them. This removes any top containers not linked to a resource or archival object. (Python)
+
 ## asExport-associatedMets.py
 
 Exports METS files from digital object records associated with a given resource. (Python)
