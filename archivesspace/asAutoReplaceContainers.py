@@ -54,73 +54,47 @@ def getRefs(data, resource_containers):
 			getRefs(component["children"], resource_containers)
 	return resource_containers
 
-def makeDuplicatesList(headers):
-	instances = ao["instances"]
+def makeDuplicatesList(instances):
 	for index, n in enumerate(instances):
-		global type1
-		type1 = "0"
-		global indicator1
-		indicator1 = "0"
-		global ref1
-		ref1 = "0"
-		global location1
-		location1 ="0"
-		global loc_ref
-		loc_ref = "0"
-		global ind_type
-		ind_type = "0"
 		try:
 			type1 = n["container"]["type_1"]
 		except:
-			pass
+			type1 = "0"
 		try:
 			indicator1 = n["container"]["indicator_1"]
 		except:
-			pass
+			indicator_1 = "0"
 		try:
 			ref1 = n["sub_container"]["top_container"]["ref"]
 		except:
-			pass
-		if len(n["container"]["barcode_1"]) == 0 or "." in n["container"]["barcode_1"]:
+			ref1 = "0"
+		if len(n["container"]["barcode_1"]) == 0 or ("." in n["container"]["barcode_1"]):
 			duplicates_list.append(ref1)
 
 #creates dictionarry of valid top_containers with locations
-def makeLocationsDict(headers):
-	instances = ao["instances"]
+def makeLocationsDict(instances):
 	for index, n in enumerate(instances):
-		global type1
-		type1 = "0"
-		global indicator1
-		indicator1 = "0"
-		global ref1
-		ref1 = "0"
-		global location1
-		location1 ="0"
-		global loc_ref
-		loc_ref = "0"
-		global ind_type
-		ind_type = "0"
 		if n["instance_type"] == "digital_object":
 			pass
 		else:
 			try:
 				type1 = n["container"]["type_1"]
 			except:
-				pass
+				type1 = "0"
 			try:
 				indicator1 = n["container"]["indicator_1"]
 			except:
-				pass
+				indicator1 = "0"
 			try:
 				ref1 = n["sub_container"]["top_container"]["ref"]
 			except:
-				pass
+				ref1 = "0"
 			ind_type = indicator1 + type1
 			if "barcode_1" not in n["container"]:
 				bad_dict[ref1] = ind_type
-			elif len(n["container"]["barcode_1"]) > 0 and "." not in n["container"]["barcode_1"]:
+			elif len(n["container"]["barcode_1"]) > 0 and ("." not in n["container"]["barcode_1"]):
 				keep_dict[ind_type] = ref1
-			elif len(n["container"]["barcode_1"]) == 0 or "." in n["container"]["barcode_1"]:
+			elif len(n["container"]["barcode_1"]) == 0 or ("." in n["container"]["barcode_1"]):
 				bad_dict[ref1] = ind_type
 
 def makeCSV():
@@ -146,10 +120,6 @@ def checkLocationsDict():
 
 #reads through replace_dict and updates top container ref when it finds a match
 def replaceTopContainer(ao, aoId, headers):
-	global replaced
-	replaced = "0"
-	global original
-	original ="0"
 	if len(ao['instances']) > 0:
 		for n, instance in enumerate(ao['instances']):
 			if ao["instances"][n]["instance_type"] == "digital_object":
@@ -171,25 +141,23 @@ listreplace = raw_input('Would you like to run the replace operation or obtain a
 if listreplace == 'r':
 	print 'Getting a list of archival objects'
 	aoIds = getResourceObjects(identifier, headers, resource_containers)
-	print aoIds
 	logging.info('Find and replace operation started')
 	for aoId in aoIds:
 		ao = (requests.get('{baseURL}'.format(**dictionary) + str(aoId), headers=headers)).json()
 		print 'Checking archival object ' + str(aoId)
-		makeLocationsDict(headers)
+		makeLocationsDict(ao["instances"])
 	checkLocationsDict()
 	for aoId in aoIds:
 		ao = (requests.get('{baseURL}'.format(**dictionary) + str(aoId), headers=headers)).json()
 		replaceTopContainer(ao, aoId, headers)
-if listreplace == 'l':
+elif listreplace == 'l':
 	print 'Getting a list of archival objects'
 	aoIds = getResourceObjects(identifier, headers, resource_containers)
-	print aoIds
 	logging.info('Writing duplicate objects to dict.csv')
 	for aoId in aoIds:
 		ao = (requests.get('{baseURL}'.format(**dictionary) + str(aoId), headers=headers)).json()
 		print 'Checking archival object ' + str(aoId)
-		makeDuplicatesList(headers)
+		makeDuplicatesList(ao["instances"])
 	makeCSV()
 else:
 	print "Sorry, I don't understand the option you just entered."
