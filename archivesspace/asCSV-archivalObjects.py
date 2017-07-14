@@ -47,47 +47,32 @@ def getRefs(data, resource_containers):
 	return resource_containers
 
 def getAOInfo(ao, headers):
-	global title
-	global refid
-	global dateexpression
-	global display_string
-	global begindate
-	begindate = "0"
-	global enddate
-	enddate = "0"
-	global notecontent
-	notecontent = "0"
 	title = ao["title"]
-	dates = ao["dates"]
 	refid = ao["ref_id"]
 	display_string = ao["display_string"]
-	notes = ao["notes"]
-	for index, n in enumerate(dates):
+	notecontent = ""
+
+	for index, n in enumerate(ao["dates"]):
 		try:
 			begindate = n["begin"]
 		except:
-			pass
+			begindate = "0"
 		try:
 			 enddate = n["end"]
 		except:
-			 pass
+			 enddate = "0"
 		try:
 			dateexpression = n["expression"]
 		except:
-			pass
-	for index, n in enumerate(notes):
+			dateexpression = ""
+	for index, n in enumerate(ao["notes"]):
 		try:
 			if n["type"] == "accessrestrict":
 				for subnote in n["subnotes"]:
 					notecontent = subnote["content"].encode('utf-8')
 		except:
 			pass
-	print title
-	print begindate
-	print enddate
-	print refid
-	print notecontent
-	with open("CatReports.csv", "a") as f:
+	with open("CatReports-"+identifier+".csv", "a") as f:
 		writer = csv.writer(f)
 		row = [title, display_string, dateexpression, begindate, enddate, refid, notecontent]
 		writer.writerow(row)
