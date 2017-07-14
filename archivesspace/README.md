@@ -69,6 +69,10 @@ Replaces duplicate top containers in a resource record based on whether barcodes
 
 Exports accessions data in a comma-separated file format. (Python)
 
+## asCSV-archivalObjects.py
+
+Prompts user for resource identifier and then writes the title, display_string, dateexpression, begindate, enddate, refid, accessrestrict to a CSV file named `CatReports.csv`. (Python)
+
 ## asCSV-notes.py
 
 Exports content from user-defined note types in a comma-separated file format. (Python)
@@ -93,7 +97,7 @@ Creates EAD files from resource records. Export can be scoped to specific record
 
 Exports METS files from all digital object records. (Python)
 
-## asExportAIIFA.py
+## asExportAllFA.py
 
 Exports all resource records containing "FA" in the identifier.
 
@@ -115,8 +119,3 @@ Loops over archival objects that are children of a given resource record and rep
     /repositories/2/top_containers/15454,/repositories/2/top_containers/15464
     /repositories/2/top_containers/15469,/repositories/2/top_containers/15477
     /repositories/2/top_containers/15478,/repositories/2/top_containers/15479
-
-
-## asWriteCSV.py
-
-Prompts for resource identifier and then writes the title, display_string, dateexpression, begindate, enddate, refid, accessrestrict to a CSV file named `CatReports.csv`.
