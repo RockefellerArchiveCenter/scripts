@@ -52,7 +52,8 @@ def getArchivalobjectsID (identifier, archival_objects, instances)
 
 #This wil get get the data from the archival object URL
 def checkInstanceType (Moving Images, Audio)
-	if 
+	Moving Images = ao["Moving Images"]
+	Audio = ao ["Audio"]
 
 
 
