@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os, requests, json, sys, logging
+import os, requests, json, sys, logging, csv
 
 config = ConfigParser.ConfigParser()
 config.read('local_settings.cfg')
@@ -54,6 +54,7 @@ def getArchivalobjectsID (identifier, archival_objects, instances)
 def checkInstanceType (Moving Images, Audio)
 	Moving Images = ao["Moving Images"]
 	Audio = ao ["Audio"]
+		
 
 
 
@@ -69,3 +70,10 @@ def MakeList ResourceList (headers)
 def deduplicates_list (Resources URI)
 	instances = ao["instances"]
 
+
+
+
+def getResourceData
+
+
+print 'Creating a csv' 
