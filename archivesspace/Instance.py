@@ -54,7 +54,7 @@ def getArchivalobjectsID (identifier, archival_objects, instances)
 def checkInstanceType (Moving Images, Audio)
 	Moving Images = ao["Moving Images"]
 	Audio = ao ["Audio"]
-		
+	if instance 
 
 
 
