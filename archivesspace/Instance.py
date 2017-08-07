@@ -51,28 +51,40 @@ def getArchivalobjectsID (identifier, archival_objects, instances)
 
 #This wil get get the data from the archival object URL
 def checkInstanceType (Moving Images, Audio)
-	Moving Images = ao["Moving Images"]
-	Audio = ao ["Audio"]
-	if instance 
+	Get ["instances"]
+	Instances = ao["instance"]
+	Instances = ["instances"]["instance_type"]
+		if instances =["Moving Images"], ["Audio"]:
+			keep_dict
+		else 
+			False
 
 
 
 def MakeList ResourceList (headers)
 	instances = ao["instances"]
-	for index, n in enumerate(instances):
-
-
-
+		for index, n in enumerate(ao ["instances"]):
+			try:
+				instances_type = n["Moving Images"]
+			except:
+				instances_type = "0"
+			try:
+				instances_type = n["Audio"]
+			except:
+				instances_type = "0"
 
 
 
 def deduplicates_list (Resources URI)
-	instances = ao["instances"]
+	
 
 
 
 
 def getResourceData
+
+
+
 
 
 print 'Creating a csv' 
