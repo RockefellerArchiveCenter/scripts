@@ -23,15 +23,6 @@ keep_containers = data.keep_uri.tolist()
 resource_containers = []
 
 
-keep_dict = {}
-
-bad_dict = {}
-
-duplicates_list = []
-
-replace_dict = {}
-
-
 
 
 # authenticates the session
@@ -58,29 +49,30 @@ def getArchivalobjectsID (identifier, archival_objects, instances)
 	refList = getRefs(tree["children"], archival_objects)
 	return refList
 
+
 #This wil get get the data from the archival object URL
-def checkInstanceType (Moving Images, Audio)
-	Get ["instances"]
-	Instances = ao["instance"]
-	Instances = ["instances"]["instance_type"]
-		if instances =["Moving Images"], ["Audio"]:
-			keep_dict
-		else 
-			False
+#get instances
+def checkInstanceType (ao, headers)
+	instances = ao["instance"]
+	inst_type = ["instances_type"]
+		if inst_type =["Moving Images"] or ["Audio"]:
+				return resource_ref
+		else
+			Pass
 
 
 
-def MakeList ResourceList (headers)
-	instances = ao["instances"]
-		for index, n in enumerate(ao ["instances"]):
-			try:
-				instances_type = n["Moving Images"]
-			except:
-				instances_type = "0"
-			try:
-				instances_type = n["Audio"]
-			except:
-				instances_type = "0"
+
+def makeResourceList (headers)
+	try:
+		uri = ao["resource"].get('ref')
+		resource = (requests.get(resourceURL + str(uri), headers=headers)).json()
+		global resourceID
+		resourceID = resource["id_0"]
+		return resourceID
+	except:
+		pass
+
 
 
 
