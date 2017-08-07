@@ -23,6 +23,15 @@ keep_containers = data.keep_uri.tolist()
 resource_containers = []
 
 
+keep_dict = {}
+
+bad_dict = {}
+
+duplicates_list = []
+
+replace_dict = {}
+
+
 
 
 # authenticates the session
