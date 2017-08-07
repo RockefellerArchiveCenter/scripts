@@ -55,7 +55,7 @@ def getArchivalobjectsID (identifier, archival_objects, instances)
 def checkInstanceType (ao, headers)
 	instances = ao["instance"]
 	inst_type = ["instances_type"]
-		if inst_type =["Moving Images"] or ["Audio"]:
+		if inst_type == ["Moving Images"] or ["Audio"]:
 				return resource_ref
 		else
 			Pass
