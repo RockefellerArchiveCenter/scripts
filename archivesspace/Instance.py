@@ -45,35 +45,47 @@ def promptForIdentifier():
 
 # get a list of identifers
 def getArchivalobjectsID (identifier, archival_objects, instances)
-		tree = requests.get(respositoryBaseURL + "/resources" + identifier + "/instances", headers=headers).json()
-		AOIDS = ao(tree["instances"], archival_objects)
-		return AOIDS
+	tree = requests.get(repositoryBaseURL + "/resources/" + identifier + "/tree", headers=headers).json()
+	refList = getRefs(tree["children"], archival_objects)
+	return refList
 
 
 #This wil get get the data from the archival object URL
-def checkInstanceType (Moving Images, Audio)
-	Moving Images = ao["Moving Images"]
-	Audio = ao ["Audio"]
-	if instance 
+#get instances
+def checkInstanceType (ao, headers)
+	instances = ao["instance"]
+	inst_type = ["instances_type"]
+		if inst_type == ["Moving Images"] or ["Audio"]:
+				return resource_ref
+		else
+			Pass
 
 
 
-def MakeList ResourceList (headers)
-	instances = ao["instances"]
-	for index, n in enumerate(instances):
 
-
+def makeResourceList (headers)
+	try:
+		uri = ao["resource"].get('ref')
+		resource = (requests.get(resourceURL + str(uri), headers=headers)).json()
+		global resourceID
+		resourceID = resource["id_0"]
+		return resourceID
+	except:
+		pass
 
 
 
 
 def deduplicates_list (Resources URI)
-	instances = ao["instances"]
+	
 
 
 
 
 def getResourceData
+
+
+
 
 
 print 'Creating a csv' 
