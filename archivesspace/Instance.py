@@ -45,10 +45,9 @@ def promptForIdentifier():
 
 # get a list of identifers
 def getArchivalobjectsID (identifier, archival_objects, instances)
-		tree = requests.get(respositoryBaseURL + "/resources" + identifier + "/instances", headers=headers).json()
-		AOIDS = ao(tree["instances"], archival_objects)
-		return AOIDS
-
+	tree = requests.get(repositoryBaseURL + "/resources/" + identifier + "/tree", headers=headers).json()
+	refList = getRefs(tree["children"], archival_objects)
+	return refList
 
 #This wil get get the data from the archival object URL
 def checkInstanceType (Moving Images, Audio)
