@@ -35,7 +35,7 @@ session = auth['session']
 headers = {'X-ArchivesSpace-Session':session}
 
 def promptForIdentifier():
-	identifier = raw_input("Please enter an ArchivesSpace resource identifier: ")
+	identifier = raw_input("Please enter a resource identifier: ")
 	if identifier:
 		return identifier
 	else:
@@ -54,47 +54,68 @@ def getRefs(data, resource_containers):
 			getRefs(component["children"], resource_containers)
 	return resource_containers
 
-def makeDuplicatesList(instances):
+def makeDuplicatesList(headers):
+	instances = ao["instances"]
 	for index, n in enumerate(instances):
+		global type1
+		type1 = "0"
+		global indicator1
+		indicator1 = "0"
+		global ref1
+		ref1 = n["sub_container"]["top_container"]["ref"]
+		global location1
+		location1 ="0"
+		global loc_ref
+		loc_ref = "0"
+		global ind_type
+		ind_type = "0"
+		top_container_json = requests.get('{baseURL}'.format(**dictionary) + ref1, headers=headers).json()
 		try:
-			type1 = n["container"]["type_1"]
+			type1 = top_container_json["type"]
 		except:
-			type1 = "0"
+			pass
 		try:
-			indicator1 = n["container"]["indicator_1"]
+			indicator1 = top_container_json["indicator"]
 		except:
-			indicator_1 = "0"
-		try:
-			ref1 = n["sub_container"]["top_container"]["ref"]
-		except:
-			ref1 = "0"
-		if len(n["container"]["barcode_1"]) == 0 or ("." in n["container"]["barcode_1"]):
+			pass
+		if "barcode" not in top_container_json or len(top_container_json["barcode"]) == 0 or "." in top_container_json["barcode"]:
 			duplicates_list.append(ref1)
+			print duplicates_list
 
 #creates dictionarry of valid top_containers with locations
-def makeLocationsDict(instances):
+def makeLocationsDict(headers):
+	instances = ao["instances"]
 	for index, n in enumerate(instances):
+		global type1
+		type1 = "0"
+		global indicator1
+		indicator1 = "0"
+		global ref1
+		ref1 = n["sub_container"]["top_container"]["ref"]
+		global location1
+		location1 ="0"
+		global loc_ref
+		loc_ref = "0"
+		global ind_type
+		ind_type = "0"
+		top_container_json = requests.get('{baseURL}'.format(**dictionary) + ref1, headers=headers).json()
 		if n["instance_type"] == "digital_object":
 			pass
 		else:
 			try:
-				type1 = n["container"]["type_1"]
+				type1 = top_container_json["type"]
 			except:
-				type1 = "0"
+				pass
 			try:
-				indicator1 = n["container"]["indicator_1"]
+				indicator1 = top_container_json["indicator"]
 			except:
-				indicator1 = "0"
-			try:
-				ref1 = n["sub_container"]["top_container"]["ref"]
-			except:
-				ref1 = "0"
+				pass
 			ind_type = indicator1 + type1
-			if "barcode_1" not in n["container"]:
+			if "barcode" not in top_container_json:
 				bad_dict[ref1] = ind_type
-			elif len(n["container"]["barcode_1"]) > 0 and ("." not in n["container"]["barcode_1"]):
+			elif len(top_container_json["barcode"]) > 0 and "." not in top_container_json["barcode"]:
 				keep_dict[ind_type] = ref1
-			elif len(n["container"]["barcode_1"]) == 0 or ("." in n["container"]["barcode_1"]):
+			elif len(top_container_json["barcode"]) == 0 or "." in top_container_json["barcode"]:
 				bad_dict[ref1] = ind_type
 
 def makeCSV():
@@ -120,6 +141,10 @@ def checkLocationsDict():
 
 #reads through replace_dict and updates top container ref when it finds a match
 def replaceTopContainer(ao, aoId, headers):
+	global replaced
+	replaced = "0"
+	global original
+	original ="0"
 	if len(ao['instances']) > 0:
 		for n, instance in enumerate(ao['instances']):
 			if ao["instances"][n]["instance_type"] == "digital_object":
@@ -137,29 +162,24 @@ def replaceTopContainer(ao, aoId, headers):
 		pass
 
 identifier = promptForIdentifier()
-listreplace = raw_input('Would you like to run the replace operation or obtain a csv of duplicate objects? (r/l): ')
-if listreplace == 'r':
-	print 'Getting a list of archival objects'
-	aoIds = getResourceObjects(identifier, headers, resource_containers)
-	logging.info('Find and replace operation started')
+listreplace = raw_input('Would you like to run the replace operation or obtain a csv of duplicate objects? (replace/list)')
+print 'Getting a list of archival objects'
+aoIds = getResourceObjects(identifier, headers, resource_containers)
+print aoIds
+logging.info('Find and replace operation started')
+if listreplace == 'replace':
 	for aoId in aoIds:
 		ao = (requests.get('{baseURL}'.format(**dictionary) + str(aoId), headers=headers)).json()
 		print 'Checking archival object ' + str(aoId)
-		makeLocationsDict(ao["instances"])
+		makeLocationsDict(headers)
 	checkLocationsDict()
 	for aoId in aoIds:
 		ao = (requests.get('{baseURL}'.format(**dictionary) + str(aoId), headers=headers)).json()
 		replaceTopContainer(ao, aoId, headers)
-elif listreplace == 'l':
-	print 'Getting a list of archival objects'
-	aoIds = getResourceObjects(identifier, headers, resource_containers)
-	logging.info('Writing duplicate objects to dict.csv')
+elif listreplace == 'list':
 	for aoId in aoIds:
 		ao = (requests.get('{baseURL}'.format(**dictionary) + str(aoId), headers=headers)).json()
 		print 'Checking archival object ' + str(aoId)
-		makeDuplicatesList(ao["instances"])
+		makeDuplicatesList(headers)
 	makeCSV()
-else:
-	print "Sorry, I don't understand the option you just entered."
-	sys.exit()
-logging.info('Find and replace operation ended.')
+logging.info('Find and replace operation ended')
