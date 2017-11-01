@@ -21,6 +21,9 @@ auth = requests.post('{baseURL}/users/{user}/login?password={password}&expiring=
 session = auth["session"]
 headers = {'X-ArchivesSpace-Session':session}
 
+#creates the spreadsheet
+writer = csv.writer(open('accessions.csv', 'w'))
+
 def get_extent_data(object):
 	data = {}
 	for extent in object['extents']:
@@ -32,8 +35,8 @@ def get_extent_data(object):
 def get_delivery_date(object):
 	date = ''
 	if 'user_defined' in object:
-		if 'date_1' in accession['user_defined']:
-			date = accession['user_defined']['date_1']
+		if 'date_1' in object['user_defined']:
+			date = object['user_defined']['date_1']
 	return date
 
 def get_number(object):
@@ -52,20 +55,18 @@ def make_row(accession):
 	acquisition_type = accession['acquisition_type'] if 'acquisition_type' in accession else ''
 	container_summary = extent_data['container_summary'] if 'container_summary' in extent_data else ''
 	extent_number = extent_data['extent_number'] if 'extent_number' in extent_data else ''
-	extent type = extent_data['extent_type'] if 'extent_type' in extent_data else ''
+	extent_type = extent_data['extent_type'] if 'extent_type' in extent_data else ''
 	row.append(accession_date)
 	row.append(accession['title'].encode('utf-8'))
 	row.append(get_number(accession))
 	row.append(container_summary)
 	row.append(extent_number)
-	row.append()
+	row.append(extent_type)
 	row.append(acquisition_type)
 	row.append(delivery_date)
 	writer.writerow(row)
 
 def main():
-	spreadsheet = 'accessions.csv'
-	writer = csv.writer(open(spreadsheet, 'w'))
 	column_headings = ['accession date','title','number','container summary','extent number','extent type','acquisition type','delivery date']
 	writer.writerow(column_headings)
 	accessionIds = requests.get(repositoryBaseURL + '/accessions?all_ids=true', headers=headers)
