@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os, requests, json, sys, logging, ConfigParser, urllib2, csv
+import os, requests, json, logging, ConfigParser, csv
 from codecs import encode
 from codecs import decode
 
@@ -74,6 +74,5 @@ def main():
 		accession = (requests.get(repositoryBaseURL + '/accessions/' + str(accessionId), headers=headers)).json()
 		print 'Writing accession', str(accessionId)
 		make_row(accession)
-	spreadsheet.close()
 
 main()
