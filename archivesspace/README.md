@@ -61,6 +61,10 @@ In the console or terminal, navigate to the directory containing the script you 
 
 Finds matching note content and type and replaces it with user-entered note content. (Python)
 
+## archivalObjectNotes.py
+
+Searches for specific words in a notes of archival objects, and writes each instance to a comma-separated file. (Python)
+
 ## asAutoReplaceContainers.py
 
 Replaces duplicate top containers in a resource record based on whether barcodes have periods (".") or if they are empty. Only works for resources in which the box number does not restart. Finds all archival objects attached to an AS resource record through the resource id (database id), then loops through all instances in each archival object. Will pass over any digital object instances. Creates two dictionaries of "correct" and "incorrect" barcodes; any barcode with a '.' or empty will be considered incorrect and matched and then replaced with a correct barcode from a matching container indicator.
@@ -72,6 +76,10 @@ Exports accessions data in a comma-separated file format. (Python)
 ## asCSV-archivalObjects.py
 
 Prompts user for resource identifier and then writes the title, display_string, dateexpression, begindate, enddate, refid, accessrestrict to a CSV file named `CatReports.csv`. (Python)
+
+## asCSV-locations.py
+
+Exports locations data in a comma-separated file format. (Python)
 
 ## asCSV-notes.py
 
@@ -119,3 +127,14 @@ Loops over archival objects that are children of a given resource record and rep
     /repositories/2/top_containers/15454,/repositories/2/top_containers/15464
     /repositories/2/top_containers/15469,/repositories/2/top_containers/15477
     /repositories/2/top_containers/15478,/repositories/2/top_containers/15479
+
+  ## asReplacLocations.py
+
+  Loops over all top containers and replaces location URIs. Relies on a comma-separated values (CSV) file named `locations.csv` with pairs of location URIs, the second of which is a URI to replace, and the first of which is the URI with which the second should be replaced:
+
+      /locations/15456,/locations/15457
+      /locations/15461,/locations/15463
+      /locations/15462,/locations/15451
+      /locations/15454,/locations/15464
+      /locations/15469,/locations/15477
+      /locations/15478,/locations/15479
