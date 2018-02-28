@@ -12,13 +12,21 @@ mkdir objects
 mkdir objects/access
 mkdir objects/service
 
+# find master files
+
+# copy master files to objects folder
+
+
+# find service edited files
+
+
 # copy service edited files to /access folder (and objects folder if concatenated file)
 
 
 # remove "_se" from files in /access folder
 
 
-# copy master files to objects folder
+# find master edited files
 
 
 # copy master edited files to /service folder
