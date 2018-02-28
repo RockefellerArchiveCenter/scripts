@@ -25,20 +25,23 @@ done
 # find service edited files and copy service edited files to /access folder (and objects folder if concatenated file)
 cd ~/archivematica_test/Service\ Edited
 array=(`find ${refid}*`)
-for i in ${array[@]}
-do
-	echo $i
-	cp $i ~/archivematica_test/archivematica_sip_$refid/objects/access
-done
-
-
-# remove "_se" from files in /access folder
-cd ~/archivematica_test/archivematica_sip_$refid/objects/access
-array=(`ls`)
-for i in ${array[@]}
-do
-	mv $i "${i/_se/}"
-done
+if [[ " ${array[*]} " == *".jpg"* ]]; then
+    echo "access copies are jpgs"
+	for i in ${array[@]}
+	do
+		echo $i
+		cp $i ~/archivematica_test/archivematica_sip_$refid/objects/access/${i/_se/}
+	done
+fi
+if [[ " ${array[*]} " == *".pdf"* ]]; then
+    echo "access copies are pdfs"
+	for i in ${array[@]}
+	do
+		echo $i
+		cp $i ~/archivematica_test/archivematica_sip_$refid/objects/access
+		cp $i ~/archivematica_test/archivematica_sip_$refid/objects/${i/_se/}
+	done
+fi
 
 
 # find master edited files and copy master edited files to /service folder
@@ -47,13 +50,5 @@ array=(`find ${refid}*`)
 for i in ${array[@]}
 do
 	echo $i
-	cp $i ~/archivematica_test/archivematica_sip_$refid/objects/service
-done
-
-# remove "_me" from files in /access folder
-cd ~/archivematica_test/archivematica_sip_$refid/objects/service
-array=(`ls`)
-for i in ${array[@]}
-do
-	mv $i "${i/_me/}"
+	cp $i ~/archivematica_test/archivematica_sip_$refid/objects/service/${i/_me/}
 done
