@@ -38,7 +38,7 @@ if [[ " ${array[*]} " == *".pdf"* ]]; then
 	for i in ${array[@]}
 	do
 		echo $i
-		cp $i ~/archivematica_test/archivematica_sip_$refid/objects/access
+		cp $i ~/archivematica_test/archivematica_sip_$refid/objects/access/${i/_se/}
 		cp $i ~/archivematica_test/archivematica_sip_$refid/objects/${i/_se/}
 	done
 fi
