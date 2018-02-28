@@ -15,7 +15,13 @@ mkdir objects/service
 # copy service edited files to /access folder (and objects folder if concatenated file)
 
 
-# copy master edited files to objects folder
+# remove "_se" from files in /access folder
 
 
-# copy master files to /tiffs folder
+# copy master files to objects folder
+
+
+# copy master edited files to /service folder
+
+
+# remove "_me" from files in /access folder
