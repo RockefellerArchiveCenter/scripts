@@ -10,7 +10,7 @@ mkdir logs
 mkdir metadata
 mkdir objects
 mkdir objects/access
-mkdir objects/tiffs
+mkdir objects/service
 
 # copy service edited files to /access folder (and objects folder if concatenated file)
 
