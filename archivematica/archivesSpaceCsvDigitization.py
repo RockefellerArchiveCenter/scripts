@@ -6,7 +6,8 @@ import os, csv
 
 def makeRow(filename,refid):
     row = []
-    row.append(filename)
+    full_filename = 'access/' + filename
+    row.append(full_filename)
     row.append(refid)
     writer.writerow(row)
 
