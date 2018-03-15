@@ -12,7 +12,6 @@ metadata_directory = 'archivematica_sip_' + refid + '/metadata/'
 # get copyright info
 
 # copyright status
-
 def getCopyrightStatus():
     copyright_status_input = raw_input('Copyrighted? (y/n): ')
     if copyright_status_input.lower() == 'y' or copyright_status_input.lower() == 'yes':
@@ -43,7 +42,7 @@ print determination_date
 
 #file	basis	status	determination_date	jurisdiction	start_date	end_date	terms	citation	note	grant_act	grant_restriction	grant_start_date	grant_end_date	grant_note	doc_id_type	doc_id_value	doc_id_role
 
-def makeRow(filename,basis,status,determination_date,jurisdiction,start_date,end_date,terms,note,grant_act,grant_restriction,grant_start_date,grant_end_date,grant_note):
+def makeRow(filename,basis,status,determination_date,jurisdiction,start_date,end_date,note,grant_act,grant_restriction,grant_start_date,grant_end_date,grant_note):
     row = []
     row.append(filename)
     row.append(basis)
@@ -67,6 +66,7 @@ def makeRow(filename,basis,status,determination_date,jurisdiction,start_date,end
 
 def makeCopyrightRow(filename):
     basis = 'copyright'
+    status = getCopyrightStatus()
     determination_date = getCopyrightDeterminationDate()
     jurisdiction = 'us'
     start_date = '???'
@@ -77,7 +77,7 @@ def makeCopyrightRow(filename):
     grant_start_date = '???'
     grant_end_date = '???'
     grant_note = '???'
-    makeRow(filename,basis,status,determination_date,jurisdiction,start_date,end_date,terms,note,grant_act,grant_restriction,grant_start_date,grant_end_date,grant_note)
+    makeRow(filename,basis,status,determination_date,jurisdiction,start_date,end_date,note,grant_act,grant_restriction,grant_start_date,grant_end_date,grant_note)
 
 
 def makeDonorRow(filename):
@@ -93,7 +93,7 @@ def makeDonorRow(filename):
     grant_start_date = '???'
     grant_end_date = '???'
     grant_note = '???'
-    makeRow(filename,basis,status,determination_date,jurisdiction,start_date,end_date,terms,note,grant_act,grant_restriction,grant_start_date,grant_end_date,grant_note)
+    makeRow(filename,basis,status,determination_date,jurisdiction,start_date,end_date,note,grant_act,grant_restriction,grant_start_date,grant_end_date,grant_note)
 
 #for each object, write copyright and donor rows
 
@@ -105,6 +105,7 @@ writer = csv.writer(open(spreadsheet, 'w'))
 column_headings = ["file","basis","status","determination_date","jurisdiction","start_date","end_date","terms","citation","note","grant_act","grant_restriction","grant_start_date","grant_end_date","grant_note","doc_id_type","doc_id_value","doc_id_role"]
 print column_headings
 writer.writerow(column_headings)
-#for filename in filenames:
-#    makeRow(filename,refid)
+#for f in filenames:
+#    makeCopyrightRow(f)
+#    makeDonorRow(f)
 #print 'Done!'
