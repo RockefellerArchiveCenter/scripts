@@ -31,6 +31,7 @@ if [[ " ${array[*]} " == *".jpg"* ]]; then
 	do
 		echo $i
 		cp $i ~/archivematica_test/archivematica_sip_$refid/objects/access/${i/_se/}
+		# check that access directory is not empty
 	done
 fi
 if [[ " ${array[*]} " == *".pdf"* ]]; then
@@ -40,9 +41,9 @@ if [[ " ${array[*]} " == *".pdf"* ]]; then
 		echo $i
 		cp $i ~/archivematica_test/archivematica_sip_$refid/objects/access/${i/_se/}
 		cp $i ~/archivematica_test/archivematica_sip_$refid/objects/${i/_se/}
+		# check number of files in access directory equal number of files in objects directory
 	done
 fi
-
 
 # find master edited files and copy master edited files to /service folder
 cd ~/archivematica_test/Master\ Edited
@@ -51,4 +52,16 @@ for i in ${array[@]}
 do
 	echo $i
 	cp $i ~/archivematica_test/archivematica_sip_$refid/objects/service/${i/_me/}
+	# check number of files in service directory equal number of files in objects directory
+	
 done
+
+master_filelist_count=(`ls ~/archivematica_test/archivematica_sip_$refid/objects/ | wc -l`)
+echo "There are ${master_filelist_count} files and directories in the /objects directory"
+
+service_filelist_count=(`ls ~/archivematica_test/archivematica_sip_$refid/objects/service/ | wc -l`)
+echo "There are ${service_filelist_count} files and directories in the /objects/service directory"
+
+
+access_filelist_count=(`ls ~/archivematica_test/archivematica_sip_$refid/objects/access/ | wc -l`)
+echo "There are ${access_filelist_count} files and directories in the /objects/access directory"
