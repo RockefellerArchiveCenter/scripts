@@ -17,15 +17,15 @@ print(filenames)
 # copyright status
 def getCopyrightStatus():
     copyright_status_input = raw_input('Copyrighted? (y/n/u): ')
-        if copyright_status_input.lower() == 'y' or copyright_status_input.lower() == 'yes':
-            copyright_status = 'copyrighted'
-        elif copyright_status_input.lower() == 'n' or copyright_status_input.lower() == 'no':
-            copyright_status = 'publicdomain'
-        elif copyright_status_input.lower() == 'u' or copyright_status_input.lower() == 'unknown':
-            copyright_status = 'unknown'
-        else:
-            copyright_status = '???'
-        return copyright_status
+    if copyright_status_input.lower() == 'y' or copyright_status_input.lower() == 'yes':
+        copyright_status = 'copyrighted'
+    elif copyright_status_input.lower() == 'n' or copyright_status_input.lower() == 'no':
+        copyright_status = 'publicdomain'
+    elif copyright_status_input.lower() == 'u' or copyright_status_input.lower() == 'unknown':
+        copyright_status = 'unknown'
+    else:
+        copyright_status = '???'
+    return copyright_status
 
 #copyright determination date
 def getCopyrightDeterminationDate():
@@ -80,8 +80,8 @@ def makeRow(filename,basis,status,determination_date,jurisdiction,start_date,end
     row.append(jurisdiction)
     row.append(start_date)
     row.append(end_date)
-    row.append('') #terms
-    row.append('') #citation   
+    row.append('') #terms - for license basis
+    row.append('') #citation - for statute basis
     row.append(note)    
     row.append(grant_act)    
     row.append(grant_restriction)    
@@ -101,7 +101,7 @@ def makeCopyrightRow(filename):
     jurisdiction = 'us'
     start_date = getCopyrightStartDate()
     end_date =  getCopyrightEndDate()
-    note = 'This Item is protected by copyright and/or related rights. You are free to use this Item in any way that is permitted by the copyright and related rights legislation that applies to your use. For other uses you need to obtain permission from the rights-holder(s).'
+    note = 'This Item is protected by copyright and/or related rights.'
     grant_act = 'publish'
     print(grant_act)
     grant_restriction = getRestriction()
@@ -112,17 +112,19 @@ def makeCopyrightRow(filename):
 
 
 def makeDonorRow(filename):
+    filename = "objects/" + filename
     basis = 'donor'
-    status = ''
-    determination_date = ''
-    jurisdiction = ''
-    start_date = '???'
-    end_date = '???'
-    note = '???'
+    status = '' # not applicable to donor rights basis
+    determination_date = '' # not applicable to donor rights basis
+    jurisdiction = '' # not applicable to donor rights basis
+    start_date = '1975-01-01'
+    end_date = 'open'
+    note = 'donor agreement note'
     grant_act = 'disseminate'
-    grant_restriction = '???'
-    grant_start_date = '???'
-    grant_end_date = '???'
+    print(grant_act)
+    grant_restriction = getRestriction()
+    grant_start_date = '2018-06-01'
+    grant_end_date = 'open'
     grant_note = '???'
     makeRow(filename,basis,status,determination_date,jurisdiction,start_date,end_date,note,grant_act,grant_restriction,grant_start_date,grant_end_date,grant_note)
 
