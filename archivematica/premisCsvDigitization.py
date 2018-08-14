@@ -9,20 +9,20 @@ metadata_directory = 'archivematica_sip_' + refid + '/metadata/'
 # filenames = os.listdir(objects_directory)
 # print filenames
 
-# get copyright info
+# GET COPYRIGHT INFO
 
 # copyright status
 def getCopyrightStatus():
-    copyright_status_input = raw_input('Copyrighted? (y/n): ')
-    if copyright_status_input.lower() == 'y' or copyright_status_input.lower() == 'yes':
-        copyright_status = 'copyrighted'
-    elif copyright_status_input.lower() == 'n' or copyright_status_input.lower() == 'no':
-        copyright_status = 'publicdomain'
-    else:
-        copyright_status = '???'
-    return copyright_status
-
-copyright_status = getCopyrightStatus()
+    copyright_status_input = raw_input('Copyrighted? (y/n/u): ')
+        if copyright_status_input.lower() == 'y' or copyright_status_input.lower() == 'yes':
+            copyright_status = 'copyrighted'
+        elif copyright_status_input.lower() == 'n' or copyright_status_input.lower() == 'no':
+            copyright_status = 'publicdomain'
+        elif copyright_status_input.lower() == 'u' or copyright_status_input.lower() == 'unknown':
+            copyright_status = 'unknown'
+        else:
+            copyright_status = '???'
+        return copyright_status
 
 print copyright_status
 
@@ -35,7 +35,7 @@ def getCopyrightDeterminationDate():
 determination_date = getCopyrightDeterminationDate()
 print determination_date
 
-# get donor info
+# GET DONOR INFO
 
 
 # find and store all objects
@@ -73,9 +73,9 @@ def makeCopyrightRow(filename):
     end_date =  '???'
     note = '???'
     grant_act = 'publish'
-    grant_restriction = '???'
-    grant_start_date = '???'
-    grant_end_date = '???'
+    grant_restriction = 'allow'
+    grant_start_date = '2016-01-04'
+    grant_end_date = 'open'
     grant_note = '???'
     makeRow(filename,basis,status,determination_date,jurisdiction,start_date,end_date,note,grant_act,grant_restriction,grant_start_date,grant_end_date,grant_note)
 
