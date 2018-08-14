@@ -19,12 +19,13 @@ access_directory = 'archivematica_sip_' + refid + '/objects/access/'
 metadata_directory = 'archivematica_sip_' + refid + '/metadata/'
 
 filenames = os.listdir(access_directory)
-print filenames
+print(filenames)
 
-print 'Creating a csv'
+print('Creating a csv')
 os.chdir(metadata_directory)
 spreadsheet = 'archivesspaceids.csv'
 writer = csv.writer(open(spreadsheet, 'w'))
-for filename in filenames:
+for f in filenames:
+    filename = "objects/access/" + f
     makeRow(filename,refid)
-print 'Done!'
+print('Done!')
