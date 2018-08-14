@@ -24,16 +24,20 @@ def getCopyrightStatus():
             copyright_status = '???'
         return copyright_status
 
-print copyright_status
-
 #copyright determination date
 def getCopyrightDeterminationDate():
     now = datetime.datetime.now()
     copyright_determination = now.strftime("%Y-%m-%d")
     return copyright_determination
 
-determination_date = getCopyrightDeterminationDate()
-print determination_date
+# copyright applicable start date
+def getCopyrightStartDate():
+    global copyright_start_year
+    copyright_start_year = raw_input("Copyright start year (YYYY): ")
+    copyright_start_month = raw_input("Copyright start month (MM): ")
+    copyright_start_day = raw_input("Copyright start day (DD): ")
+    copyright_start_date = copyright_start_year + "-" + copyright_start_month + "-" + copyright_start_day
+    return copyright_start_date
 
 # GET DONOR INFO
 
