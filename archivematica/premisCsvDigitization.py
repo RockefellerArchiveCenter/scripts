@@ -10,7 +10,7 @@ refid = raw_input('Enter the ArchivesSpace refid: ')
 objects_directory = 'archivematica_sip_' + refid + '/objects/'
 metadata_directory = 'archivematica_sip_' + refid + '/metadata/'
 filenames = os.listdir(objects_directory)
-print filenames
+print(filenames)
 
 # GET COPYRIGHT BASIS INFO
 
@@ -68,9 +68,8 @@ def getRestriction():
         getCopyrightRestriction()
     return restriction
 
-# find and store all objects
 
-#file	basis	status	determination_date	jurisdiction	start_date	end_date	terms	citation	note	grant_act	grant_restriction	grant_start_date	grant_end_date	grant_note	doc_id_type	doc_id_value	doc_id_role
+# columns: file, basis, status, determination_date, jurisdiction, start_date, end_date, terms, citation, note, grant_act, grant_restriction, grant_start_date, grant_end_date, grant_note, doc_id_type, doc_id_value, doc_id_role
 
 def makeRow(filename,basis,status,determination_date,jurisdiction,start_date,end_date,note,grant_act,grant_restriction,grant_start_date,grant_end_date,grant_note):
     row = []
@@ -127,17 +126,16 @@ def makeDonorRow(filename):
     grant_note = '???'
     makeRow(filename,basis,status,determination_date,jurisdiction,start_date,end_date,note,grant_act,grant_restriction,grant_start_date,grant_end_date,grant_note)
 
-#for each object, write copyright and donor rows
-
-
-print 'Creating a csv'
+print('Creating a csv')
 #os.chdir(metadata_directory)
 spreadsheet = 'rights.csv'
 writer = csv.writer(open(spreadsheet, 'w'))
 column_headings = ["file","basis","status","determination_date","jurisdiction","start_date","end_date","terms","citation","note","grant_act","grant_restriction","grant_start_date","grant_end_date","grant_note","doc_id_type","doc_id_value","doc_id_role"]
-print column_headings
+print(column_headings)
 writer.writerow(column_headings)
-#for f in filenames:
-#    makeCopyrightRow(f)
-#    makeDonorRow(f)
-#print 'Done!'
+#for each file, write copyright and donor rows
+for f in filenames:
+    print("--------- " + f + " ---------" )
+    makeCopyrightRow(f)
+    makeDonorRow(f)
+print('Done!')
