@@ -39,6 +39,14 @@ def getCopyrightStartDate():
     copyright_start_date = copyright_start_year + "-" + copyright_start_month + "-" + copyright_start_day
     return copyright_start_date
 
+# copyright applicable end date
+def getCopyrightEndDate():
+    copyright_term = raw_input("Copyright term length (years): ")
+    copyright_end_year = int(copyright_start_year) + int(copyright_term)
+    copyright_end_year = int(copyright_start_year) + 120
+    copyright_end_date = str(copyright_end_year) + "-01-01"
+    return copyright_end_date
+
 # GET DONOR INFO
 
 
