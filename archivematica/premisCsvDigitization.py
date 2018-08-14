@@ -47,6 +47,10 @@ def getCopyrightEndDate():
     copyright_end_date = str(copyright_end_year) + "-01-01"
     return copyright_end_date
 
+# GET DONOR BASIS INFO
+
+
+# ACT INFO
 # get permission/restriction on the act
 def getRestriction():
     restriction_input = raw_input("allow, conditional, or disallow (a,c,d)")
@@ -60,11 +64,6 @@ def getRestriction():
         print("invalid")
         getCopyrightRestriction()
     return restriction
-
-# GET DONOR BASIS INFO
-
-
-# ACT INFO
 
 # find and store all objects
 
