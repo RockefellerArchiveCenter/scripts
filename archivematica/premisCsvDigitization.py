@@ -1,13 +1,16 @@
 #!/usr/bin/env python
 
+# creates a CSV file containing PREMIS rights information to include in the /metadata directory of an Archivematica transfer
+# script assumes that each file will have a Copyright Rights Basis and a Donor Rights Basis, and each Basis will have one associated Act
+
 import os, csv, datetime
 
-# get refid/find transfer directory
+# get refid/find transfer directory - expects directory name to follow the convention archivematica_sip_<archivesspace refid>
 refid = raw_input('Enter the ArchivesSpace refid: ')
 objects_directory = 'archivematica_sip_' + refid + '/objects/'
 metadata_directory = 'archivematica_sip_' + refid + '/metadata/'
-# filenames = os.listdir(objects_directory)
-# print filenames
+filenames = os.listdir(objects_directory)
+print filenames
 
 # GET COPYRIGHT BASIS INFO
 
