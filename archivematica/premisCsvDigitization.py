@@ -81,11 +81,11 @@ def makeRow(filename,basis,status,determination_date,jurisdiction,start_date,end
     row.append(end_date)
     row.append('') #terms - for license basis
     row.append('') #citation - for statute basis
-    row.append(note)    
-    row.append(grant_act)    
-    row.append(grant_restriction)    
-    row.append(grant_start_date)    
-    row.append(grant_end_date)  
+    row.append(note)
+    row.append(grant_act)
+    row.append(grant_restriction)
+    row.append(grant_start_date)
+    row.append(grant_end_date)
     row.append(grant_note)
     row.append('') #doc_id_type
     row.append('') #doc_id_value
@@ -136,7 +136,9 @@ print(column_headings)
 writer.writerow(column_headings)
 #for each file, write copyright and donor rows
 for f in filenames:
-    print("--------- " + f + " ---------" )
-    makeCopyrightRow(f)
-    makeDonorRow(f)
+    if f == 'access' or f == 'service':
+        print("skipping directory")
+    else:
+        makeCopyrightRow(f)
+        makeDonorRow(f)
 print('Done!')
