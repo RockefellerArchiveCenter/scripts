@@ -65,7 +65,6 @@ def getRestriction():
         restriction = 'disallow'
     else:
         print("invalid")
-        getCopyrightRestriction()
     return restriction
 
 
