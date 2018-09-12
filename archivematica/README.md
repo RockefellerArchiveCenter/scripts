@@ -3,12 +3,8 @@ These scripts are for pre-Archivematica ingest processes.
 
 
 ## Requirements
+Python scripts use Python 3. To run bash scripts on a Windows machine, use a Unix-like environment like Cygwin.
 
-
-## Installation
-
-
-## Usage
 
 
 ## generateDigitizationSip.sh
@@ -54,5 +50,9 @@ The output should look like either of the following (depending on access format)
 			examplerefid_002.tif
 			examplerefid_003.tif
 ```
-## archivesSpaceCsvDigitizationp.y
+## archivesSpaceCsvDigitization.py
 This script takes an ArchivesSpace refid and, if there is already an Archivematica-packaged transfer for digitized documents, creates an archivesspaceids.csv file for the DIP upload integration.
+
+## premisCsvDigitization.py
+This script creates a csv file for Archivematica's PREMIS rights csv feature. For each file, the script creates a row with a Copyright rights basis (and an associated act) and a row with a Copyright rights basis (and an associated act).
+
