@@ -93,6 +93,10 @@ Exports titles from children of a user-defined resource in a comma-separated fil
 
 Searches all top containers in your ArchivesSpace database and looks for the collection link is greater than zero. If not, it deletes them. This removes any top containers not linked to a resource or archival object. (Python)
 
+## asDeleteOrphanLocations.py
+
+Reads locations from a csv file and deletes them as listed. (Python)
+
 ## asExport-associatedMets.py
 
 Exports METS files from digital object records associated with a given resource. (Python)
@@ -128,9 +132,9 @@ Loops over archival objects that are children of a given resource record and rep
     /repositories/2/top_containers/15469,/repositories/2/top_containers/15477
     /repositories/2/top_containers/15478,/repositories/2/top_containers/15479
 
-  ## asReplacLocations.py
+## asReplaceLocations.py
 
-  Loops over all top containers and replaces location URIs. Relies on a comma-separated values (CSV) file named `locations.csv` with pairs of location URIs, the second of which is a URI to replace, and the first of which is the URI with which the second should be replaced:
+Loops over all top containers and replaces location URIs. Relies on a comma-separated values (CSV) file named `locations.csv` with pairs of location URIs, the second of which is a URI to replace, and the first of which is the URI with which the second should be replaced:
 
       /locations/15456,/locations/15457
       /locations/15461,/locations/15463
@@ -138,3 +142,9 @@ Loops over archival objects that are children of a given resource record and rep
       /locations/15454,/locations/15464
       /locations/15469,/locations/15477
       /locations/15478,/locations/15479
+
+## post_objects.py
+Posts archival objects based on existing JSON data. (Python)
+
+## resourceNotes.py
+Searches notes in all AS resources for the following terms: 'obsolete','digital','special format','equipment'. Then stores the full note content and writes it to a CSV. (Python)
