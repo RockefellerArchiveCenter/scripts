@@ -6,6 +6,7 @@ The script requires input from the user into the command line. First, it asks th
 ## Requirements
 *   Python 3
 *   ArchivesSnake - https://github.com/archivesspace-labs/ArchivesSnake 
+*   ffmpeg
 
 ## Installation
 Script assumes that it is in the same directory as video files it is creating the clips from and that there is a subdirectory called "Clips" that the extracted clips will be placed in, and that there is a csv file with the filename `inventory.csv` with the following column headings:
