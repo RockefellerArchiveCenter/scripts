@@ -15,10 +15,18 @@ def getRefId():
 def getCount():
     return input("Enter the number to append to the filename: ")
 
+def checkDuration(refId):
+    originalFile = refId + ".mp4"
+    ffmpegCommand = "ffmpeg -i " + originalFile + " 2>&1 | grep \"Duration\"| cut -d ' ' -f 4 | sed s/,// | sed 's@\..*@@g' | awk '{ split($1, A, \":\"); split(A[3], B, \".\"); print 3600*A[1] + 60*A[2] + B[1] }'"
+    return int(os.popen(ffmpegCommand).read()) > 3600
+
 # get start time and length of clip
-def getStartTime():
+def getStartTime(refId):
     while True:
-        startHours =  input("Enter the hours of the start time: ") 
+        if checkDuration(refId):
+            startHours =  input("Video is more than 1 hour. Enter the hours of the start time: ") 
+        else:
+            startHours =  "0" 
         startMinutes = input("Enter the minutes of the start time: ") 
         startSeconds = input("Enter the seconds of the start time: ") 
         return startHours.zfill(2) + ":" + startMinutes.zfill(2) + ":" + startSeconds.zfill(2) # adds leading zero for single-digit numbers
@@ -105,7 +113,7 @@ while True:
         writer = csv.writer(spreadsheet)
         refId = getRefId()
         count = int(input("Number to start appending to file (e.g., 1): "))
-        startTime = getStartTime()
+        startTime = getStartTime(refId)
         length = getLength()
         makeClip(refId,startTime,length,count)
         ao = getAo(refId)
@@ -118,7 +126,7 @@ while True:
         spreadsheet = open("inventory.csv", "a")
         writer = csv.writer(spreadsheet)
         count += 1
-        startTime = getStartTime()
+        startTime = getStartTime(refId)
         length = getLength()
         makeClip(refId,startTime,length,count)
         ao = getAo(refId)
