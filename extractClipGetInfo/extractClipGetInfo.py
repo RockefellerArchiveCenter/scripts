@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import json, csv, os, getpass, configparser, math
+
 from asnake.client import ASnakeClient
 
 # get refId - used to make clips from original video with the filename [refid].mp4, and get information from ArchivesSpace
