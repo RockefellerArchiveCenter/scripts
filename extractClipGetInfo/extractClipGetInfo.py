@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import json, csv, os, getpass, configparser
+import json, csv, os, getpass, configparser, math
 from asnake.client import ASnakeClient
 
 # get refId - used to make clips from original video with the filename [refid].mp4, and get information from ArchivesSpace
@@ -25,7 +25,7 @@ def getStartTime():
 
 def getLength():
     minutes = int(input("Enter the minutes of the duration: "))
-    seconds = int(input("Enter the seconds of the duration: "))
+    seconds = float(input("Enter the seconds of the duration: "))
     return str((minutes * 60) + seconds)
 
 # create clip
@@ -80,7 +80,7 @@ def makeRow():
     row.append(getCollectionTitle(collectionInfo).replace('\n', ' ') + " (" + getCollectionId(collectionInfo) + ")") # write column: collection title and FA #
     row.append(getScopeContent(ao)) # write column: scope and contents
     row.append(startTime) # write column: clip start time
-    row.append(str(int(length) // 60).zfill(2) + ":" + str(int(length) % 60).zfill(2)) # format duration of clip as MM:SS
+    row.append(str(int(math.ceil(float(length))) // 60).zfill(2) + ":" + str(int(math.ceil(float(length))) % 60).zfill(2)) # format duration of clip as MM:SS and rounds up seconds
     writer.writerow(row)
 
 # enter aspace login info
