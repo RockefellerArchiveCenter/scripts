@@ -17,8 +17,8 @@ def getCount():
 
 def checkDuration(refId):
     originalFile = refId + ".mp4"
-    ffmpegCommand = "ffmpeg -i " + originalFile + " 2>&1 | grep \"Duration\"| cut -d ' ' -f 4 | sed s/,// | sed 's@\..*@@g' | awk '{ split($1, A, \":\"); split(A[3], B, \".\"); print 3600*A[1] + 60*A[2] + B[1] }'"
-    return int(os.popen(ffmpegCommand).read()) > 3600
+    ffmpegCommand = "ffprobe -v error -select_streams v:0 -show_entries stream=duration -of default=noprint_wrappers=1:nokey=1 " +  originalFile
+    return float(os.popen(ffmpegCommand).read()) > 3600
 
 # get start time and length of clip
 def getStartTime(refId):
