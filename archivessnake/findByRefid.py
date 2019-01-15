@@ -35,7 +35,23 @@ def getAoDates(ao):
                 return ao.get("dates")[0].get("expression") + "-" + ao.get("dates")[0].get("expression")
             else:
                 return ao.get("dates")[0].get("expression")
-
+    elif getAncestor(ao):
+        # if the component does not have have dates, go to its ancestor archival object(s) and look for dates
+        for a in ao.get("ancestors"):
+            ancestor_url = a.get("ref")
+            ancestor = client.get(ancestor_url).json()
+            if ancestor.get("jsonmodel_type") == "archival_object" and ancestor.get("dates"):
+                if ancestor.get("dates")[0].get("begin"):
+                    return ancestor.get("dates")[0].get("begin", "") + "-" + ancestor.get("dates")[0].get("end", ancestor.get("dates")[0].get("begin", ""))
+                # if there's no structured date, get date expression
+                else:
+                    if ancestor.get("dates")[0].get("expression") == "n.d." or ancestor.get("dates")[0].get("expression") == "undated" or ancestor.get("dates")[0].get("expression") == "Undated":
+                        return ""
+                    elif len(ancestor.get("dates")[0].get("expression")) == 4:
+                        return ao.get("dates")[0].get("expression") + "-" + ancestor.get("dates")[0].get("expression")
+                    else:
+                        return ancestor.get("dates")[0].get("expression")
+                        
 def getAoLevel(ao):
     # get level of description
     return ao.get("level")
