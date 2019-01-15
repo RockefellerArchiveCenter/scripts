@@ -70,6 +70,26 @@ def getUseRestriction(ao):
             if n.get("type") == "userestrict":
                 return n.get("subnotes")[0].get("content").replace('\n', ' ') # replace line break with space
 
+def getAoNotes(ao):
+    # get note type for each note, append to list
+    if ao.get("notes"):
+        noteList = []
+        for n in ao.get("notes"):
+            if n.get("type") == "bioghist":
+                noteList.append(n.get("subnotes")[0].get("content").replace('\n', ' '))
+            elif n.get("type") == "scopecontent":
+                noteList.append(n.get("subnotes")[0].get("content").replace('\n', ' '))
+            elif n.get("type") == "relatedmaterial":
+                noteList.append(n.get("subnotes")[0].get("content").replace('\n', ' '))
+            elif n.get("type") == "separatedmaterial":
+                noteList.append(n.get("subnotes")[0].get("content").replace('\n', ' '))
+            elif n.get("type") == "phystech":
+                noteList.append(n.get("subnotes")[0].get("content").replace('\n', ' '))
+        #noteList.sort()
+        return " | ".join(noteList)
+    else:
+        return ""
+
 def getCreator(ao):
     # check whether there are agents linked to the resource or object
     if ao.get("linked_agents"):
