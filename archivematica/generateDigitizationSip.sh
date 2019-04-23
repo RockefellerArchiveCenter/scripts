@@ -4,7 +4,10 @@
 read -p "Enter the ArchivesSpace refid: " refid
 
 #  create directory and subdirectories
-topDirectory="~/archivematica_test"
+pwd
+topDirectory='archivematica_test'
+cd ~
+pwd
 mkdir ${topDirectory}/archivematica_sip_${refid}
 targetDirectory="${topDirectory}/archivematica_sip_${refid}"
 mkdir ${targetDirectory}/logs ${targetDirectory}/metadata
@@ -12,7 +15,7 @@ mkdir -p ${targetDirectory}/objects/access
 mkdir ${targetDirectory}/objects/service
 
 # find master files and copy master files to objects folder
-array=(`${topDirectory}/byRefId/${refid}/master`)
+array=(`ls ${topDirectory}/byRefId/${refid}/master`)
 for i in ${array[@]}
 do
 	echo ${topDirectory}/byRefId/${refid}/master/$i
@@ -21,7 +24,7 @@ done
 
 
 # find service edited files and copy service edited files to /access folder (and objects folder if concatenated file)
-array=(`${topDirectory}/byRefId/${refid}/service_edited`)
+array=(`ls ${topDirectory}/byRefId/${refid}/service_edited`)
 if [[ " ${array[*]} " == *".jpg"* ]]; then
     echo "access copies are jpgs"
 	for i in ${array[@]}
@@ -52,12 +55,14 @@ do
 	
 done
 
+rm ${targetDirectory}/objects/Thumbs.db
 master_filelist_count=(`ls ${targetDirectory}/objects/ | wc -l`)
 echo "There are ${master_filelist_count} files and directories in the /objects directory"
 
+rm ${targetDirectory}/objects/service/Thumbs.db
 service_filelist_count=(`ls ${targetDirectory}/objects/service/ | wc -l`)
 echo "There are ${service_filelist_count} files and directories in the /objects/service directory"
 
-
+rm ${targetDirectory}/objects/access/Thumbs.db
 access_filelist_count=(`ls ${targetDirectory}/objects/access/ | wc -l`)
 echo "There are ${access_filelist_count} files and directories in the /objects/access directory"
