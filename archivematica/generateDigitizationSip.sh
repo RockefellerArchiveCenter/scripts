@@ -24,7 +24,7 @@ do
 	echo ${topDirectory}/byRefId/${refid}/master/$i
 	cp ${topDirectory}/byRefId/${refid}/master/$i ${targetDirectory}/objects
 done
-
+rm ${targetDirectory}/objects/${refid}_001.tif
 
 # find service edited files and copy service edited files to /access folder (and objects folder if concatenated file)
 array=(`ls ${topDirectory}/byRefId/${refid}/service_edited`)
@@ -36,6 +36,7 @@ if [[ " ${array[*]} " == *".jpg"* ]]; then
 		cp ${topDirectory}/byRefId/${refid}/service_edited/$i ${targetDirectory}/objects/access/${i/_se/}
 		# check that access directory is not empty
 	done
+	rm ${targetDirectory}/objects/access/${refid}_001.jpg
 fi
 if [[ " ${array[*]} " == *".pdf"* ]]; then
     echo "access copies are pdfs"
@@ -46,6 +47,10 @@ if [[ " ${array[*]} " == *".pdf"* ]]; then
 		cp ${topDirectory}/byRefId/${refid}/service_edited/$i ${targetDirectory}/objects/${i/_se/}
 		# check number of files in access directory equal number of files in objects directory
 	done
+	pdftk ${targetDirectory}/objects/access/${refid}.pdf cat 2-end output ${targetDirectory}/objects/access/${refid}_trimmed.pdf
+	mv ${targetDirectory}/objects/access/${refid}_trimmed.pdf ${targetDirectory}/objects/access/${refid}.pdf
+	pdftk ${targetDirectory}/objects/${refid}.pdf cat 2-end output ${targetDirectory}/objects/${refid}_trimmed.pdf
+	mv ${targetDirectory}/objects/${refid}_trimmed.pdf ${targetDirectory}/objects/${refid}.pdf
 fi
 
 # find master edited files and copy master edited files to /service folder
