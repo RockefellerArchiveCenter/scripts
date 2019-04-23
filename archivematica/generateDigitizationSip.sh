@@ -4,10 +4,8 @@
 read -p "Enter the ArchivesSpace refid: " refid
 
 #  create directory and subdirectories
-pwd
 topDirectory='archivematica_test'
 cd ~
-pwd
 mkdir ${topDirectory}/archivematica_sip_${refid}
 targetDirectory="${topDirectory}/archivematica_sip_${refid}"
 mkdir ${targetDirectory}/logs ${targetDirectory}/metadata
