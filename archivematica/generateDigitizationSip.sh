@@ -4,8 +4,13 @@
 read -p "Enter the ArchivesSpace refid: " refid
 
 #  create directory and subdirectories
+# set top level directory (directly below home)
 topDirectory='archivematica_test'
+
+# move to home directory
 cd ~
+
+# make Archivematica transfer directory and subdirectories
 mkdir ${topDirectory}/archivematica_sip_${refid}
 targetDirectory="${topDirectory}/archivematica_sip_${refid}"
 mkdir ${targetDirectory}/logs ${targetDirectory}/metadata
