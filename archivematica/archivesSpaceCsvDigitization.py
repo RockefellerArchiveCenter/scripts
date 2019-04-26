@@ -26,6 +26,6 @@ os.chdir(metadata_directory)
 spreadsheet = 'archivesspaceids.csv'
 writer = csv.writer(open(spreadsheet, 'w'))
 for f in filenames:
-    filename = "objects/access/" + f
+    filename = "objects/" + f
     makeRow(filename,refid)
 print('Done!')
