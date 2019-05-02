@@ -62,7 +62,7 @@ fi
 # 	# check number of files in service directory equal number of files in objects directory
 # done
 
-rm ${targetDirectory}/objects/Thumbs.db
+rm ${targetDirectory}/objects/*mbs.db
 master_filelist_count=(`ls ${targetDirectory}/objects/ | wc -l`)
 echo "There are ${master_filelist_count} files and directories in the /objects directory"
 
@@ -70,6 +70,6 @@ echo "There are ${master_filelist_count} files and directories in the /objects d
 # service_filelist_count=(`ls ${targetDirectory}/objects/service/ | wc -l`)
 # echo "There are ${service_filelist_count} files and directories in the /objects/service directory"
 
-rm ${targetDirectory}/objects/access/Thumbs.db
+rm ${targetDirectory}/objects/access/*mbs.db
 access_filelist_count=(`ls ${targetDirectory}/objects/access/ | wc -l`)
 echo "There are ${access_filelist_count} files and directories in the /objects/access directory"
