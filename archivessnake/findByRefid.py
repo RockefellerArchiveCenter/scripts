@@ -22,19 +22,36 @@ def getAoTitle(ao):
         ancestor = client.get(ancestor_url).json()
         return ancestor["title"]
 
+def findDate(date):
+    if len(date) >= 4:
+        if date[-4:].isdigit():
+            year=date[-4:]
+            return year
+        else:
+            print(date)
+            x=-5
+            y=-1
+            for r in range(len(date)):
+                x += -1
+                y += -1
+                if date[x:y].isdigit() and int(date[x:y]) >= 1850 and int(date[x:y]) <= 2020:
+                    year=date[x:y]
+                    print(year)
+                    return year
+                    break
+
 def getAoDates(ao):
     if ao.get("dates"):
         # check for structured date field, return date as YYYY-YYYY
         if ao.get("dates")[0].get("begin"):
-            return ao.get("dates")[0].get("begin", "") + "-" + ao.get("dates")[0].get("end", ao.get("dates")[0].get("begin", ""))
+            return findDate(ao.get("dates")[0].get("end", ao.get("dates")[0].get("begin", "")))#ao.get("dates")[0].get("begin", "") + "-" + ao.get("dates")[0].get("end", ao.get("dates")[0].get("begin", ""))
         # if there's no structured date, get date expression
         else:
-            if ao.get("dates")[0].get("expression") == "n.d." or ao.get("dates")[0].get("expression") == "undated" or ao.get("dates")[0].get("expression") == "Undated":
-                return ""
-            elif len(ao.get("dates")[0].get("expression")) == 4:
-                return ao.get("dates")[0].get("expression") + "-" + ao.get("dates")[0].get("expression")
-            else:
-                return ao.get("dates")[0].get("expression")
+            if ao.get("dates")[0].get("expression") != "n.d." and ao.get("dates")[0].get("expression") != "undated" and ao.get("dates")[0].get("expression") != "Undated":
+                if len(ao.get("dates")[0].get("expression")) == 4:
+                    return ao.get("dates")[0].get("expression")
+                else:
+                    return findDate(ao.get("dates")[0].get("expression"))
     elif getAncestor(ao):
         # if the component does not have have dates, go to its ancestor archival object(s) and look for dates
         for a in ao.get("ancestors"):
@@ -42,15 +59,15 @@ def getAoDates(ao):
             ancestor = client.get(ancestor_url).json()
             if ancestor.get("jsonmodel_type") == "archival_object" and ancestor.get("dates"):
                 if ancestor.get("dates")[0].get("begin"):
-                    return ancestor.get("dates")[0].get("begin", "") + "-" + ancestor.get("dates")[0].get("end", ancestor.get("dates")[0].get("begin", ""))
+                    return findDate(ancestor.get("dates")[0].get("end", ancestor.get("dates")[0].get("begin", "")))
                 # if there's no structured date, get date expression
                 else:
                     if ancestor.get("dates")[0].get("expression") == "n.d." or ancestor.get("dates")[0].get("expression") == "undated" or ancestor.get("dates")[0].get("expression") == "Undated":
                         return ""
                     elif len(ancestor.get("dates")[0].get("expression")) == 4:
-                        return ao.get("dates")[0].get("expression") + "-" + ancestor.get("dates")[0].get("expression")
-                    else:
                         return ancestor.get("dates")[0].get("expression")
+                    else:
+                        return findDate(ancestor.get("dates")[0].get("expression"))
                         
 def getAoLevel(ao):
     # get level of description
