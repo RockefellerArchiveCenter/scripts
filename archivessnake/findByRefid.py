@@ -43,7 +43,7 @@ def findDate(date):
                 
 
 def checkUndated(ao):
-    if ao.get("dates")[0].get("expression") != "n.d." and ao.get("dates")[0].get("expression") != "undated" and ao.get("dates")[0].get("expression") != "Undated":
+    if ao.get("dates")[0].get("expression") not in ["n.d.", "undated", "Undated"]:
         return True
     else:
         return False
