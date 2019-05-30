@@ -52,7 +52,7 @@ def getAoDates(ao):
     if ao.get("dates"):
         # check for structured date field, return date as YYYY-YYYY
         if ao.get("dates")[0].get("begin"):
-            return findDate(ao.get("dates")[0].get("end", ao.get("dates")[0].get("begin", "")))#ao.get("dates")[0].get("begin", "") + "-" + ao.get("dates")[0].get("end", ao.get("dates")[0].get("begin", ""))
+            return findDate(ao.get("dates")[0].get("end", ao.get("dates")[0].get("begin", "")))
         # if there's no structured date, get date expression
         else:
             if checkUndated(ao):
@@ -63,8 +63,7 @@ def getAoDates(ao):
     elif getAncestor(ao):
         # if the component does not have have dates, go to its ancestor archival object(s) and look for dates
         for a in ao.get("ancestors"):
-            ancestor_url = a.get("ref")
-            ancestor = client.get(ancestor_url).json()
+            ancestor = client.get(a.get("ref")).json()
             if ancestor.get("jsonmodel_type") == "archival_object" and ancestor.get("dates"):
                 if ancestor.get("dates")[0].get("begin"):
                     return findDate(ancestor.get("dates")[0].get("end", ancestor.get("dates")[0].get("begin", "")))
