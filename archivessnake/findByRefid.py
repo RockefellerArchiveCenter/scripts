@@ -40,6 +40,12 @@ def findDate(date):
                     return year
                     break
 
+def checkUndated(ao):
+    if ao.get("dates")[0].get("expression") != "n.d." and ao.get("dates")[0].get("expression") != "undated" and ao.get("dates")[0].get("expression") != "Undated":
+        return True
+    else:
+        return False
+
 def getAoDates(ao):
     if ao.get("dates"):
         # check for structured date field, return date as YYYY-YYYY
@@ -47,7 +53,7 @@ def getAoDates(ao):
             return findDate(ao.get("dates")[0].get("end", ao.get("dates")[0].get("begin", "")))#ao.get("dates")[0].get("begin", "") + "-" + ao.get("dates")[0].get("end", ao.get("dates")[0].get("begin", ""))
         # if there's no structured date, get date expression
         else:
-            if ao.get("dates")[0].get("expression") != "n.d." and ao.get("dates")[0].get("expression") != "undated" and ao.get("dates")[0].get("expression") != "Undated":
+            if checkUndated(ao):
                 if len(ao.get("dates")[0].get("expression")) == 4:
                     return ao.get("dates")[0].get("expression")
                 else:
@@ -62,7 +68,7 @@ def getAoDates(ao):
                     return findDate(ancestor.get("dates")[0].get("end", ancestor.get("dates")[0].get("begin", "")))
                 # if there's no structured date, get date expression
                 else:
-                    if ancestor.get("dates")[0].get("expression") == "n.d." or ancestor.get("dates")[0].get("expression") == "undated" or ancestor.get("dates")[0].get("expression") == "Undated":
+                    if checkUndated(ancestor):
                         return ""
                     elif len(ancestor.get("dates")[0].get("expression")) == 4:
                         return ancestor.get("dates")[0].get("expression")
