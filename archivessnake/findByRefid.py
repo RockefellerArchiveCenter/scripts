@@ -100,17 +100,8 @@ def getAoNotes(ao):
     if ao.get("notes"):
         noteList = []
         for n in ao.get("notes"):
-            if n.get("type") == "bioghist":
+            if n.get("type") in ["bioghist", "scopecontent", "relatedmaterial", "separatedmaterial", "phystech"]:
                 noteList.append(n.get("subnotes")[0].get("content").replace('\n', ' '))
-            elif n.get("type") == "scopecontent":
-                noteList.append(n.get("subnotes")[0].get("content").replace('\n', ' '))
-            elif n.get("type") == "relatedmaterial":
-                noteList.append(n.get("subnotes")[0].get("content").replace('\n', ' '))
-            elif n.get("type") == "separatedmaterial":
-                noteList.append(n.get("subnotes")[0].get("content").replace('\n', ' '))
-            elif n.get("type") == "phystech":
-                noteList.append(n.get("subnotes")[0].get("content").replace('\n', ' '))
-        #noteList.sort()
         return " | ".join(noteList)
     else:
         return ""
@@ -129,11 +120,14 @@ def getAncestor(ao):
         # if archival object does not have a title, start one ancestor up, then iterate through ancestors, return first ancestor that is not a resource
         ancestor_url = ao.get("ancestors")[0].get("ref")
         ao = client.get(ancestor_url).json()
-        for a in ao.get("ancestors"):
-            ancestor_url = a.get("ref")
-            ancestor = client.get(ancestor_url).json()
-            if ancestor.get("jsonmodel_type") == "archival_object":
-                return(ancestor)
+        if ao.get("ancestors"):
+            for a in ao.get("ancestors"):
+                ancestor_url = a.get("ref")
+                ancestor = client.get(ancestor_url).json()
+                if ancestor.get("jsonmodel_type") == "archival_object":
+                    return(ancestor)
+        else:
+            ao.get("display_title")
 
 def getResource(ao):
     return client.get(ao["resource"]["ref"]).json()
