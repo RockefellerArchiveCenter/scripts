@@ -43,7 +43,7 @@ def findDate(date):
                 
 
 def checkUndated(ao):
-    if ao.get("dates")[0].get("expression") not in ["n.d.", "undated", "Undated"]:
+    if ao.get("dates")[0].get("expression") != "n.d." and ao.get("dates")[0].get("expression") != "undated" and ao.get("dates")[0].get("expression") != "Undated":
         return True
     else:
         return False
@@ -115,21 +115,6 @@ def getAoNotes(ao):
     else:
         return ""
 
-def getCreator(ao):
-    # check whether there are agents linked to the resource or object
-    if ao.get("linked_agents"):
-        # create list to add each creator to
-        creatorList = []
-        # iterate through linked agents, check that their relationship to the record is as "creator" (not "subject")
-        for la in ao["linked_agents"]:
-            if la["role"] == "creator":
-                # add each cretor to the creator list
-                creator = client.get(la["ref"]).json()
-                creatorList.append(creator.get("title"))
-        # return creator list in pretty formatting
-        return "; ".join(creatorList)
-    else:
-        return ""
 
 def getAncestor(ao):
 #    print("number of ancestors: " + str(len(ao["ancestors"])))
