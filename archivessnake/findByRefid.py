@@ -32,13 +32,15 @@ def findDate(date):
             x=-5
             y=-1
             for r in range(len(date)):
-                x += -1
-                y += -1
                 if date[x:y].isdigit() and int(date[x:y]) >= 1850 and int(date[x:y]) <= 2020:
                     year=date[x:y]
                     print(year)
                     return year
                     break
+                else:
+                    x += -1
+                    y += -1
+                
 
 def checkUndated(ao):
     if ao.get("dates")[0].get("expression") != "n.d." and ao.get("dates")[0].get("expression") != "undated" and ao.get("dates")[0].get("expression") != "Undated":
@@ -66,14 +68,15 @@ def getAoDates(ao):
             if ancestor.get("jsonmodel_type") == "archival_object" and ancestor.get("dates"):
                 if ancestor.get("dates")[0].get("begin"):
                     return findDate(ancestor.get("dates")[0].get("end", ancestor.get("dates")[0].get("begin", "")))
+                    break
                 # if there's no structured date, get date expression
                 else:
                     if checkUndated(ancestor):
-                        return ""
-                    elif len(ancestor.get("dates")[0].get("expression")) == 4:
-                        return ancestor.get("dates")[0].get("expression")
-                    else:
-                        return findDate(ancestor.get("dates")[0].get("expression"))
+                        if len(ancestor.get("dates")[0].get("expression")) == 4:
+                            return ancestor.get("dates")[0].get("expression")
+                            break
+                        else:
+                            return findDate(ancestor.get("dates")[0].get("expression"))
                         
 def getAoLevel(ao):
     # get level of description
