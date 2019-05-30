@@ -155,7 +155,8 @@ def makeRow(ao,refid):
         row.append("")
 #        row.append("")
     resource = getResource(ao)
-    row.append(resource["title"])
+    row.append(resource["title"].split(', ')[0])
+    row.append(resource["title"].strip(resource["title"].split(', ')[0] + ", "))
     row.append(resource["id_0"])
     row.append(getAoDates(resource))
 #    row.append(getCreator(resource))
@@ -188,7 +189,7 @@ client.authorize()
 # create spreadsheet
 spreadsheet = open("findOnDemand.csv", "w")
 writer = csv.writer(spreadsheet)
-columnHeadings = ["RefId", "Title", "Component Dates", "Component Access Restricton", "Component Notes", "Ancestor", "Ancestor Access Restriction", "Ancestor Notes", "Parent Resource", "Resource ID", "Resource Dates", "Resource Access Restriction", "Resource Use Restriction"]
+columnHeadings = ["RefId", "Title", "Component Dates", "Component Access Restricton", "Component Notes", "Ancestor", "Ancestor Access Restriction", "Ancestor Notes", "Parent Collection", "Finding Aid Title", "Resource ID", "Resource Dates", "Resource Access Restriction", "Resource Use Restriction"]
 writer.writerow(columnHeadings)
 
 fileList = open("refids.txt").readlines()
