@@ -22,35 +22,60 @@ def getAoTitle(ao):
         ancestor = client.get(ancestor_url).json()
         return ancestor["title"]
 
+def findDate(date):
+    if len(date) >= 4:
+        if date[-4:].isdigit() and int(date[-4:]) >= 1850 and int(date[-4:]) <= 2020:
+            year=date[-4:]
+            return year
+        else:
+            print(date)
+            x=-5
+            y=-1
+            for r in range(len(date)):
+                if date[x:y].isdigit() and int(date[x:y]) >= 1850 and int(date[x:y]) <= 2020:
+                    year=date[x:y]
+                    print(year)
+                    return year
+                    break
+                else:
+                    x += -1
+                    y += -1
+                
+
+def checkUndated(ao):
+    if ao.get("dates")[0].get("expression") not in ["n.d.", "undated", "Undated"]:
+        return True
+    else:
+        return False
+
 def getAoDates(ao):
     if ao.get("dates"):
         # check for structured date field, return date as YYYY-YYYY
         if ao.get("dates")[0].get("begin"):
-            return ao.get("dates")[0].get("begin", "") + "-" + ao.get("dates")[0].get("end", ao.get("dates")[0].get("begin", ""))
+            return findDate(ao.get("dates")[0].get("end", ao.get("dates")[0].get("begin", "")))
         # if there's no structured date, get date expression
         else:
-            if ao.get("dates")[0].get("expression") == "n.d." or ao.get("dates")[0].get("expression") == "undated" or ao.get("dates")[0].get("expression") == "Undated":
-                return ""
-            elif len(ao.get("dates")[0].get("expression")) == 4:
-                return ao.get("dates")[0].get("expression") + "-" + ao.get("dates")[0].get("expression")
-            else:
-                return ao.get("dates")[0].get("expression")
+            if checkUndated(ao):
+                if len(ao.get("dates")[0].get("expression")) == 4:
+                    return ao.get("dates")[0].get("expression")
+                else:
+                    return findDate(ao.get("dates")[0].get("expression"))
     elif getAncestor(ao):
         # if the component does not have have dates, go to its ancestor archival object(s) and look for dates
         for a in ao.get("ancestors"):
-            ancestor_url = a.get("ref")
-            ancestor = client.get(ancestor_url).json()
+            ancestor = client.get(a.get("ref")).json()
             if ancestor.get("jsonmodel_type") == "archival_object" and ancestor.get("dates"):
                 if ancestor.get("dates")[0].get("begin"):
-                    return ancestor.get("dates")[0].get("begin", "") + "-" + ancestor.get("dates")[0].get("end", ancestor.get("dates")[0].get("begin", ""))
+                    return findDate(ancestor.get("dates")[0].get("end", ancestor.get("dates")[0].get("begin", "")))
+                    break
                 # if there's no structured date, get date expression
                 else:
-                    if ancestor.get("dates")[0].get("expression") == "n.d." or ancestor.get("dates")[0].get("expression") == "undated" or ancestor.get("dates")[0].get("expression") == "Undated":
-                        return ""
-                    elif len(ancestor.get("dates")[0].get("expression")) == 4:
-                        return ao.get("dates")[0].get("expression") + "-" + ancestor.get("dates")[0].get("expression")
-                    else:
-                        return ancestor.get("dates")[0].get("expression")
+                    if checkUndated(ancestor):
+                        if len(ancestor.get("dates")[0].get("expression")) == 4:
+                            return ancestor.get("dates")[0].get("expression")
+                            break
+                        else:
+                            return findDate(ancestor.get("dates")[0].get("expression"))
                         
 def getAoLevel(ao):
     # get level of description
@@ -75,36 +100,12 @@ def getAoNotes(ao):
     if ao.get("notes"):
         noteList = []
         for n in ao.get("notes"):
-            if n.get("type") == "bioghist":
+            if n.get("type") in ["bioghist", "scopecontent", "relatedmaterial", "separatedmaterial", "phystech"]:
                 noteList.append(n.get("subnotes")[0].get("content").replace('\n', ' '))
-            elif n.get("type") == "scopecontent":
-                noteList.append(n.get("subnotes")[0].get("content").replace('\n', ' '))
-            elif n.get("type") == "relatedmaterial":
-                noteList.append(n.get("subnotes")[0].get("content").replace('\n', ' '))
-            elif n.get("type") == "separatedmaterial":
-                noteList.append(n.get("subnotes")[0].get("content").replace('\n', ' '))
-            elif n.get("type") == "phystech":
-                noteList.append(n.get("subnotes")[0].get("content").replace('\n', ' '))
-        #noteList.sort()
         return " | ".join(noteList)
     else:
         return ""
 
-def getCreator(ao):
-    # check whether there are agents linked to the resource or object
-    if ao.get("linked_agents"):
-        # create list to add each creator to
-        creatorList = []
-        # iterate through linked agents, check that their relationship to the record is as "creator" (not "subject")
-        for la in ao["linked_agents"]:
-            if la["role"] == "creator":
-                # add each cretor to the creator list
-                creator = client.get(la["ref"]).json()
-                creatorList.append(creator.get("title"))
-        # return creator list in pretty formatting
-        return "; ".join(creatorList)
-    else:
-        return ""
 
 def getAncestor(ao):
 #    print("number of ancestors: " + str(len(ao["ancestors"])))
@@ -119,11 +120,14 @@ def getAncestor(ao):
         # if archival object does not have a title, start one ancestor up, then iterate through ancestors, return first ancestor that is not a resource
         ancestor_url = ao.get("ancestors")[0].get("ref")
         ao = client.get(ancestor_url).json()
-        for a in ao.get("ancestors"):
-            ancestor_url = a.get("ref")
-            ancestor = client.get(ancestor_url).json()
-            if ancestor.get("jsonmodel_type") == "archival_object":
-                return(ancestor)
+        if ao.get("ancestors"):
+            for a in ao.get("ancestors"):
+                ancestor_url = a.get("ref")
+                ancestor = client.get(ancestor_url).json()
+                if ancestor.get("jsonmodel_type") == "archival_object":
+                    return(ancestor)
+        else:
+            ao.get("display_title")
 
 def getResource(ao):
     return client.get(ao["resource"]["ref"]).json()
@@ -133,41 +137,36 @@ def makeRow(ao,refid):
     row.append(refid)
     row.append(getAoTitle(ao).replace('\n', ' '))
     row.append(getAoDates(ao))
-#    row.append(getAoLevel(ao))
     row.append(getAccessRestriction(ao))
     row.append(getAoNotes(ao))
-#    row.append(getUseRestriction(ao))
     if getAncestor(ao):
         ancestor = getAncestor(ao)
         row.append(getAoTitle(ancestor).replace('\n', ' ') + " (" + getAoLevel(ancestor) + ")")
-#        row.append(getAoDates(ancestor))
         row.append(getAccessRestriction(ancestor))
         row.append(getAoNotes(ancestor))
-#        row.append(getUseRestriction(ancestor))
     else:
         row.append("")
-#        row.append("")
         row.append("")
         row.append("")
-#        row.append("")
     resource = getResource(ao)
-    row.append(resource["title"])
+    row.append(resource["title"].split(', ')[0])
+    row.append(resource["title"].strip(resource["title"].split(', ')[0] + ", "))
     row.append(resource["id_0"])
     row.append(getAoDates(resource))
-#    row.append(getCreator(resource))
     row.append(getAccessRestriction(resource))
     row.append(getUseRestriction(resource))
     writer.writerow(row)
-    print()
 
 def makeSpreadsheet(filelist):
     total = len(filelist)
+    print('Starting - ' + str(total) + ' total rows')
     count = 0
     for f in filelist:
-        f = f.replace('\n', '')
+        f = f.replace('\n', '') # account for new line in text file
         count += 1
         makeRow(getAo(f),f)
-        print('Row added! - ' + str(count) + "/" + str(total))
+        if not count % 25:
+            print(str(count) + ' rows added')
 
 # enter aspace login info
 config = configparser.ConfigParser()
@@ -184,7 +183,7 @@ client.authorize()
 # create spreadsheet
 spreadsheet = open("findOnDemand.csv", "w")
 writer = csv.writer(spreadsheet)
-columnHeadings = ["RefId", "Title", "Component Dates", "Component Access Restricton", "Component Notes", "Ancestor", "Ancestor Access Restriction", "Ancestor Notes", "Parent Resource", "Resource ID", "Resource Dates", "Resource Access Restriction", "Resource Use Restriction"]
+columnHeadings = ["RefId", "Title", "Component Dates", "Component Access Restricton", "Component Notes", "Ancestor", "Ancestor Access Restriction", "Ancestor Notes", "Parent Collection", "Finding Aid Title", "Resource ID", "Resource Dates", "Resource Access Restriction", "Resource Use Restriction"]
 writer.writerow(columnHeadings)
 
 fileList = open("refids.txt").readlines()
