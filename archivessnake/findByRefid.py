@@ -24,7 +24,7 @@ def getAoTitle(ao):
 
 def findDate(date):
     if len(date) >= 4:
-        if date[-4:].isdigit():
+        if date[-4:].isdigit() and int(date[-4:]) >= 1850 and int(date[-4:]) <= 2020:
             year=date[-4:]
             return year
         else:
@@ -156,16 +156,17 @@ def makeRow(ao,refid):
     row.append(getAccessRestriction(resource))
     row.append(getUseRestriction(resource))
     writer.writerow(row)
-    print()
 
 def makeSpreadsheet(filelist):
     total = len(filelist)
+    print('Starting - ' + str(total) + ' total rows')
     count = 0
     for f in filelist:
-        f = f.replace('\n', '')
+        f = f.replace('\n', '') # account for new line in text file
         count += 1
         makeRow(getAo(f),f)
-        print('Row added! - ' + str(count) + "/" + str(total))
+        if not count % 25:
+            print(str(count) + ' rows added')
 
 # enter aspace login info
 config = configparser.ConfigParser()
