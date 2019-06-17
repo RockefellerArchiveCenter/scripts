@@ -53,4 +53,4 @@ This script takes an input of a textfile (`refids.txt`) where each line is an Ar
 
 ## archival_objects_by_collection
 
-Exports information about all archival objects in a resource tree to a CSV file.
+Exports information about all archival objects in a resource tree to a CSV file. Has one required argument, which is the ArchivesSpace identifier for the resource record whose tree will be walked. 
