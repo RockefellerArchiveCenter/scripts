@@ -33,10 +33,16 @@ class DataFetcher:
                 writer.writerow(data)
 
     def get_object_data(self, obj):
-        return [obj.uri, obj.resource.title, obj.ancestors[0].title, obj.title,
+        return [obj.uri, obj.resource.title, obj.ancestors[0].title, self.get_title(obj),
                 self.get_dates(obj.dates), self.get_instances(obj.instances),
                 self.get_folders(obj.instances), self.get_notes(obj.notes),
                 self.get_location(obj.instances)]
+
+    def get_title(self, data):
+        try:
+            return obj.title
+        except:
+            return obj.display_string
 
     def get_dates(self, dates_array):
         dates = []
