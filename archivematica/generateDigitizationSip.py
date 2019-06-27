@@ -103,4 +103,5 @@ for r in refids:
         copyFiles(accessDirectory, objectsDirectory)
     removeThumbsDb(objectsDirectory)
     removeThumbsDb(accessDirectory)
-    createAspaceCsv(metadataDirectory, r, accessDirectory, objectsDirectory)
+    if args.aspace:
+        createAspaceCsv(metadataDirectory, r, accessDirectory, objectsDirectory)
