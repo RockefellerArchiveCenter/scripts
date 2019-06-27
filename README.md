@@ -1,8 +1,17 @@
 ## Scripts
 This repository contains miscellaneous scripts that we use to help automate our work across multiple different systems. We have broken the repository down into folders for the different systems that each script relates to.
 
+## archivematica
+Scripts for pre-Archivematica ingest processes.
+
 ## archivesspace
 Scripts for automatically exporting EAD and METS from ArchivesSpace through the API.
+
+## archivessnake
+Scripts using ArchivesSnake to export data from ArchivesSpace in a variety of formats.
+
+## ffmpeg
+These scripts use ffmpeg to create clips, gifs, and thumbnails from a video file. 
 
 ## imagemagick
 These scripts create thumbnail derivatives of digital objects, move files from a temporary directory to a web accessible directory, and also can make thumbnail derivatives in place at the web accessible directory.
@@ -27,7 +36,7 @@ Please contribute! If you find an error or a better way to do this work, please 
 
 ## Authors
 
-Patrick Galligan & Hillel Arnold
+Patrick Galligan, Hillel Arnold, & Bonnie Gordon
 
 ## License
 
