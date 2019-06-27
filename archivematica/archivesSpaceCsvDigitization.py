@@ -14,9 +14,9 @@ def makeRow(filename,refid):
 # input refid
 refid = raw_input('Enter the ArchivesSpace refid: ')
 
-access_directory = 'archivematica_sip_' + refid + '/objects/access/'
+access_directory = 'sip_' + refid + '/objects/access/'
 
-metadata_directory = 'archivematica_sip_' + refid + '/metadata/'
+metadata_directory = 'sip_' + refid + '/metadata/'
 
 filenames = os.listdir(access_directory)
 print(filenames)
