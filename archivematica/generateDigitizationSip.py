@@ -85,7 +85,7 @@ args = parser.parse_args()
 
 refids = open(args.refids).readlines()
 for r in refids:
-    r = r.replace('\n', '')
+    r = r.strip()
     print("Starting " + r + "...")
     sourceMaster = os.path.join(args.source_directory, r, "master")
     sourceAccess = os.path.join(args.source_directory, r, "service_edited")
