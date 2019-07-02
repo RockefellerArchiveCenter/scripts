@@ -36,7 +36,15 @@ Example with both optional flags:
 This script takes an ArchivesSpace refid and, if there is already an Archivematica-packaged transfer for digitized documents, creates an archivesspaceids.csv file for the DIP upload integration.
 
 ## premisCsvDigitization.py
-This script creates a csv file for Archivematica's PREMIS rights csv feature. For each file, the script creates a row with a Copyright rights basis (and an associated act) and a row with a Donor rights basis (and an associated act).
+This script creates a csv file for Archivematica's PREMIS rights csv feature. For each file, the script creates a row with a Copyright rights basis (and an associated act) and a row with a Donor or Policy rights basis (and an associated act). The script requires the following arguments:
+
+```
+positional arguments:
+  sip_directory         Path to the directory where each SIP is a subdirectory
+  refids                Filepath to text file with refids and dates, separated by a tab and one per line.
+  {copyrighted,publicdomain,unknown}
+  {donor,policy}
+```
 
 
 ## startTransfer.py

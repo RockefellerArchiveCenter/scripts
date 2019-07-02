@@ -3,72 +3,15 @@
 # creates a CSV file containing PREMIS rights information to include in the /metadata directory of an Archivematica transfer
 # script assumes that each file will have a Copyright Rights Basis and a Donor Rights Basis, and each Basis will have one associated Act
 
-import os, csv, datetime
-
-# get refid/find transfer directory - expects directory name to follow the convention archivematica_sip_<archivesspace refid>
-refid = raw_input('Enter the ArchivesSpace refid: ')
-objects_directory = 'archivematica_sip_' + refid + '/objects/'
-metadata_directory = 'archivematica_sip_' + refid + '/metadata/'
-filenames = os.listdir(objects_directory)
-print(filenames)
-
-# GET COPYRIGHT BASIS INFO
-
-# copyright status
-def getCopyrightStatus():
-    copyright_status_input = raw_input('Copyrighted? (y/n/u): ')
-    if copyright_status_input.lower() == 'y' or copyright_status_input.lower() == 'yes':
-        copyright_status = 'copyrighted'
-    elif copyright_status_input.lower() == 'n' or copyright_status_input.lower() == 'no':
-        copyright_status = 'publicdomain'
-    elif copyright_status_input.lower() == 'u' or copyright_status_input.lower() == 'unknown':
-        copyright_status = 'unknown'
-    else:
-        copyright_status = '???'
-    return copyright_status
-
-#copyright determination date
-def getCopyrightDeterminationDate():
-    now = datetime.datetime.now()
-    copyright_determination = now.strftime("%Y-%m-%d")
-    return copyright_determination
-
-# copyright applicable start date
-def getCopyrightStartDate():
-    global copyright_start_year
-    copyright_start_year = raw_input("Copyright start year (YYYY): ")
-    copyright_start_month = raw_input("Copyright start month (MM): ")
-    copyright_start_day = raw_input("Copyright start day (DD): ")
-    copyright_start_date = copyright_start_year + "-" + copyright_start_month + "-" + copyright_start_day
-    return copyright_start_date
+import csv, argparse
+from datetime import datetime
+from os import path, listdir
 
 # copyright applicable end date
-def getCopyrightEndDate():
-    copyright_term = raw_input("Copyright term length (years): ")
-    copyright_end_year = int(copyright_start_year) + int(copyright_term)
-    copyright_end_year = int(copyright_start_year) + 120
-    copyright_end_date = str(copyright_end_year) + "-01-01"
-    return copyright_end_date
-
-# GET DONOR BASIS INFO
-
-
-# ACT INFO
-# get permission/restriction on the act
-def getRestriction():
-    restriction_input = raw_input("allow, conditional, or disallow (a,c,d)")
-    if restriction_input.lower() == 'a' or restriction_input.lower() == 'allow':
-        restriction = 'allow'
-    elif restriction_input.lower() == 'c' or restriction_input.lower() == 'conditional':
-        restriction = 'conditional'
-    elif restriction_input.lower() == 'd' or restriction_input.lower() == 'disallow':
-        restriction = 'disallow'
-    else:
-        print("invalid")
-    return restriction
-
-
-# columns: file, basis, status, determination_date, jurisdiction, start_date, end_date, terms, citation, note, grant_act, grant_restriction, grant_start_date, grant_end_date, grant_note, doc_id_type, doc_id_value, doc_id_role
+def getCopyrightEndDate(copyrightStartYear, copyrightTerm):
+    copyrightEndYear = int(copyrightStartYear) + int(copyrightTerm)
+    copyrightEndDate = str(copyrightEndYear) + "-12-31"
+    return copyrightEndDate
 
 def makeRow(filename,basis,status,determination_date,jurisdiction,start_date,end_date,note,grant_act,grant_restriction,grant_start_date,grant_end_date,grant_note):
     row = []
@@ -79,66 +22,60 @@ def makeRow(filename,basis,status,determination_date,jurisdiction,start_date,end
     row.append(jurisdiction)
     row.append(start_date)
     row.append(end_date)
-    row.append('') #terms - for license basis
-    row.append('') #citation - for statute basis
+    row.extend([''] * 2) #terms - for license basis #citation - for statute basis
     row.append(note)
     row.append(grant_act)
     row.append(grant_restriction)
     row.append(grant_start_date)
     row.append(grant_end_date)
     row.append(grant_note)
-    row.append('') #doc_id_type
-    row.append('') #doc_id_value
-    row.append('')  #doc_id_role
-    writer.writerow(row)
+    row.extend([''] * 3) #doc_id_type #doc_id_value #doc_id_role
+    return row
 
-def makeCopyrightRow(filename):
-    filename = "objects/" + filename
-    basis = 'copyright'
-    status = getCopyrightStatus()
-    determination_date = getCopyrightDeterminationDate()
-    jurisdiction = 'us'
-    start_date = getCopyrightStartDate()
-    end_date =  getCopyrightEndDate()
-    note = 'This Item is protected by copyright and/or related rights.'
-    grant_act = 'publish'
-    print(grant_act)
-    grant_restriction = getRestriction()
-    grant_start_date = '2018-06-01'
-    grant_end_date = 'open'
-    grant_note = ''
-    makeRow(filename,basis,status,determination_date,jurisdiction,start_date,end_date,note,grant_act,grant_restriction,grant_start_date,grant_end_date,grant_note)
+def makeCopyrightRow(filename, status, copyrightStartYear, copyrightTerm):
+    determination_date = datetime.now().strftime("%Y-%m-%d")
+    start_date = copyrightStartYear + "-01-01"
+    end_date =  getCopyrightEndDate(copyrightStartYear, copyrightTerm)
+    note = 'Copyright term' + copyrightTerm + ' years from date of creation.'
+    return makeRow(filename,'copyright',status,determination_date,'us',start_date,end_date,note,'publish','allow','2019-01-01','open','')
 
 
-def makeDonorRow(filename):
-    filename = "objects/" + filename
-    basis = 'donor'
-    status = '' # not applicable to donor rights basis
-    determination_date = '' # not applicable to donor rights basis
-    jurisdiction = '' # not applicable to donor rights basis
+def makeOtherRow(filename, basis):
     start_date = '1975-01-01'
-    end_date = 'open'
-    note = 'donor agreement note'
-    grant_act = 'disseminate'
-    print(grant_act)
-    grant_restriction = getRestriction()
-    grant_start_date = '2018-06-01'
-    grant_end_date = 'open'
-    grant_note = '???'
-    makeRow(filename,basis,status,determination_date,jurisdiction,start_date,end_date,note,grant_act,grant_restriction,grant_start_date,grant_end_date,grant_note)
+    note = 'Open for research.'
+    return makeRow(filename,basis,'','','',start_date,'open',note,'disseminate','allow','2019-01-01','open','')
 
-print('Creating a csv')
-#os.chdir(metadata_directory)
-spreadsheet = 'rights.csv'
-writer = csv.writer(open(spreadsheet, 'w'))
-column_headings = ["file","basis","status","determination_date","jurisdiction","start_date","end_date","terms","citation","note","grant_act","grant_restriction","grant_start_date","grant_end_date","grant_note","doc_id_type","doc_id_value","doc_id_role"]
-print(column_headings)
-writer.writerow(column_headings)
-#for each file, write copyright and donor rows
-for f in filenames:
-    if f == 'access' or f == 'service':
-        print("skipping directory")
-    else:
-        makeCopyrightRow(f)
-        makeDonorRow(f)
-print('Done!')
+def makeSpreadsheet(filepath, refid, status, year, basis):
+    sipDirectory = path.join(filepath, "sip_" + refid)
+    metadataDirectory = path.join(sipDirectory, "metadata")
+    objectsDirectory = path.join(sipDirectory, "objects")
+    filenames = listdir(objectsDirectory)
+    spreadsheet = path.join(metadataDirectory, 'rights.csv')
+    writer = csv.writer(open(spreadsheet, 'w'))
+    column_headings = ["file","basis","status","determination_date","jurisdiction","start_date","end_date","terms","citation","note","grant_act","grant_restriction","grant_start_date","grant_end_date","grant_note","doc_id_type","doc_id_value","doc_id_role"]
+    writer.writerow(column_headings)
+    #for each file, write copyright and donor rows
+    for f in filenames:
+        if f not in ['access', 'service', '.DS_Store']:
+            filename = "objects/" + f
+            writer.writerow(makeCopyrightRow(filename, status, year, "120"))
+            writer.writerow(makeOtherRow(filename, basis))
+    print('Done!')
+
+parser = argparse.ArgumentParser(description="Creates a csv file for Archivematica's PREMIS rights csv feature")
+parser.add_argument('sip_directory', help='Path to the directory where each SIP is a subdirectory')
+parser.add_argument('refids', help='Filepath to text file with refids and dates, separated by a tab and one per line.')
+parser.add_argument('status', choices=['copyrighted', 'publicdomain', 'unknown'])
+parser.add_argument('basis', choices=['donor', 'policy'])
+args = parser.parse_args()
+
+refids = {}
+listOfRefids = open(args.refids).readlines()
+for l in listOfRefids:
+    key, value = l.strip().split('\t')
+    refids.update({key : value})
+    
+for r, y in refids.items():
+    makeSpreadsheet(args.sip_directory, r, args.basis, y, args.basis)
+
+
