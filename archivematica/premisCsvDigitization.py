@@ -36,7 +36,7 @@ def makeCopyrightRow(filename, status, copyrightStartYear, copyrightTerm):
     determination_date = datetime.now().strftime("%Y-%m-%d")
     start_date = copyrightStartYear + "-01-01"
     end_date =  getCopyrightEndDate(copyrightStartYear, copyrightTerm)
-    note = 'Copyright term' + copyrightTerm + ' years from date of creation.'
+    note = 'Copyright term ' + copyrightTerm + ' years from date of creation.'
     return makeRow(filename,'copyright',status,determination_date,'us',start_date,end_date,note,'publish','allow','2019-01-01','open','')
 
 
@@ -50,16 +50,16 @@ def makeSpreadsheet(filepath, refid, status, year, basis):
     metadataDirectory = path.join(sipDirectory, "metadata")
     objectsDirectory = path.join(sipDirectory, "objects")
     filenames = listdir(objectsDirectory)
-    spreadsheet = path.join(metadataDirectory, 'rights.csv')
-    writer = csv.writer(open(spreadsheet, 'w'))
-    column_headings = ["file","basis","status","determination_date","jurisdiction","start_date","end_date","terms","citation","note","grant_act","grant_restriction","grant_start_date","grant_end_date","grant_note","doc_id_type","doc_id_value","doc_id_role"]
-    writer.writerow(column_headings)
-    #for each file, write copyright and donor rows
-    for f in filenames:
-        if f not in ['access', 'service', '.DS_Store']:
-            filename = "objects/" + f
-            writer.writerow(makeCopyrightRow(filename, status, year, "120"))
-            writer.writerow(makeOtherRow(filename, basis))
+    with open(path.join(metadataDirectory, 'rights.csv'), 'w') as spreadsheet:
+        writer = csv.writer(spreadsheet)
+        column_headings = ["file","basis","status","determination_date","jurisdiction","start_date","end_date","terms","citation","note","grant_act","grant_restriction","grant_start_date","grant_end_date","grant_note","doc_id_type","doc_id_value","doc_id_role"]
+        writer.writerow(column_headings)
+        #for each file, write copyright and donor rows
+        for f in filenames:
+            if f not in ['access', 'service', '.DS_Store']:
+                filename = "objects/" + f
+                writer.writerow(makeCopyrightRow(filename, status, year, "120"))
+                writer.writerow(makeOtherRow(filename, basis))
     print('Done!')
 
 parser = argparse.ArgumentParser(description="Creates a csv file for Archivematica's PREMIS rights csv feature")
@@ -76,6 +76,6 @@ for l in listOfRefids:
     refids.update({key : value})
     
 for r, y in refids.items():
-    makeSpreadsheet(args.sip_directory, r, args.basis, y, args.basis)
+    makeSpreadsheet(args.sip_directory, r, args.status, y, args.basis)
 
 
