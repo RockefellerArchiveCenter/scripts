@@ -24,15 +24,11 @@ def checkAccessPdf(directory):
 def copyFiles(source, destination):
     print("Copying files from " + source + " to " + destination + "...")
     for f in os.listdir(source):
-        copy2(os.path.join(source, f), destination)
-        if f[-7:-4] in ["_me", "_se"]:
-            newName = f[:-7] + f[-4:]
-            os.replace(os.path.join(destination, f), os.path.join(destination, newName))
-
-def removeThumbsDb(directory):
-    for f in os.listdir(directory):
-        if f[-5:] == "bs.db":
-            os.remove(os.path.join(directory, f))
+        if not f[-5:] == "bs.db":
+            copy2(os.path.join(source, f), destination)
+            if f[-7:-4] in ["_me", "_se"]:
+                newName = f[:-7] + f[-4:]
+                os.replace(os.path.join(destination, f), os.path.join(destination, newName))
 
 def remove1stPagePdf(pdf):
     infile = PdfFileReader(pdf, 'rb')
