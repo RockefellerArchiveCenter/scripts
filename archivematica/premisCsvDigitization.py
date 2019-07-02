@@ -56,7 +56,7 @@ def makeSpreadsheet(filepath, refid, status, year, basis):
         writer.writerow(column_headings)
         #for each file, write copyright and donor rows
         for f in filenames:
-            if f not in ['access', 'service', '.DS_Store']:
+            if f not in ['access', 'service', '.DS_Store', 'Thumbs.db']:
                 filename = "objects/" + f
                 writer.writerow(makeCopyrightRow(filename, status, year, "120"))
                 writer.writerow(makeOtherRow(filename, basis))
