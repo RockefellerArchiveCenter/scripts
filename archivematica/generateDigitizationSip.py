@@ -4,6 +4,7 @@ import os, argparse, re
 from csv import writer
 from shutil import copy2
 from PyPDF2 import PdfFileWriter, PdfFileReader
+from time import time
 
 def makeSipDirectory(topDirectory, refid):
     print("Making SIP directory...")
@@ -81,6 +82,7 @@ args = parser.parse_args()
 
 refids = open(args.refids).readlines()
 for r in refids:
+    start_time = time()
     r = r.strip()
     print("Starting " + r + "...")
     sourceMaster = os.path.join(args.source_directory, r, "master")
@@ -101,3 +103,5 @@ for r in refids:
     removeThumbsDb(accessDirectory)
     if args.aspace:
         createAspaceCsv(metadataDirectory, r, accessDirectory, objectsDirectory)
+    elapsed_time = time() - start_time
+    print(str(int(elapsed_time / 60)) + " minutes, " + str(int(elapsed_time % 60)) + " seconds elapsed")
