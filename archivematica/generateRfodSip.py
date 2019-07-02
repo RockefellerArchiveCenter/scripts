@@ -31,7 +31,7 @@ def copyFiles(source, destination):
                 os.replace(os.path.join(destination, f), os.path.join(destination, newName))
 
                 
-def createAspaceCsv(metadata, refid, access, objects):
+def createAspaceCsv(metadata, access, objects):
     print("Creating archivesspaceids.csv...")
     aspacecsv = os.path.join(metadata, 'archivesspaceids.csv')
     filenames = []
@@ -48,19 +48,19 @@ def createAspaceCsv(metadata, refid, access, objects):
                 writer(csvfile).writerow([f, refid])
 
 parser = argparse.ArgumentParser(description='Copies TIFF and access files (JPGs or PDFs).')
-parser.add_argument('source_directory', help="Path to the diarist's directory.")
+parser.add_argument('source_directory', help='Path to the directory where the original digital objects (grouped in directories by officers) are.')
 parser.add_argument('sip_directory', help='Path to the directory where each SIP should be placed.')
-parser.add_argument('-c', '--citation', help='Option to remove first "page" from each set of files, including concatenated PDFs.', action='store_true')
-parser.add_argument('-a', '--aspace', help='Option to create an archivesspaceids.csv file. Assumes that refid is part of filename.', action='store_true')
+parser.add_argument('officers', help='Filepath to text file with officers (one per line).')
+parser.add_argument('-a', '--aspace', help='Option to create the first column of an archivesspaceids.csv file.', action='store_true')
 args = parser.parse_args()
 
-refids = open(args.refids).readlines()
-for r in refids:
+officers = open(args.officers).readlines()
+for r in officers:
     start_time = time()
     r = r.strip()
     print("Starting " + r + "...")
-    sourceMaster = os.path.join(args.source_directory, r, "master")
-    sourceAccess = os.path.join(args.source_directory, r, "service_edited")
+    sourceMaster = os.path.join(args.source_directory, r, "TIFFs")
+    sourceAccess = os.path.join(args.source_directory, r, "PDFs")
     #  create Archivematica SIP directory and subdirectories
     makeSipDirectory(args.sip_directory, r)
     sipDirectory = os.path.join(args.sip_directory, "sip_" + r)
@@ -69,10 +69,6 @@ for r in refids:
     accessDirectory = os.path.join(objectsDirectory, "access")
     copyFiles(sourceMaster, objectsDirectory)
     copyFiles(sourceAccess, accessDirectory)
-    if args.citation:
-        removeCitationSheet(objectsDirectory, accessDirectory)
-    if checkAccessPdf(accessDirectory):
-        copyFiles(accessDirectory, objectsDirectory)
     removeThumbsDb(objectsDirectory)
     removeThumbsDb(accessDirectory)
     if args.aspace:
