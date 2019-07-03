@@ -5,11 +5,11 @@ from csv import writer
 from shutil import copy2
 from time import time
 
-def makeSipDirectory(topDirectory, refid):
+def makeSipDirectory(topDirectory, officer):
     print("Making SIP directory...")
-    refid = "sip_" + refid
-    os.mkdir(os.path.join(topDirectory, refid))
-    targetDirectory = os.path.join(topDirectory, refid)
+    officer = "sip_" + officer
+    os.mkdir(os.path.join(topDirectory, officer))
+    targetDirectory = os.path.join(topDirectory, officer)
     os.mkdir(os.path.join(targetDirectory, "logs"))
     os.mkdir(os.path.join(targetDirectory, "metadata"))
     os.mkdir(os.path.join(targetDirectory, "objects"))
@@ -45,7 +45,7 @@ def createAspaceCsv(metadata, access, objects):
         for f in filenames:
             if f not in ["access"]:
                 f = "objects/" + f
-                writer(csvfile).writerow([f, refid])
+                writer(csvfile).writerow([f, officer])
 
 parser = argparse.ArgumentParser(description='Copies TIFF and access files (JPGs or PDFs).')
 parser.add_argument('source_directory', help='Path to the directory where the original digital objects (grouped in directories by officers) are.')
@@ -55,10 +55,10 @@ parser.add_argument('-a', '--aspace', help='Option to create the first column of
 args = parser.parse_args()
 
 officers = open(args.officers).readlines()
-for r in officers:
+for o in officers:
     start_time = time()
-    r = r.strip()
-    print("Starting " + r + "...")
+    o = o.strip()
+    print("Starting " + o + "...")
     sourceMaster = os.path.join(args.source_directory, r, "TIFFs")
     sourceAccess = os.path.join(args.source_directory, r, "PDFs")
     #  create Archivematica SIP directory and subdirectories
