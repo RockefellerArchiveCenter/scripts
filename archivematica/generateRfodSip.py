@@ -14,6 +14,7 @@ def makeSipDirectory(topDirectory, officer):
     os.mkdir(os.path.join(targetDirectory, "metadata"))
     os.mkdir(os.path.join(targetDirectory, "objects"))
     objectsDirectory = os.path.join(targetDirectory, "objects")
+    os.mkdir(os.path.join(objectsDirectory, "service"))
     os.mkdir(os.path.join(objectsDirectory, "access"))
 
 def copyFiles(source, destination):
@@ -21,23 +22,16 @@ def copyFiles(source, destination):
     for f in os.listdir(source):
         if not f[-5:] == "bs.db":
             copy2(os.path.join(source, f), destination)
-
+            if f[-7:-4] in ["_me", "_se"]:
+                newName = f[:-7] + f[-4:]
+                os.replace(os.path.join(destination, f), os.path.join(destination, newName))
                 
-def createAspaceCsv(metadata, access, objects):
+def createAspaceCsv(metadata, access):
     print("Creating archivesspaceids.csv...")
     aspacecsv = os.path.join(metadata, 'archivesspaceids.csv')
-    filenames = []
-    if checkAccessPdf(access):
-        for a in os.listdir(access):
-            filenames.append(a)
-    else:
-        for a in os.listdir(objects):
-            filenames.append(a)
     with open(aspacecsv, 'w') as csvfile:
-        for f in filenames:
-            if f not in ["access"]:
-                f = "objects/" + f
-                writer(csvfile).writerow([f])
+        f = "objects/" + access
+        writer(csvfile).writerow([f])
 
 parser = argparse.ArgumentParser(description='Copies TIFF and PDF files.')
 parser.add_argument('source_directory', help='Path to the directory where the original digital objects (grouped in directories by officers) are.')
@@ -48,20 +42,27 @@ args = parser.parse_args()
 
 officers = open(args.officers).readlines()
 for o in officers:
-    start_time = time()
     o = o.strip()
-    print("Starting " + o + "...")
-    sourceMaster = os.path.join(args.source_directory, o, "TIFFs")
-    sourceAccess = os.path.join(args.source_directory, o, "PDFs")
-    #  create Archivematica SIP directory and subdirectories
-    makeSipDirectory(args.sip_directory, o)
-    sipDirectory = os.path.join(args.sip_directory, "sip_" + o)
-    metadataDirectory = os.path.join(sipDirectory, "metadata")
-    objectsDirectory = os.path.join(sipDirectory, "objects")
-    accessDirectory = os.path.join(objectsDirectory, "access")
-    copyFiles(sourceMaster, objectsDirectory)
-    copyFiles(sourceAccess, accessDirectory)
-    if args.aspace:
-        createAspaceCsv(metadataDirectory, ro, accessDirectory, objectsDirectory)
-    elapsed_time = time() - start_time
-    print(str(int(elapsed_time / 60)) + " minutes, " + str(int(elapsed_time % 60)) + " seconds elapsed")
+    officerDirectory = os.path.join(args.source_directory, o)
+    diaries = os.listdir(os.path.join(officerDirectory, "TIFFs", "Master"))
+    for d in diaries:
+        start_time = time()
+        print("Starting " + d + "...")
+        sourceMaster = os.path.join(officerDirectory, "TIFFs", "Master", d)
+        sourceService = os.path.join(officerDirectory, "TIFFs", "Master-Edited", d)
+        accessPdf = os.path.join(officerDirectory, "PDFs", d + ".pdf")
+        #  create Archivematica SIP directory and subdirectories
+        makeSipDirectory(args.sip_directory, d)
+        sipDirectory = os.path.join(args.sip_directory, "sip_" + d)
+        metadataDirectory = os.path.join(sipDirectory, "metadata")
+        objectsDirectory = os.path.join(sipDirectory, "objects")
+        serviceDirectory = os.path.join(objectsDirectory, "service")
+        accessDirectory = os.path.join(objectsDirectory, "access")
+        copyFiles(sourceMaster, objectsDirectory)
+        copyFiles(sourceService, serviceDirectory)
+        copy2(accessPdf, accessDirectory)
+        copy2(accessPdf, objectsDirectory)
+        if args.aspace:
+            createAspaceCsv(metadataDirectory, d + ".pdf")
+        elapsed_time = time() - start_time
+        print(str(int(elapsed_time / 60)) + " minutes, " + str(int(elapsed_time % 60)) + " seconds elapsed")
