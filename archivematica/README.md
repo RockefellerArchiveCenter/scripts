@@ -50,8 +50,7 @@ positional arguments:
 
 This script requires the following arguments:
 ```
-  source_directory  Path to the directory where the original digital objects
-                    (grouped in directories by officers) are.
+  source_directory  Path to the directory where the original digital objects (grouped in directories by officers) are.
   sip_directory     Path to the directory where each SIP should be placed.
   officers          Filepath to text file with officers (one per line).
 ```
@@ -59,7 +58,7 @@ This script requires the following arguments:
 And allows for the following optional arguments:
 
 ```
--a, --aspace      Option to create the first column of an archivesspaceids.csv file.
+  -a, --aspace      Option to create the first column of an archivesspaceids.csv file.
   -p, --premis      Option to create a rights.csv file. Assumes creation year is in filename.
 ```
 ## startTransfer.py
