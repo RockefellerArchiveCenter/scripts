@@ -46,7 +46,21 @@ positional arguments:
   {donor,policy}
 ```
 
+## generateRfodSip.py
 
+This script requires the following arguments:
+```
+  source_directory  Path to the directory where the original digital objects (grouped in directories by officers) are.
+  sip_directory     Path to the directory where each SIP should be placed.
+  officers          Filepath to text file with officers (one per line).
+```
+
+And allows for the following optional arguments:
+
+```
+  -a, --aspace      Option to create the first column of an archivesspaceids.csv file.
+  -p, --premis      Option to create a rights.csv file. Assumes creation year is in filename.
+```
 ## startTransfer.py
 For each directory in a list, start and then approve an Archivematica transfer.
 

@@ -4,6 +4,7 @@ import os, argparse, re
 from csv import writer
 from shutil import copy2
 from PyPDF2 import PdfFileWriter, PdfFileReader
+from time import time
 
 def makeSipDirectory(topDirectory, refid):
     print("Making SIP directory...")
@@ -24,15 +25,11 @@ def checkAccessPdf(directory):
 def copyFiles(source, destination):
     print("Copying files from " + source + " to " + destination + "...")
     for f in os.listdir(source):
-        copy2(os.path.join(source, f), destination)
-        if f[-7:-4] in ["_me", "_se"]:
-            newName = f[:-7] + f[-4:]
-            os.replace(os.path.join(destination, f), os.path.join(destination, newName))
-
-def removeThumbsDb(directory):
-    for f in os.listdir(directory):
-        if f[-5:] == "bs.db":
-            os.remove(os.path.join(directory, f))
+        if not f[-5:] == "bs.db":
+            copy2(os.path.join(source, f), destination)
+            if f[-7:-4] in ["_me", "_se"]:
+                newName = f[:-7] + f[-4:]
+                os.replace(os.path.join(destination, f), os.path.join(destination, newName))
 
 def remove1stPagePdf(pdf):
     infile = PdfFileReader(pdf, 'rb')
@@ -85,6 +82,7 @@ args = parser.parse_args()
 
 refids = open(args.refids).readlines()
 for r in refids:
+    start_time = time()
     r = r.strip()
     print("Starting " + r + "...")
     sourceMaster = os.path.join(args.source_directory, r, "master")
@@ -105,3 +103,5 @@ for r in refids:
     removeThumbsDb(accessDirectory)
     if args.aspace:
         createAspaceCsv(metadataDirectory, r, accessDirectory, objectsDirectory)
+    elapsed_time = time() - start_time
+    print(str(int(elapsed_time / 60)) + " minutes, " + str(int(elapsed_time % 60)) + " seconds elapsed")
