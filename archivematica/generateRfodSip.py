@@ -114,7 +114,7 @@ for o in officers:
     o = o.strip()
     officerDirectory = os.path.join(args.source_directory, o)
     diaries = os.listdir(os.path.join(officerDirectory, "TIFFs", "Master"))
-    print(o + ': ' ', '.join(diaries))
+    print(o + ': ' + ', '.join(diaries))
     for d in diaries:
         if d not in ['.DS_Store', 'Thumbs.db']: 
             start_time = time()
