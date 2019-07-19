@@ -114,28 +114,26 @@ for o in officers:
     o = o.strip()
     officerDirectory = os.path.join(args.source_directory, o)
     diaries = os.listdir(os.path.join(officerDirectory, "TIFFs", "Master"))
-    print(o + ': ' + ', '.join(diaries))
     for d in diaries:
-        if d not in ['.DS_Store', 'Thumbs.db']: 
-            start_time = time()
-            print("Starting " + d + "...")
-            sourceMaster = os.path.join(officerDirectory, "TIFFs", "Master", d)
-            sourceService = os.path.join(officerDirectory, "TIFFs", "Master-Edited", d)
-            accessPdf = os.path.join(officerDirectory, "PDFs", d + ".pdf")
-            #  create Archivematica SIP directory and subdirectories
-            makeSipDirectory(args.sip_directory, d)
-            sipDirectory = os.path.join(args.sip_directory, "sip_" + d)
-            metadataDirectory = os.path.join(sipDirectory, "metadata")
-            objectsDirectory = os.path.join(sipDirectory, "objects")
-            serviceDirectory = os.path.join(objectsDirectory, "service")
-            accessDirectory = os.path.join(objectsDirectory, "access")
-            copyFiles(sourceMaster, objectsDirectory)
-            copyFiles(sourceService, serviceDirectory)
-            copy2(accessPdf, accessDirectory)
-            copy2(accessPdf, objectsDirectory)
-            if args.aspace:
-                createAspaceCsv(metadataDirectory, d + ".pdf")
-            if args.premis:
-                createRightsCsv(objectsDirectory, metadataDirectory, o)
-            elapsed_time = time() - start_time
-            print(str(int(elapsed_time / 60)) + " minutes, " + str(int(elapsed_time % 60)) + " seconds elapsed")
+        start_time = time()
+        print("Starting " + d + "...")
+        sourceMaster = os.path.join(officerDirectory, "TIFFs", "Master", d)
+        sourceService = os.path.join(officerDirectory, "TIFFs", "Master-Edited", d)
+        accessPdf = os.path.join(officerDirectory, "PDFs", d + ".pdf")
+        #  create Archivematica SIP directory and subdirectories
+        makeSipDirectory(args.sip_directory, d)
+        sipDirectory = os.path.join(args.sip_directory, "sip_" + d)
+        metadataDirectory = os.path.join(sipDirectory, "metadata")
+        objectsDirectory = os.path.join(sipDirectory, "objects")
+        serviceDirectory = os.path.join(objectsDirectory, "service")
+        accessDirectory = os.path.join(objectsDirectory, "access")
+        copyFiles(sourceMaster, objectsDirectory)
+        copyFiles(sourceService, serviceDirectory)
+        copy2(accessPdf, accessDirectory)
+        copy2(accessPdf, objectsDirectory)
+        if args.aspace:
+            createAspaceCsv(metadataDirectory, d + ".pdf")
+        if args.premis:
+            createRightsCsv(objectsDirectory, metadataDirectory, o)
+        elapsed_time = time() - start_time
+        print(str(int(elapsed_time / 60)) + " minutes, " + str(int(elapsed_time % 60)) + " seconds elapsed")
