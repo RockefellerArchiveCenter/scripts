@@ -8,12 +8,11 @@ from datetime import datetime
 from os import path
 
 # get dmID/find transfer directory - expects directory name to follow the convention FA/dmID/objects
-findingaid = input('Enter the FA number, include FA: ')
 dmID = input('Enter the digital media id: ')
-objects_directory = path.join(findingaid, dmID, 'objects')
+objects_directory = path.join(dmID, 'objects')
 home_path = "/Users/aberish/Desktop/Disk_Images"
-metadata_directory = path.join(home_path, findingaid, dmID, 'metadata')
-filepath = path.join(findingaid, dmID, 'metadata')
+metadata_directory = path.join(dmID, 'metadata')
+filepath = path.join(dmID, 'metadata')
 os.chdir(objects_directory)
 filenames = sorted(glob.glob('**', recursive=True))
 
@@ -45,7 +44,6 @@ def get_info():
     copyright_term = input('Copyright term length (years): ')
     copyright_end_year = int(copyright_start_year) + int(copyright_term)
     copyright_end_date = str(copyright_end_year) + "-" + str(copyright_start_month) + "-" + str(copyright_start_day)
-    #is the copyright end date right? or should it end on the exact day/month/year
     print('Copyright end date is ' + copyright_end_date)
     copyright_note = input('Copyright note: ')
     copyright_act = input('Copyright act? (publish, disseminate): ')
@@ -105,8 +103,10 @@ def makeSpreadsheet(filepath, dmID, status, year, basis):
 
 get_info()
 
+os.chdir('../..')
+
 makeSpreadsheet(filepath, dmID, copyright_status, copyright_end_year, basis)
 
 print("Done!")
 print("The PREMIS spreadsheet is located in: ")
-print(metadata_directory + "/rights.csv")
+print("bcadmin/Desktop/" + metadata_directory + "/rights.csv")
