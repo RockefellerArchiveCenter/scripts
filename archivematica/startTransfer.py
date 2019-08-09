@@ -19,7 +19,6 @@ baseurl = 'dashboard-ip'
 location_uuid = 'location-uuid' # UUID for transfer source
 
 for txfr in transfers:
-    time.sleep(60) # pause for 1 minute
     print("Starting {}".format(txfr) + time.strftime(" %b %d %H:%M:%S"))
     basepath = "/mnt/nfs-archivematica/staging/{}".format(txfr)
     full_url = join(baseurl, 'transfer/start_transfer/')
@@ -31,9 +30,30 @@ for txfr in transfers:
     print(start.json()['message'] + time.strftime(" %b %d %H:%M:%S"))
     time.sleep(30) # pause for 30 seconds
     print("Approving {}".format(txfr) + time.strftime(" %b %d %H:%M:%S"))
-    time.sleep(30) # pause for 30 seconds
     approve_transfer = requests.post(join(baseurl, 'transfer/approve_transfer/'),
                                      headers=headers,
                                      data={'type': 'standard', 'directory': txfr})
     print(approve_transfer.json()['message']  + time.strftime(" %b %d %H:%M:%S"))
-    time.sleep(600) # pause for 10 minutes
+    transferUuid = approve_transfer.json()['uuid']
+    transferStatusUrl = join(baseurl, 'transfer/status/', transferUuid)
+    time.sleep(120)
+    while True:
+        transferStatus = requests.get(transferStatusUrl, headers=headers).json().get('status')
+        if transferStatus == 'COMPLETE':
+            print("Transfer complete!")
+            sipUuid = requests.get(transferStatusUrl, headers=headers).json().get('sip_uuid')
+            ingestStatusUrl = join(baseurl, 'ingest/status/', sipUuid)
+            time.sleep(180)
+            while True:
+                ingestStatus = requests.get(ingestStatusUrl, headers=headers).json().get('status')
+                if ingestStatus == 'COMPLETE':
+                    break
+                elif ingestStatus == 'FAILED':
+                    print(txfr + " failed during ingest!")
+                    break
+                time.sleep(20)
+            break
+        elif transferStatus == 'FAILED':
+            print(txfr + " failed during transfer!")
+            break
+        time.sleep(20)
