@@ -1,4 +1,4 @@
-archivesspace/local_settings.cfg
+local_settings.cfg
 archivesspace/*.csv
 archivesspace/log.txt
 *.DS_Store
