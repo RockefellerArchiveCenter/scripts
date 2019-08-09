@@ -10,7 +10,7 @@ from os import path
 # get dmID/find transfer directory - expects directory name to follow the convention FA/dmID/objects
 findingaid = input('Enter the FA number, include FA: ')
 dmID = input('Enter the digital media id: ')
-objects_directory = path.join(findingaid, dmID, 'carved_files')
+objects_directory = path.join(findingaid, dmID, 'objects')
 home_path = "/Users/aberish/Desktop/Disk_Images"
 metadata_directory = path.join(home_path, findingaid, dmID, 'metadata')
 filepath = path.join(findingaid, dmID, 'metadata')
