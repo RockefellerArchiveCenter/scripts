@@ -40,9 +40,9 @@ class DataFetcher:
 
     def get_title(self, data):
         try:
-            return obj.title
+            return data.title
         except:
-            return obj.display_string
+            return data.display_string
 
     def get_dates(self, dates_array):
         dates = []
