@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 
-import base64
-import json
+import base64, json, requests, time
 from os.path import join
-import requests
-import time
 
 # list of directory names you want to start and approve.
 # These all need to be in the transfer source location indicated below
@@ -15,7 +12,7 @@ transfers = [
 username = 'user' # dashboard username
 apikey = 'apikey' # api key for dashboard user
 headers = {"Authorization": "ApiKey {}:{}".format(username, apikey)}
-baseurl = 'dashboard-ip'
+baseurl = 'http://dashboard-ip'
 location_uuid = 'location-uuid' # UUID for transfer source
 
 for txfr in transfers:
