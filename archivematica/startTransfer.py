@@ -56,9 +56,9 @@ for txfr in transfers:
                 elif ingestStatus == 'FAILED':
                     print(txfr + " failed during ingest!")
                     break
-                time.sleep(20)
+                time.sleep(5)
             break
         elif transferStatus == 'FAILED':
             print(txfr + " failed during transfer!")
             break
-        time.sleep(20)
+        time.sleep(5)
