@@ -25,8 +25,16 @@ for txfr in transfers:
     # start transfer: https://wiki.archivematica.org/Archivematica_API#Start_Transfer
     start = requests.post(full_url, headers=headers, data=params)
     print(start.json()['message'] + time.strftime(" %b %d %H:%M:%S"))
-    time.sleep(30) # pause for 30 seconds
+    time.sleep(5)
     print("Approving {}".format(txfr) + time.strftime(" %b %d %H:%M:%S"))
+    while True:
+        unapproved_transfers = requests.get(os.path.join(baseurl, 'transfer/unapproved'), headers=headers).json().get('results')
+        if unapproved_transfers:
+            print("There are unapproved transfers!")
+            break
+        else:
+            print("No transfers awaiting approval")
+            time.sleep(5)
     approve_transfer = requests.post(join(baseurl, 'transfer/approve_transfer/'),
                                      headers=headers,
                                      data={'type': 'standard', 'directory': txfr})
