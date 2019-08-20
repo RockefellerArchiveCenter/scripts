@@ -18,6 +18,8 @@ headers = {"Authorization": "ApiKey {}:{}".format(username, apikey)}
 baseurl = 'http://dashboard-ip/api'
 location_uuid = 'location-uuid' # UUID for transfer source
 
+wait_time = 5 # number of seconds to pause before pinging API in loops
+
 for txfr in transfers:
     print("Starting {}".format(txfr) + time.strftime(" %b %d %H:%M:%S"))
     basepath = "/mnt/nfs-archivematica/staging/{}".format(txfr)
@@ -36,7 +38,7 @@ for txfr in transfers:
             break
         else:
             print("No transfers awaiting approval")
-            time.sleep(5)
+            time.sleep(wait_time)
     approve_transfer = requests.post(join(baseurl, 'transfer/approve_transfer/'),
                                      headers=headers,
                                      data={'type': 'standard', 'directory': txfr})
@@ -58,9 +60,9 @@ for txfr in transfers:
                 elif ingestStatus == 'FAILED':
                     print(txfr + " failed during ingest!")
                     break
-                time.sleep(5)
+                time.sleep(wait_time)
             break
         elif transferStatus == 'FAILED':
             print(txfr + " failed during transfer!")
             break
-        time.sleep(5)
+        time.sleep(wait_time)
