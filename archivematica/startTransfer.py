@@ -4,7 +4,7 @@ import base64
 import json
 import requests
 import time
-from os.path import join
+import os
 
 # list of directory names you want to start and approve.
 # These all need to be in the transfer source location indicated below
@@ -15,7 +15,7 @@ transfers = [
 username = 'user' # dashboard username
 apikey = 'apikey' # api key for dashboard user
 headers = {"Authorization": "ApiKey {}:{}".format(username, apikey)}
-baseurl = 'http://dashboard-ip'
+baseurl = 'http://dashboard-ip/api'
 location_uuid = 'location-uuid' # UUID for transfer source
 
 for txfr in transfers:
@@ -32,8 +32,7 @@ for txfr in transfers:
     print("Approving {}".format(txfr) + time.strftime(" %b %d %H:%M:%S"))
     while True:
         unapproved_transfers = requests.get(os.path.join(baseurl, 'transfer/unapproved'), headers=headers).json().get('results')
-        if unapproved_transfers:
-            print("There are unapproved transfers!")
+        if unapproved_transfers and txfr in str(unapproved_transfers):
             break
         else:
             print("No transfers awaiting approval")
