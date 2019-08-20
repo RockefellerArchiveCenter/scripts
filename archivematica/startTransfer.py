@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
-import base64, json, requests, time
+import base64
+import json
+import requests
+import time
 from os.path import join
 
 # list of directory names you want to start and approve.
