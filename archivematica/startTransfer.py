@@ -35,6 +35,7 @@ for txfr in transfers:
     while True:
         unapproved_transfers = requests.get(os.path.join(baseurl, 'transfer/unapproved'), headers=headers).json().get('results')
         if unapproved_transfers and txfr in str(unapproved_transfers):
+            transferUuid = unapproved_transfers[0].get('uuid')
             break
         else:
             print("No transfers awaiting approval")
@@ -43,7 +44,6 @@ for txfr in transfers:
                                      headers=headers,
                                      data={'type': 'standard', 'directory': txfr})
     print(approve_transfer.json()['message']  + time.strftime(" %b %d %H:%M:%S"))
-    transferUuid = approve_transfer.json()['uuid']
     transferStatusUrl = join(baseurl, 'transfer/status/', transferUuid)
     time.sleep(120)
     while True:
