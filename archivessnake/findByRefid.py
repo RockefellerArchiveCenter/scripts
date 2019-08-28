@@ -58,6 +58,7 @@ def findBulkDates(ao):
                     # if there's no structured date, get date expression
                     else:
                         return d.get("expression")
+
 def findAncestorDate(ao):
     a = ao.get("ancestors")[0]
     ancestor = client.get(a.get("ref")).json()
@@ -111,12 +112,12 @@ def getAoNotes(ao):
     if ao.get("notes"):
         noteList = []
         for n in ao.get("notes"):
-            if n.get("type") in ["bioghist", "scopecontent", "relatedmaterial", "separatedmaterial", "phystech"]:
-                noteList.append(n.get("subnotes")[0].get("content").replace('\n', ' '))
+            if n.get("type") in ["bioghist", "scopecontent", "relatedmaterial", "separatedmaterial", "phystech", "processinfo", "otherfindaid", "originalsloc", "fileplan", "arrangement"]:
+                if n.get("jsonmodel_type") not in ["note_definedlist"]:
+                    noteList.append(n.get("subnotes")[0].get("content").replace('\n', ' ').strip())
         return " | ".join(noteList)
     else:
         return ""
-
 
 def getAncestor(ao):
 #    print("number of ancestors: " + str(len(ao["ancestors"])))
