@@ -189,7 +189,14 @@ writer = csv.writer(spreadsheet)
 columnHeadings = ["RefId", "Title", "Component Dates", "Ancestor", "Parent Collection", "Remainder of Finding Aid Title", "Resource ID", "Resource End Date"]
 writer.writerow(columnHeadings)
 
-fileList = open("refids.txt").readlines()
-makeSpreadsheet(fileList)
-print('\a')
+def createFileList():
+    print("Removing refids to ignore...")
+    originalList = open("refids.txt").readlines()
+    ignoreList = open("ignorelist.txt").readlines()
+    for i in ignoreList:
+        if i in originalList:
+            originalList.remove(i)
+    return originalList
 
+makeSpreadsheet(createFileList())
+print('\a')
