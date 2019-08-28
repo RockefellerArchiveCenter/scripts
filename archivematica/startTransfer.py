@@ -2,9 +2,9 @@
 
 import base64
 import json
-from os.path import join
 import requests
 import time
+import os
 
 # list of directory names you want to start and approve.
 # These all need to be in the transfer source location indicated below
@@ -15,8 +15,10 @@ transfers = [
 username = 'user' # dashboard username
 apikey = 'apikey' # api key for dashboard user
 headers = {"Authorization": "ApiKey {}:{}".format(username, apikey)}
-baseurl = 'dashboard-ip'
+baseurl = 'http://dashboard-ip/api'
 location_uuid = 'location-uuid' # UUID for transfer source
+
+wait_time = 5 # number of seconds to pause before pinging API in loops
 
 for txfr in transfers:
     print("Starting {}".format(txfr) + time.strftime(" %b %d %H:%M:%S"))
@@ -28,13 +30,20 @@ for txfr in transfers:
     # start transfer: https://wiki.archivematica.org/Archivematica_API#Start_Transfer
     start = requests.post(full_url, headers=headers, data=params)
     print(start.json()['message'] + time.strftime(" %b %d %H:%M:%S"))
-    time.sleep(30) # pause for 30 seconds
+    time.sleep(5)
     print("Approving {}".format(txfr) + time.strftime(" %b %d %H:%M:%S"))
+    while True:
+        unapproved_transfers = requests.get(os.path.join(baseurl, 'transfer/unapproved'), headers=headers).json().get('results')
+        if unapproved_transfers and txfr in str(unapproved_transfers):
+            transferUuid = unapproved_transfers[0].get('uuid')
+            break
+        else:
+            print("No transfers awaiting approval")
+            time.sleep(wait_time)
     approve_transfer = requests.post(join(baseurl, 'transfer/approve_transfer/'),
                                      headers=headers,
                                      data={'type': 'standard', 'directory': txfr})
     print(approve_transfer.json()['message']  + time.strftime(" %b %d %H:%M:%S"))
-    transferUuid = approve_transfer.json()['uuid']
     transferStatusUrl = join(baseurl, 'transfer/status/', transferUuid)
     time.sleep(120)
     while True:
@@ -51,9 +60,9 @@ for txfr in transfers:
                 elif ingestStatus == 'FAILED':
                     print(txfr + " failed during ingest!")
                     break
-                time.sleep(20)
+                time.sleep(wait_time)
             break
         elif transferStatus == 'FAILED':
             print(txfr + " failed during transfer!")
             break
-        time.sleep(20)
+        time.sleep(wait_time)
