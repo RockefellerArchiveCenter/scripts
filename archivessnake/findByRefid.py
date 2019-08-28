@@ -25,7 +25,7 @@ def getTitle(ao):
         ancestor = client.get(ancestor_url).json()
         return ancestor["title"]
 
-def findDate(date):
+def findYear(date):
     if len(date) >= 4:
         if date[-4:].isdigit() and int(date[-4:]) >= 1850 and int(date[-4:]) <= 2020:
             year=date[-4:]
@@ -55,21 +55,21 @@ def getAoDates(ao):
     if ao.get("dates"):
         # check for structured date field, return date as YYYY-YYYY
         if ao.get("dates")[0].get("begin"):
-            return findDate(ao.get("dates")[0].get("end", ao.get("dates")[0].get("begin", "")))
+            return findYear(ao.get("dates")[0].get("end", ao.get("dates")[0].get("begin", "")))
         # if there's no structured date, get date expression
         else:
             if checkUndated(ao):
                 if len(ao.get("dates")[0].get("expression")) == 4:
                     return ao.get("dates")[0].get("expression")
                 else:
-                    return findDate(ao.get("dates")[0].get("expression"))
+                    return findYear(ao.get("dates")[0].get("expression"))
     elif getAncestor(ao):
         # if the component does not have have dates, go to its ancestor archival object(s) and look for dates
         for a in ao.get("ancestors"):
             ancestor = client.get(a.get("ref")).json()
             if ancestor.get("jsonmodel_type") == "archival_object" and ancestor.get("dates"):
                 if ancestor.get("dates")[0].get("begin"):
-                    return findDate(ancestor.get("dates")[0].get("end", ancestor.get("dates")[0].get("begin", "")))
+                    return findYear(ancestor.get("dates")[0].get("end", ancestor.get("dates")[0].get("begin", "")))
                     break
                 # if there's no structured date, get date expression
                 else:
@@ -78,7 +78,7 @@ def getAoDates(ao):
                             return ancestor.get("dates")[0].get("expression")
                             break
                         else:
-                            return findDate(ancestor.get("dates")[0].get("expression"))
+                            return findYear(ancestor.get("dates")[0].get("expression"))
                         
 def getAoLevel(ao):
     # get level of description
