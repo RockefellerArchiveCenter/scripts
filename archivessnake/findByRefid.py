@@ -58,6 +58,18 @@ def findBulkDates(ao):
                     # if there's no structured date, get date expression
                     else:
                         return d.get("expression")
+def findAncestorDate(ao):
+    a = ao.get("ancestors")[0]
+    ancestor = client.get(a.get("ref")).json()
+    if ancestor.get("jsonmodel_type") == "archival_object" and ancestor.get("dates"):
+        findBulkDates(ancestor)
+    elif ancestor.get("dates"):
+        d = ancestor.get("dates")[0]
+        if d.get("begin"):
+            return d.get("end", d.get("begin"))
+        # if there's no structured date, get date expression
+        else:
+            return findYear(d.get("expression"))
 
 def getAoDates(ao):
     if ao.get("dates"):
@@ -71,22 +83,10 @@ def getAoDates(ao):
                     return ao.get("dates")[0].get("expression")
                 else:
                     return findYear(ao.get("dates")[0].get("expression"))
+            elif getAncestor(ao):
+                findAncestorDate(ao)
     elif getAncestor(ao):
-        # if the component does not have have dates, go to its ancestor archival object(s) and look for dates
-        for a in ao.get("ancestors"):
-            ancestor = client.get(a.get("ref")).json()
-            if ancestor.get("jsonmodel_type") == "archival_object" and ancestor.get("dates"):
-                if ancestor.get("dates")[0].get("begin"):
-                    return findYear(ancestor.get("dates")[0].get("end", ancestor.get("dates")[0].get("begin", "")))
-                    break
-                # if there's no structured date, get date expression
-                else:
-                    if checkUndated(ancestor):
-                        if len(ancestor.get("dates")[0].get("expression")) == 4:
-                            return ancestor.get("dates")[0].get("expression")
-                            break
-                        else:
-                            return findYear(ancestor.get("dates")[0].get("expression"))
+        findAncestorDate(ao)
                         
 def getAoLevel(ao):
     # get level of description
