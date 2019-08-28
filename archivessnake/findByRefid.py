@@ -31,13 +31,11 @@ def findYear(date):
             year=date[-4:]
             return year
         else:
-            print(date)
             x=-5
             y=-1
             for r in range(len(date)):
                 if date[x:y].isdigit() and int(date[x:y]) >= 1850 and int(date[x:y]) <= 2020:
                     year=date[x:y]
-                    print(year)
                     return year
                     break
                 else:
