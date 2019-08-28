@@ -41,13 +41,23 @@ def findYear(date):
                 else:
                     x += -1
                     y += -1
-                
 
 def checkUndated(ao):
     if ao.get("dates")[0].get("expression") not in ["n.d.", "undated", "Undated"]:
         return True
     else:
         return False
+
+def findBulkDates(ao):
+    if ao.get("dates"):
+        if len(ao.get("dates")) == 2:
+            for d in ao.get("dates"):
+                if d.get("date_type") in ["bulk"]:
+                    if d.get("begin"):
+                        return d.get("begin") + "-" + d.get("end", d.get("begin"))
+                    # if there's no structured date, get date expression
+                    else:
+                        return d.get("expression")
 
 def getAoDates(ao):
     if ao.get("dates"):
