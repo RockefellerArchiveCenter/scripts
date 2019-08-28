@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 
-import json, csv, getpass, configparser
+import json
+import csv
+import getpass
+import configparser
 from asnake.client import ASnakeClient
 
 def getAo(refid):
