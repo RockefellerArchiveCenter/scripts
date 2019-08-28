@@ -15,7 +15,7 @@ def getAo(refid):
     ao = client.get(ao_ref).json()
     return ao
 
-def getAoTitle(ao):
+def getTitle(ao):
     # check if archival object has a title
     if ao.get("title"):
         return ao.get("title")
@@ -138,13 +138,13 @@ def getResource(ao):
 def makeRow(ao,refid):
     row = []
     row.append(refid)
-    row.append(getAoTitle(ao).replace('\n', ' '))
+    row.append(getTitle(ao).replace('\n', ' '))
     row.append(getAoDates(ao))
     row.append(getAccessRestriction(ao))
     row.append(getAoNotes(ao))
     if getAncestor(ao):
         ancestor = getAncestor(ao)
-        row.append(getAoTitle(ancestor).replace('\n', ' ') + " (" + getAoLevel(ancestor) + ")")
+        row.append(getTitle(ancestor).replace('\n', ' ') + " (" + getAoLevel(ancestor) + ")")
         row.append(getAccessRestriction(ancestor))
         row.append(getAoNotes(ancestor))
     else:
