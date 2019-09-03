@@ -163,28 +163,20 @@ def make_row(ao,refid):
     row = []
     row.append(refid)
     row.append(get_title(ao).strip())
-    if get_ao_dates(ao):
-        row.append(get_ao_dates(ao))
-    elif get_ao_dates(get_resource(ao)):
-        if int(get_ao_dates(get_resource(ao))) <= 1960:
-            row.append(get_ao_dates(get_resource(ao)))
-        else:
-            row.append("")
-    else:
-        row.append("")
+    row.append(find_best_component_date(ao))
     if get_ancestor(ao):
         ancestor = get_ancestor(ao)
         row.append(get_title(ancestor).strip() + " (" + get_ao_level(ancestor) + ")")
     else:
         row.append("")
     resource = get_resource(ao)
-    resourceTitle = resource["title"]
-    parentCollection = resourceTitle.split(', ')[0]
-    row.append(parentCollection)
-    restOfFA = resourceTitle[(len(parentCollection) + 2):]
-    row.append(restOfFA.strip())
+    resource_title = resource["title"]
+    parent_collection = resource_title.split(', ')[0]
+    row.append(parent_collection)
+    rest_of_fA = resource_title[(len(parent_collection) + 2):]
+    row.append(rest_of_fA.strip())
     row.append(resource["id_0"])
-    row.append(get_ao_dates(resource))
+    row.append(get_start_date(resource))
     writer.writerow(row)
 
 def make_spreadsheet(filelist):
@@ -211,9 +203,9 @@ print("Logging into ArchivesSpace...")
 client.authorize()
 
 # create spreadsheet
-spreadsheet = open("findOnDemand.csv", "w")
+spreadsheet = open("find_on_demand.csv", "w")
 writer = csv.writer(spreadsheet)
-columnHeadings = ["RefId", "Title", "Component Dates", "Ancestor", "Parent Collection", "Remainder of Finding Aid Title", "Resource ID", "Resource End Date"]
+column_headings = ["Ref_id", "Title", "Component End Year", "Ancestor", "Parent Collection", "Remainder of Finding Aid Title", "Resource ID", "Resource Start Year"]
 writer.writerow(columnHeadings)
 
 def createFileList():
