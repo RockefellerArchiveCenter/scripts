@@ -6,7 +6,7 @@ import getpass
 import configparser
 from asnake.client import ASnakeClient
 
-def getAo(refid):
+def get_ao(refid):
     # use find_by_id endpoint
     url = 'repositories/2/find_by_id/archival_objects?ref_id[]=' + refid
     ao = client.get(url).json()
@@ -15,7 +15,7 @@ def getAo(refid):
     ao = client.get(ao_ref).json()
     return ao
 
-def getTitle(ao):
+def get_title(ao):
     # check if archival object has a title
     if ao.get("title"):
         return ao.get("title")
@@ -25,7 +25,7 @@ def getTitle(ao):
         ancestor = client.get(ancestor_url).json()
         return ancestor["title"]
 
-def findYear(date):
+def find_year(date):
     if len(date) >= 4:
         if date[-4:].isdigit() and int(date[-4:]) >= 1850 and int(date[-4:]) <= 2020:
             year=date[-4:]
@@ -42,13 +42,13 @@ def findYear(date):
                     x += -1
                     y += -1
 
-def checkUndated(ao):
+def check_undated(ao):
     if ao.get("dates")[0].get("expression") not in ["n.d.", "undated", "Undated"]:
         return True
     else:
         return False
 
-def findBulkDates(ao):
+def find_bulk_dates(ao):
     if ao.get("dates"):
         if len(ao.get("dates")) == 2:
             for d in ao.get("dates"):
@@ -59,47 +59,47 @@ def findBulkDates(ao):
                     else:
                         return d.get("expression")
 
-def findAncestorDate(ao):
+def find_ancestor_date(ao):
     a = ao.get("ancestors")[0]
     ancestor = client.get(a.get("ref")).json()
     if ancestor.get("jsonmodel_type") == "archival_object" and ancestor.get("dates"):
-        findBulkDates(ancestor)
+        find_bulk_dates(ancestor)
     elif ancestor.get("dates"):
         d = ancestor.get("dates")[0]
         if d.get("begin"):
             return d.get("end", d.get("begin"))
         # if there's no structured date, get date expression
         else:
-            return findYear(d.get("expression"))
+            return find_year(d.get("expression"))
 
-def getAoDates(ao):
+def get_ao_dates(ao):
     if ao.get("dates"):
         # check for structured date field, return date as YYYY-YYYY
         if ao.get("dates")[0].get("begin"):
-            return findYear(ao.get("dates")[0].get("end", ao.get("dates")[0].get("begin", "")))
+            return find_year(ao.get("dates")[0].get("end", ao.get("dates")[0].get("begin", "")))
         # if there's no structured date, get date expression
         else:
-            if checkUndated(ao):
+            if check_undated(ao):
                 if len(ao.get("dates")[0].get("expression")) == 4:
                     return ao.get("dates")[0].get("expression")
                 else:
-                    return findYear(ao.get("dates")[0].get("expression"))
-            elif getAncestor(ao):
-                findAncestorDate(ao)
-    elif getAncestor(ao):
-        findAncestorDate(ao)
+                    return find_year(ao.get("dates")[0].get("expression"))
+            elif get_ancestor(ao):
+                find_ancestor_date(ao)
+    elif get_ancestor(ao):
+        find_ancestor_date(ao)
                         
-def getAoLevel(ao):
+def get_ao_level(ao):
     # get level of description
     return ao.get("level")
 
-def getSpecificNote(ao, noteType):
+def get_specific_note(ao, noteType):
     if ao.get("notes"):
         for n in ao.get("notes"):
             if n.get("type") == noteType: #accessrestrict, userestrict
                 return n.get("subnotes")[0].get("content").strip().replace('\n', ' ') # replace line break with space
 
-def getAoNotes(ao):
+def get_ao_notes(ao):
     # get note type for each note, append to list
     if ao.get("notes"):
         noteList = []
@@ -111,7 +111,7 @@ def getAoNotes(ao):
     else:
         return ""
 
-def getAncestor(ao):
+def get_ancestor(ao):
     if ao.get("title"):
         if ao.get("ancestors"):
             if len(ao.get("ancestors")) >= 2:
@@ -129,45 +129,45 @@ def getAncestor(ao):
                 ancestor = client.get(ancestor_url).json()
                 return(ancestor)
 
-def getResource(ao):
+def get_resource(ao):
     return client.get(ao["resource"]["ref"]).json()
 
-def makeRow(ao,refid):
+def make_row(ao,refid):
     row = []
     row.append(refid)
-    row.append(getTitle(ao).strip())
-    if getAoDates(ao):
-        row.append(getAoDates(ao))
-    elif getAoDates(getResource(ao)):
-        if int(getAoDates(getResource(ao))) <= 1960:
-            row.append(getAoDates(getResource(ao)))
+    row.append(get_title(ao).strip())
+    if get_ao_dates(ao):
+        row.append(get_ao_dates(ao))
+    elif get_ao_dates(get_resource(ao)):
+        if int(get_ao_dates(get_resource(ao))) <= 1960:
+            row.append(get_ao_dates(get_resource(ao)))
         else:
             row.append("")
     else:
         row.append("")
-    if getAncestor(ao):
-        ancestor = getAncestor(ao)
-        row.append(getTitle(ancestor).strip() + " (" + getAoLevel(ancestor) + ")")
+    if get_ancestor(ao):
+        ancestor = get_ancestor(ao)
+        row.append(get_title(ancestor).strip() + " (" + get_ao_level(ancestor) + ")")
     else:
         row.append("")
-    resource = getResource(ao)
+    resource = get_resource(ao)
     resourceTitle = resource["title"]
     parentCollection = resourceTitle.split(', ')[0]
     row.append(parentCollection)
     restOfFA = resourceTitle[(len(parentCollection) + 2):]
     row.append(restOfFA.strip())
     row.append(resource["id_0"])
-    row.append(getAoDates(resource))
+    row.append(get_ao_dates(resource))
     writer.writerow(row)
 
-def makeSpreadsheet(filelist):
+def make_spreadsheet(filelist):
     total = len(filelist)
     print('Starting - ' + str(total) + ' total rows')
     count = 0
     for f in filelist:
         f = f.replace('\n', '') # account for new line in text file
         count += 1
-        makeRow(getAo(f),f)
+        make_row(get_ao(f),f)
         if not count % 25:
             print(str(count) + ' rows added')
 
@@ -198,5 +198,5 @@ def createFileList():
             originalList.remove(i)
     return originalList
 
-makeSpreadsheet(createFileList())
+make_spreadsheet(createFileList())
 print('\a')
