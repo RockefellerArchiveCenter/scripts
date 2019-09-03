@@ -130,23 +130,24 @@ def get_ao_notes(ao):
     else:
         return ""
 
+def get_parent_ancestor(ao):
+    if len(ao.get("ancestors")) >= 2:
+        x = len(ao.get("ancestors")) - 2
+        ancestor_url = ao.get("ancestors")[x].get("ref")
+        ancestor = client.get(ancestor_url).json()
+        return(ancestor)
+
 def get_ancestor(ao):
+    # first check whether a component has a title; if it does not, the title of its parent is used in the component title column; so for the purposes of this "ancestor", it fetches the parent of the component that has a title
     if ao.get("title"):
         if ao.get("ancestors"):
-            if len(ao.get("ancestors")) >= 2:
-                x = len(ao.get("ancestors")) - 2
-                ancestor_url = ao.get("ancestors")[x].get("ref")
-                ancestor = client.get(ancestor_url).json()
-                return(ancestor)
+            # check whether a component has at least two ancestors; if there is only one ancestor, that means its parent is a resource
+            return get_parent_ancestor(ao)
     else:
         ancestor_url = ao.get("ancestors")[0].get("ref")
         ao = client.get(ancestor_url).json()
         if ao.get("ancestors"):
-            if len(ao.get("ancestors")) >= 2:
-                x = len(ao.get("ancestors")) - 2
-                ancestor_url = ao.get("ancestors")[x].get("ref")
-                ancestor = client.get(ancestor_url).json()
-                return(ancestor)
+            return get_parent_ancestor(ao)
 
 def get_resource(ao):
     return client.get(ao["resource"]["ref"]).json()
