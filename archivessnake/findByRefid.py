@@ -79,22 +79,24 @@ def find_ancestor_date(ao):
             else:
                 return find_year(d.get("expression"))
 
-
-
-def get_ao_dates(ao):
+def get_end_date(ao):
+    # uses either structured date or date expression to get end year
     if ao.get("dates"):
-        # check for structured date field, return date as YYYY-YYYY
-        if ao.get("dates")[0].get("begin"):
-            return find_year(ao.get("dates")[0].get("end", ao.get("dates")[0].get("begin", "")))
-        # if there's no structured date, get date expression
+        if find_bulk_dates(ao):
+            return find_bulk_dates(ao)
         else:
-            if check_undated(ao):
-                if len(ao.get("dates")[0].get("expression")) == 4:
-                    return ao.get("dates")[0].get("expression")
-                else:
-                    return find_year(ao.get("dates")[0].get("expression"))
-            elif get_ancestor(ao):
-                find_ancestor_date(ao)
+            # check for structured date field, return date as YYYY-YYYY
+            if ao.get("dates")[0].get("begin"):
+                return find_year(ao.get("dates")[0].get("end", ao.get("dates")[0].get("begin", "")))
+            # if there's no structured date, get date expression
+            else:
+                if check_undated(ao):
+                    if len(ao.get("dates")[0].get("expression")) == 4:
+                        return ao.get("dates")[0].get("expression")
+                    else:
+                        return find_year(ao.get("dates")[0].get("expression"))
+                elif get_ancestor(ao):
+                    find_ancestor_date(ao)
     elif get_ancestor(ao):
         find_ancestor_date(ao)
                         
