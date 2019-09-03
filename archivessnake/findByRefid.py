@@ -151,6 +151,13 @@ def get_ancestor(ao):
 
 def get_resource(ao):
     return client.get(ao["resource"]["ref"]).json()
+    
+def find_best_component_date(ao):
+    if get_end_date(ao):
+        return get_end_date(ao)
+    elif get_end_date(get_resource(ao)):
+        if int(get_end_date(get_resource(ao))) <= 1960:
+            return get_end_date(get_resource(ao))
 
 def make_row(ao,refid):
     row = []
