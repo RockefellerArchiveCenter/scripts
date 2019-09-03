@@ -25,18 +25,23 @@ def get_title(ao):
         ancestor = client.get(ancestor_url).json()
         return ancestor["title"]
 
+def is_year(date, x, y):
+    if date[x:y].isdigit() and int(date[x:y]) >= 1800 and int(date[x:y]) <= 2010:
+        return True
+    else:
+        return False
+
 def find_year(date):
+     # takes a string, and finds a 4 digit string matching years likely in our collections, working backwards from end of string; checks last four characters before looping
     if len(date) >= 4:
-        if date[-4:].isdigit() and int(date[-4:]) >= 1850 and int(date[-4:]) <= 2020:
-            year=date[-4:]
-            return year
+        if is_year(date, -4, None):
+            return date[-4:]
         else:
             x=-5
             y=-1
             for r in range(len(date)):
-                if date[x:y].isdigit() and int(date[x:y]) >= 1850 and int(date[x:y]) <= 2020:
-                    year=date[x:y]
-                    return year
+                if is_year(date, x, y):
+                    return date[x:y]
                     break
                 else:
                     x += -1
