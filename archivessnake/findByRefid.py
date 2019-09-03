@@ -121,12 +121,12 @@ def get_specific_note(ao, noteType):
 def get_ao_notes(ao):
     # get note type for each note, append to list
     if ao.get("notes"):
-        noteList = []
+        note_list = []
         for n in ao.get("notes"):
             if n.get("type") in ["bioghist", "scopecontent", "relatedmaterial", "separatedmaterial", "phystech", "processinfo", "otherfindaid", "originalsloc", "fileplan", "arrangement"]:
                 if n.get("jsonmodel_type") not in ["note_definedlist"]:
-                    noteList.append(n.get("subnotes")[0].get("content").replace('\n', ' ').strip())
-        return " | ".join(noteList)
+                    note_list.append(n.get("subnotes")[0].get("content").replace('\n', ' ').strip())
+        return " | ".join(note_list)
     else:
         return ""
 
