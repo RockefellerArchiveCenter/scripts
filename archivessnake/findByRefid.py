@@ -65,6 +65,7 @@ def find_bulk_dates(ao):
                     return bulk.get("expression")
 
 def find_ancestor_date(ao):
+    # get the first ancestor of a component (parent)
     a = ao.get("ancestors")[0]
     ancestor = client.get(a.get("ref")).json()
     # check whether parent is an archival object, as opposed to a resource
@@ -100,6 +101,13 @@ def get_end_date(ao):
     elif get_ancestor(ao):
         find_ancestor_date(ao)
                         
+def get_start_date(ao):
+    # uses structured date to get begin year
+    if ao.get("dates"):
+        # check for structured date field, return date as YYYY-YYYY
+        if ao.get("dates")[0].get("begin"):
+            return find_year(ao.get("dates")[0].get("begin", ""))
+
 def get_ao_level(ao):
     # get level of description
     return ao.get("level")
