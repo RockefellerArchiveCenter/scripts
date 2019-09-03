@@ -100,7 +100,7 @@ def get_end_date(ao):
                     find_ancestor_date(ao)
     elif get_ancestor(ao):
         find_ancestor_date(ao)
-                        
+
 def get_start_date(ao):
     # uses structured date to get begin year
     if ao.get("dates"):
@@ -151,7 +151,7 @@ def get_ancestor(ao):
 
 def get_resource(ao):
     return client.get(ao["resource"]["ref"]).json()
-    
+
 def find_best_component_date(ao):
     if get_end_date(ao):
         return get_end_date(ao)
