@@ -67,8 +67,10 @@ def find_bulk_dates(ao):
 def find_ancestor_date(ao):
     a = ao.get("ancestors")[0]
     ancestor = client.get(a.get("ref")).json()
+    # check whether parent is an archival object, as opposed to a resource
     if ancestor.get("jsonmodel_type") == "archival_object" and ancestor.get("dates"):
-        find_bulk_dates(ancestor)
+        if find_bulk_dates(ancestor):
+            return find_bulk_dates(ancestor)
     elif ancestor.get("dates"):
         d = ancestor.get("dates")[0]
         if d.get("begin"):
