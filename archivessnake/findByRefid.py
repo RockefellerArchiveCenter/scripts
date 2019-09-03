@@ -55,15 +55,14 @@ def check_undated(ao):
         return False
 
 def find_bulk_dates(ao):
+    # check whether there are multiple dates; if there are, use information from the bulk date
     if ao.get("dates"):
-        if len(ao.get("dates")) == 2:
-            for d in ao.get("dates"):
-                if d.get("date_type") in ["bulk"]:
-                    if d.get("begin"):
-                        return d.get("begin") + "-" + d.get("end", d.get("begin"))
-                    # if there's no structured date, get date expression
-                    else:
-                        return d.get("expression")
+        if len(ao.get("dates")) >= 2:
+            for bulk in [d for d in ao.get('dates') if d.get('date_type') in ['bulk']]:
+                if bulk.get("begin"):
+                    return bulk.get("end", bulk.get("begin"))
+                else:
+                    return bulk.get("expression")
 
 def find_ancestor_date(ao):
     a = ao.get("ancestors")[0]
