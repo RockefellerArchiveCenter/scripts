@@ -48,6 +48,7 @@ def find_year(date):
                     y += -1
 
 def check_undated(ao):
+    # ignore date expressions that only consist of some form of undated; will return false for a date expression like "1940, undated"
     if ao.get("dates")[0].get("expression") not in ["n.d.", "undated", "Undated"]:
         return True
     else:
