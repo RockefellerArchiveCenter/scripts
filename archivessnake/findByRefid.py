@@ -71,13 +71,15 @@ def find_ancestor_date(ao):
     if ancestor.get("jsonmodel_type") == "archival_object" and ancestor.get("dates"):
         if find_bulk_dates(ancestor):
             return find_bulk_dates(ancestor)
-    elif ancestor.get("dates"):
-        d = ancestor.get("dates")[0]
-        if d.get("begin"):
-            return d.get("end", d.get("begin"))
-        # if there's no structured date, get date expression
         else:
-            return find_year(d.get("expression"))
+            d = ancestor.get("dates")[0]
+            if d.get("begin"):
+                return d.get("end", d.get("begin"))
+            # if there's no structured date, get date expression
+            else:
+                return find_year(d.get("expression"))
+
+
 
 def get_ao_dates(ao):
     if ao.get("dates"):
