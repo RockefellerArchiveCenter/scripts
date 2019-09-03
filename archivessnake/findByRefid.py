@@ -206,16 +206,16 @@ client.authorize()
 spreadsheet = open("find_on_demand.csv", "w")
 writer = csv.writer(spreadsheet)
 column_headings = ["Ref_id", "Title", "Component End Year", "Ancestor", "Parent Collection", "Remainder of Finding Aid Title", "Resource ID", "Resource Start Year"]
-writer.writerow(columnHeadings)
+writer.writerow(column_headings)
 
-def createFileList():
+def create_file_list():
     print("Removing refids to ignore...")
-    originalList = open("refids.txt").readlines()
-    ignoreList = open("ignorelist.txt").readlines()
-    for i in ignoreList:
-        if i in originalList:
-            originalList.remove(i)
-    return originalList
+    original_list = open("refids.txt").readlines()
+    ignore_list = open("ignorelist.txt").readlines()
+    for i in ignore_list:
+        if i in original_list:
+            original_list.remove(i)
+    return original_list
 
-make_spreadsheet(createFileList())
+make_spreadsheet(create_file_list())
 print('\a')
