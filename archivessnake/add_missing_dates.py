@@ -22,8 +22,6 @@ class DateCalculator:
     def __init__(self, levels, always_add=False, resource=None):
         config = configparser.ConfigParser()
         config.read('local_settings.cfg')
-        if os.path.isfile('data.csv'):
-            raise Exception("data.csv already exists and would be overwritten. Please move or delete this file before running the script again.")
         self.aspace = ASpace(baseurl=config.get('ArchivesSpace', 'baseURL'), username=config.get('ArchivesSpace', 'username'), password=config.get('ArchivesSpace', 'password'))
         self.repo = self.aspace.repositories(2)
         self.levels = levels if levels else LEVELS
