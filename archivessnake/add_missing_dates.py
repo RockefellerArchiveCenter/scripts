@@ -40,6 +40,7 @@ class DateCalculator:
                     else:
                         obj_json['dates'].append(date)
                     self.save_obj(obj_json)
+                print("Cannot calculate dates for {}".format(obj.uri))
 
     def get_objects(self):
         """
