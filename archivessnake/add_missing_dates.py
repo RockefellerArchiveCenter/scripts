@@ -70,11 +70,11 @@ class DateCalculator:
                 'label': 'creation'} if bool(calculated['begin'], calculated['end']) else None
         return date
 
-    def save_obj(self, obj):
+    def save_obj(self, obj_json):
         """Saves an updated object to ArchivesSpace"""
-        updated = self.aspace.client.post(obj.uri, json=obj.json())
+        updated = self.aspace.client.post(obj_json['uri'], json=obj_json)
         if updated.status_code == 200:
-            print("Dates updated for {}".format(obj.uri))
+            print("Dates updated for {}".format(obj_json['uri']))
         else:
             print(updated.json())
 
