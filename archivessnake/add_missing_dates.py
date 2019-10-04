@@ -65,9 +65,10 @@ class DateCalculator:
         """Calls the date calculator endpoint and returns a date object."""
         calculated = self.aspace.client.get('/date_calculator', params={'record_uri': uri}).json()
         expression = "{}-{}".format(calculated['min_begin'], calculated['max_end'])
+        print(calculated)
         date = {'expression': expression, 'begin': calculated['min_begin_date'],
                 'end': calculated['max_end_date'], 'date_type': 'inclusive',
-                'label': 'creation'} if bool([calculated['min_begin'], calculated['max_end']]) else None
+                'label': 'creation'} if (calculated['min_begin'] and calculated['max_end']) else None
         return date
 
     def save_obj(self, obj_json):
