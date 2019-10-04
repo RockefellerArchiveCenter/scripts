@@ -33,11 +33,13 @@ class DateCalculator:
         for obj in self.get_objects():
             if (obj.level in self.levels) and (self.is_undated(obj)):
                 date = self.calculate_date(obj.uri)
-                if self.always_add:
-                    obj.dates = [date]
-                else:
-                    obj.dates.append(date)
-                self.save_obj(obj)
+                if date:
+                    obj_json = obj.json()
+                    if self.always_add:
+                        obj_json['dates'] = [date]
+                    else:
+                        obj_json['dates'].append(date)
+                    self.save_obj(obj)
 
     def get_objects(self):
         """
@@ -63,9 +65,10 @@ class DateCalculator:
         """Calls the date calculator endpoint and returns a date object."""
         calculated = self.aspace.client.get('/date_calculator', params={'record_uri': uri}).json()
         expression = "{}-{}".format(calculated['min_begin'], calculated['max_end'])
-        return {'expression': expression, 'begin': calculated['min_begin_date'],
+        date = {'expression': expression, 'begin': calculated['min_begin_date'],
                 'end': calculated['max_end_date'], 'date_type': 'inclusive',
-                'label': 'creation'}
+                'label': 'creation'} if bool(calculated['begin'], calculated['end']) else None
+        return date
 
     def save_obj(self, obj):
         """Saves an updated object to ArchivesSpace"""
