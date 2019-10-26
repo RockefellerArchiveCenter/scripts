@@ -2,6 +2,15 @@
 
 The following are functions used multiple times in our ArchivesSnake scripts, or that we anticipate re-using.
 
+### Setup
+
+```
+config = configparser.ConfigParser()
+config.read('local_settings.cfg')
+aspace = ASpace(baseurl=config.get('ArchivesSpace', 'baseURL'), username=config.get('ArchivesSpace', 'username'), password=config.get('ArchivesSpace', 'password'))
+repo = aspace.repositories(config.get('ArchivesSpace', 'repository'))
+```
+
 ### Resources, Components, and Description
 
 Use find_by_id endpoint with the refid of an archival object
@@ -49,16 +58,16 @@ Get note contents
 
 ```
 def getNoteContents(notes, matching_note):
-	for note in notes:
-		try:
-			if note["type"] == matching_note:
-				print "found " + note["type"] + " note"
-				if note["jsonmodel_type"] == "note_singlepart":
-					return note["content"].decode('utf-8')
-				else:
-					return note["subnotes"][0]["content"].decode('utf-8')		
+    for note in notes:
+	try:
+	    if note["type"] == matching_note:
+		print "found " + note["type"] + " note"
+		if note["jsonmodel_type"] == "note_singlepart":
+		    return note["content"].decode('utf-8')
+		else:
+		    return note["subnotes"][0]["content"].decode('utf-8')		
 		except:
-			pass
+		    pass
 ```
 
 Handle archival objects that don't have a title, by either using the display title or the title of parent archival object 
@@ -91,15 +100,14 @@ Get parent resource
 
 ```
 def findResourceId(headers):
-# Gets the parent resource id_0 for each archival object
-	try:
-		uri = ao["resource"].get('ref')
-		resource = (requests.get(resourceURL + str(uri), headers=headers)).json()
-		global resourceID
-		resourceID = resource["id_0"]
-		return resourceID
-	except:
-		pass
+    try:
+        uri = ao["resource"].get('ref')
+	resource = (requests.get(resourceURL + str(uri), headers=headers)).json()
+	global resourceID
+	resourceID = resource["id_0"]
+	return resourceID
+    except:
+	pass
 ```
 
 #### Dates
@@ -182,12 +190,12 @@ def get_end_date(ao):
 Get all instances attached to an archival object
 
 ```
-    def get_instances(self, instances_array):
-        instances = []
-        for instance in instances_array:
-            top_container = self.aspace.client.get(instance.sub_container.top_container.ref).json()
-            instances.append(top_container['display_string'])
-        return ", ".join(instances)
+def get_instances(self, instances_array):
+    instances = []
+    for instance in instances_array:
+        top_container = self.aspace.client.get(instance.sub_container.top_container.ref).json()
+        instances.append(top_container['display_string'])
+    return ", ".join(instances)
 ```
 
 Get container information, including ID and box and folder #s of an instance
@@ -230,15 +238,15 @@ column_headings = ['building','floor','room','coordinate_1_label','coordinate_1_
 note_list = ['accessrestrict','odd','altformavail','originalsloc','phystech','processinfo','relatedmaterial','separatedmaterial','dimensions','summary','extent','note','physdesc','physloc','materialspec','physfacet',]
 column_headings = ['title','resource','level','refid'] + note_list
 
-    column_headings = ['accession date', 'title', 'number', 'container summary',
-                       'extent number', 'extent type', 'acquisition type', 'delivery date']
+column_headings = ['accession date', 'title', 'number', 'container summary',
+                   'extent number', 'extent type', 'acquisition type', 'delivery date']
 ```
 
 Modify or delete notes attached to archival objects
 
 ```
 def deleteNotes(headers):
-# Deletes AccessRestrict notes that match input notecontent
+    # Deletes AccessRestrict notes that match input notecontent
     notes = ao["notes"]
     for index, n in enumerate(notes):
         try:
@@ -294,26 +302,25 @@ for loc in locs:
     logging.info('/locations/' + str(loc) + ' was deleted')
 
 def replaceTopContainer(ao, aoId, headers):
-	global replaced
-	replaced = "0"
-	global original
-	original ="0"
-	if len(ao['instances']) > 0:
-		for n, instance in enumerate(ao['instances']):
-			if ao["instances"][n]["instance_type"] == "digital_object":
-				pass
-			elif ao["instances"][n]["sub_container"]["top_container"]["ref"] in replace_dict:
-				replaced = ao["instances"][n]["sub_container"]["top_container"]["ref"]
-				original = replace_dict[ao["instances"][n]["sub_container"]["top_container"]["ref"]]
-				ao["instances"][n]["sub_container"]["top_container"]["ref"] = replace_dict[ao["instances"][n]["sub_container"]["top_container"]["ref"]]
-				post = requests.post('{baseURL}'.format(**dictionary) + str(aoId), headers=headers, data=json.dumps(ao))
-				print 'Container '+replaced+' was replaced with container '+original+' in archival object '+str(aoId)
-				logging.info('Container '+replaced+' was replaced with container '+original+' in archival object '+str(aoId))
-			else:
-				pass
-	else:
+    global replaced
+    replaced = "0"
+    global original
+    original ="0"
+    if len(ao['instances']) > 0:
+	for n, instance in enumerate(ao['instances']):
+	    if ao["instances"][n]["instance_type"] == "digital_object":
 		pass
-
+	    elif ao["instances"][n]["sub_container"]["top_container"]["ref"] in replace_dict:
+		replaced = ao["instances"][n]["sub_container"]["top_container"]["ref"]
+		original = replace_dict[ao["instances"][n]["sub_container"]["top_container"]["ref"]]
+		ao["instances"][n]["sub_container"]["top_container"]["ref"] = replace_dict[ao["instances"][n]["sub_container"]["top_container"]["ref"]]
+		post = requests.post('{baseURL}'.format(**dictionary) + str(aoId), headers=headers, data=json.dumps(ao))
+		print 'Container '+replaced+' was replaced with container '+original+' in archival object '+str(aoId)
+		logging.info('Container '+replaced+' was replaced with container '+original+' in archival object '+str(aoId))
+	    else:
+		pass
+	else:
+	    pass
 ```
 
 Get user input for resources or objects to get data about or to modify
