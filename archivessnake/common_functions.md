@@ -2,13 +2,21 @@
 
 The following are functions used multiple times in our ArchivesSnake scripts, or that we anticipate re-using.
 
-### Setup
+### Configuration
+
+Instantiating a client object using local configs
 
 ```
 config = configparser.ConfigParser()
 config.read('local_settings.cfg')
 aspace = ASpace(baseurl=config.get('ArchivesSpace', 'baseURL'), username=config.get('ArchivesSpace', 'username'), password=config.get('ArchivesSpace', 'password'))
 repo = aspace.repositories(config.get('ArchivesSpace', 'repository'))
+```
+
+Logging
+
+```
+logging.info('Replacing note with ' + str(notecontent) + ' content with ' + str(replacecontent) + ' content in archival object ' + str(aoId) + ' in resource ' + str(resourceID))
 ```
 
 ### Resources, Components, and Description
