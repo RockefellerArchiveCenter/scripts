@@ -331,4 +331,27 @@ def replaceTopContainer(ao, aoId, headers):
 	    pass
 ```
 
-Get user input for resources or objects to get data about or to modify
+Get user input for resources or objects to get data about or to modify, or get user input for configuration
+
+```
+config = configparser.ConfigParser()
+config.read('local_settings.cfg')
+baseurl= config.get('ArchivesSpace', 'baseURL')
+user = input('ArchivesSpace username: ')
+pw = getpass.getpass('ArchivesSpace password:')
+
+def create_file_list():
+    print("Removing refids to ignore...")
+    original_list = open("refids.txt").readlines()
+    ignore_list = open("ignorelist.txt").readlines()
+    for i in ignore_list:
+        if i in original_list:
+            original_list.remove(i)
+    return original_list
+	
+parser = argparse.ArgumentParser(description="Adds dates to components using ArchivesSpace's date calculator endpoint.")
+parser.add_argument('-l', '--levels', action='append', choices=LEVELS, help='Archival object levels to include in date calculation.')
+parser.add_argument('-a', '--always_add', action='store_true', help='Always add dates, even if component has existing dates.')
+parser.add_argument('-r', '--resource', help='Restrict replace to a specific resource')
+args = parser.parse_args()
+```
