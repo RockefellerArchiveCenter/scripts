@@ -313,7 +313,6 @@ def replaceTopContainer(ao, aoId, headers):
 				pass
 	else:
 		pass
-
 ```
 
 Get user input for resources or objects to get data about or to modify
