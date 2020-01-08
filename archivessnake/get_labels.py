@@ -16,38 +16,54 @@ class LabelPrinter:
 
     def run(self):
         self.get_title()
+        self.get_id()
         for obj in self.get_objects():
             print(obj.title)
             if self.has_instance(obj):
+                self.get_container(container)
                 self.get_parent(obj)
                 print('hello')
 
     def get_objects(self):
         """
-        Fetches all the archival objects from that resource tree.
+        Fetches and returns all the archival objects from that resource tree.
         """
         objects = self.repo.resources(self.resource).tree.walk
         return objects
 
     def get_title(self):
         """
-        Gets and stores the title of a resource record.
+        Gets and returns the title of a resource record.
         """
         title = self.repo.resources(self.resource).title
         return title
 
+    def get_id(self):
+        """
+        Gets and returns the id of a resource record.
+        """
+        id = self.repo.resources(self.resource).id_0
+        return id
+
     def has_instance(self, obj):
         """
-        Checks whether the object has a container instance and returns the top container information
+        Checks whether the object has a container instance and returns the top container link.
         """
         if len(obj.instances) > 0:
             for instance in obj.instances:
                 if 'sub_container' in instance.json():
                     container = instance.sub_container.top_container.ref
-                    print(container)
+                    container = container[31:]
                     return container
         else:
             return False
+
+    def get_container(self, container):
+        """
+        Gets and returns top container information.
+        """
+        type = self.repo.top_containers(container).type
+        indicator = self.repo.top_containers(container).indicator
 
     def get_parent(self, obj):
         """
