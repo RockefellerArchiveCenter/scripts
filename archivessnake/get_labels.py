@@ -15,14 +15,18 @@ class LabelPrinter:
         self.resource = resource
 
     def run(self):
-        self.get_title()
-        self.get_id()
         for obj in self.get_objects():
+            resourceTitle = self.get_title()
+            resourceId = self.get_id()
             print(obj.title)
-            if self.has_instance(obj):
-                self.get_container(container)
-                self.get_parent(obj)
-                print('hello')
+            if obj.parent in obj:
+                parent = self.get_parent(obj)
+            else:
+                parent = ''
+            if len(obj.instances) > 0:
+                self.get_ref(obj)
+            else:
+                print('no instance')
 
     def get_objects(self):
         """
@@ -45,20 +49,21 @@ class LabelPrinter:
         id = self.repo.resources(self.resource).id_0
         return id
 
-    def has_instance(self, obj):
+    def get_ref(self, obj):
         """
         Checks whether the object has a container instance and returns the top container link.
         """
-        if len(obj.instances) > 0:
-            for instance in obj.instances:
-                if 'sub_container' in instance.json():
-                    container = instance.sub_container.top_container.ref
-                    container = container[31:]
-                    return container
-        else:
-            return False
+        for instance in obj.instances:
+            if 'sub_container' in instance.json():
+                containerURL = instance.sub_container.top_container.ref
+                containerURL = containerURL.split("/")
+                container = containerURL[4]
+                print(container)
+                return container
+            else:
+                return ''
 
-    def get_container(self, container):
+    def get_containers(self, container):
         """
         Gets and returns top container information.
         """
@@ -69,14 +74,11 @@ class LabelPrinter:
         """
         Checks whether the object has a parent and returns it
         """
-        if obj.parent:
-            parent = obj.parent.ref
-            parent = parent[33:]
-            parentTitle = self.repo.archival_objects(parent).title
-            print(parentTitle)
-            return parentTitle
-        else:
-            pass
+        parent = obj.parent.ref
+        parent = parent.split('/')
+        parent = parent[4]
+        parentTitle = self.repo.archival_objects(parent).title
+        return parentTitle
 
 
 
