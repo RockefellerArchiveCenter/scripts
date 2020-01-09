@@ -16,11 +16,12 @@ class LabelPrinter:
 
     def run(self):
         for obj in self.get_objects():
-            resource_title = self.get_title()
-            resource_id = self.get_id()
-            parent = self.get_parent(obj)
-            container = self.get_container(obj)
-            print(resource_title, resource_id, parent, container)
+            if len(obj.instances):
+                resource_title = self.get_title()
+                resource_id = self.get_id()
+                parent = self.get_parent(obj)
+                container = self.get_containers(obj)
+                print(resource_title, resource_id, parent, container)
 
     def get_objects(self):
         """
@@ -43,7 +44,7 @@ class LabelPrinter:
         id = self.repo.resources(self.resource).id_0
         return id
 
-    def get_container(self, obj):
+    def get_containers(self, obj):
         """
         Checks whether the object has a container instance and returns the top container link.
         """
