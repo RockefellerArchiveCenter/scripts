@@ -11,8 +11,7 @@ class LabelPrinter:
         config = configparser.ConfigParser()
         config.read('local_settings.cfg')
         self.aspace = ASpace(baseurl=config.get('ArchivesSpace', 'baseURL'), username=config.get('ArchivesSpace', 'user'), password=config.get('ArchivesSpace', 'password'))
-        self.repo = self.aspace.repositories(2)
-        self.resource = self.repo.resources(resource)
+        self.resource = self.aspace.repositories(2).resource(resoure)
 
     def run(self):
         for obj in self.get_objects():
@@ -34,14 +33,14 @@ class LabelPrinter:
         """
         Gets and returns the title of a resource record.
         """
-        title = self.repo.resources(self.resource).title
+        title = self.resource.title
         return title
 
     def get_id(self):
         """
         Gets and returns the id of a resource record.
         """
-        id = self.repo.resources(self.resource).id_0
+        id = self.resource.id_0
         return id
 
     def get_containers(self, obj):
@@ -52,7 +51,7 @@ class LabelPrinter:
         for instance in obj.instances:
             try:
                 top_container = instance.sub_container.top_container
-                containers.append("{} {} ".format(top_container.type.capitalize(), top_container.indicator))
+                containers.append("{} {}".format(top_container.type.capitalize(), top_container.indicator))
             except AttributeError as e:
                 pass
         return ", ".join(containers)
@@ -64,11 +63,11 @@ class LabelPrinter:
         try:
             return obj.parent.title
         except AttributeError:
-            return ''
+            return ""
 
 
 parser = argparse.ArgumentParser(description="Creates a csv with container labels based on a a given resource ID.")
-parser.add_argument('resource', help='Target a specific resource')
+parser.add_argument("resource", help="ArchivesSpace resource id")
 args = parser.parse_args()
 
 LabelPrinter(args.resource).run()
