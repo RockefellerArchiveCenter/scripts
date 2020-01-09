@@ -19,10 +19,7 @@ class LabelPrinter:
             resourceTitle = self.get_title()
             resourceId = self.get_id()
             print(obj.title)
-            if obj.parent in obj:
-                parent = self.get_parent(obj)
-            else:
-                parent = ''
+            parent = self.get_parent(obj)
             if len(obj.instances) > 0:
                 self.get_ref(obj)
             else:
@@ -74,11 +71,10 @@ class LabelPrinter:
         """
         Checks whether the object has a parent and returns it
         """
-        parent = obj.parent.ref
-        parent = parent.split('/')
-        parent = parent[4]
-        parentTitle = self.repo.archival_objects(parent).title
-        return parentTitle
+        try:
+            return obj.parent.title
+        except AttributeError:
+            return ''
 
 
 
