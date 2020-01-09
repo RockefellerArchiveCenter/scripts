@@ -56,7 +56,7 @@ class LabelPrinter:
             try:
                 top_container = instance.sub_container.top_container
                 containers.append("{} {}".format(top_container.type.capitalize(), top_container.indicator))
-            except AttributeError as e:
+            except KeyError as e:
                 pass
         return ", ".join(containers)
 
