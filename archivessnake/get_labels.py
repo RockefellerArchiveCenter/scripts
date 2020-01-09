@@ -11,7 +11,7 @@ class LabelPrinter:
         config = configparser.ConfigParser()
         config.read('local_settings.cfg')
         self.aspace = ASpace(baseurl=config.get('ArchivesSpace', 'baseURL'), username=config.get('ArchivesSpace', 'user'), password=config.get('ArchivesSpace', 'password'))
-        self.resource = self.aspace.repositories(2).resource(resoure)
+        self.resource = self.aspace.repositories(2).resources(resource)
 
     def run(self):
         label_data = []
