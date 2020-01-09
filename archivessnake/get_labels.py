@@ -16,11 +16,11 @@ class LabelPrinter:
 
     def run(self):
         for obj in self.get_objects():
-            resourceTitle = self.get_title()
-            resourceId = self.get_id()
+            resource_title = self.get_title()
+            resource_id = self.get_id()
             parent = self.get_parent(obj)
             container = self.get_container(obj)
-            print(resourceTitle, resourceId, parent, container)
+            print(resource_title, resource_id, parent, container)
 
     def get_objects(self):
         """
@@ -67,7 +67,7 @@ class LabelPrinter:
 
 
 parser = argparse.ArgumentParser(description="Creates a csv with container labels based on a a given resource ID.")
-parser.add_argument('-r', '--resource', help='Target a specific resource')
+parser.add_argument('resource', help='Target a specific resource')
 args = parser.parse_args()
 
 LabelPrinter(args.resource).run()
