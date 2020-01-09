@@ -24,6 +24,7 @@ class LabelPrinter:
                 label_data.append([resource_title, resource_id, parent, container])
         print("Raw data", len(label_data))
         print("Deduplicated data", len(set(tuple(row) for row in label_data)))
+        label_data = set(tuple(row) for row in label_data)
         self.make_csv(label_data)
 
     def make_csv(self, label_data):
