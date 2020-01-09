@@ -24,7 +24,7 @@ class LabelPrinter:
                 print(resource_title, resource_id, parent, container)
                 label_data.append([resource_title, resource_id, parent, container])
         print("Raw data", len(label_data))
-        print("Deduplicated data", len(set(label_data)))
+        print("Deduplicated data", len(set(tuple(row) for row in label_data)))
 
     def get_objects(self):
         """
