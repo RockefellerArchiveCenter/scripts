@@ -14,13 +14,17 @@ class LabelPrinter:
         self.resource = self.aspace.repositories(2).resource(resoure)
 
     def run(self):
+        label_data = []
+        resource_title = self.get_title()
+        resource_id = self.get_id()
         for obj in self.get_objects():
             if len(obj.instances):
-                resource_title = self.get_title()
-                resource_id = self.get_id()
                 parent = self.get_parent(obj)
                 container = self.get_containers(obj)
                 print(resource_title, resource_id, parent, container)
+                label_data.append([resource_title, resource_id, parent, container])
+        print("Raw data", len(label_data))
+        print("Deduplicated data", len(set(label_data)))
 
     def get_objects(self):
         """
