@@ -12,7 +12,7 @@ class LabelPrinter:
         config.read('local_settings.cfg')
         self.aspace = ASpace(baseurl=config.get('ArchivesSpace', 'baseURL'), username=config.get('ArchivesSpace', 'user'), password=config.get('ArchivesSpace', 'password'))
         self.repo = self.aspace.repositories(2)
-        self.resource = resource
+        self.resource = self.repo.resources(resource)
 
     def run(self):
         for obj in self.get_objects():
@@ -26,7 +26,7 @@ class LabelPrinter:
         """
         Fetches and returns all the archival objects from that resource tree.
         """
-        objects = self.repo.resources(self.resource).tree.walk
+        objects = self.resource.tree.walk
         return objects
 
     def get_title(self):
