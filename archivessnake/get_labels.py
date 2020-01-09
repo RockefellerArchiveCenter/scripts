@@ -18,12 +18,9 @@ class LabelPrinter:
         for obj in self.get_objects():
             resourceTitle = self.get_title()
             resourceId = self.get_id()
-            print(obj.title)
             parent = self.get_parent(obj)
-            if len(obj.instances) > 0:
-                self.get_ref(obj)
-            else:
-                print('no instance')
+            container = self.get_container(obj)
+            print(resourceTitle, resourceId, parent, container)
 
     def get_objects(self):
         """
@@ -46,26 +43,18 @@ class LabelPrinter:
         id = self.repo.resources(self.resource).id_0
         return id
 
-    def get_ref(self, obj):
+    def get_container(self, obj):
         """
         Checks whether the object has a container instance and returns the top container link.
         """
+        containers = []
         for instance in obj.instances:
-            if 'sub_container' in instance.json():
-                containerURL = instance.sub_container.top_container.ref
-                containerURL = containerURL.split("/")
-                container = containerURL[4]
-                print(container)
-                return container
-            else:
-                return ''
-
-    def get_containers(self, container):
-        """
-        Gets and returns top container information.
-        """
-        type = self.repo.top_containers(container).type
-        indicator = self.repo.top_containers(container).indicator
+            try:
+                top_container = instance.sub_container.top_container
+                containers.append("{} {} ".format(top_container.type.capitalize(), top_container.indicator))
+            except AttributeError as e:
+                pass
+        return ", ".join(containers)
 
     def get_parent(self, obj):
         """
@@ -75,7 +64,6 @@ class LabelPrinter:
             return obj.parent.title
         except AttributeError:
             return ''
-
 
 
 parser = argparse.ArgumentParser(description="Creates a csv with container labels based on a a given resource ID.")
