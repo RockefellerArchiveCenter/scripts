@@ -22,10 +22,7 @@ class LabelPrinter:
                 container = self.get_containers(obj)
                 print(resource_title, resource_id, parent, container)
                 label_data.append([resource_title, resource_id, parent, container])
-        print("Raw data", len(label_data))
-        print("Deduplicated data", len(set(tuple(row) for row in label_data)))
-        label_data = set(tuple(row) for row in label_data)
-        self.make_csv(label_data)
+        self.make_csv(set(tuple(row) for row in label_data))
 
     def make_csv(self, label_data):
         with open('box_labels.csv', 'w') as csvfile:
@@ -37,12 +34,17 @@ class LabelPrinter:
         """
         Gets and returns the id of a resource record.
         """
-        id = self.resource.id_0
-        return id
+        number = []
+        for n in range(0,3):
+            try:
+                number.append(getattr(self.resource, "id_{}".format(n)))
+            except AttributeError:
+                break
+        return ":".join(number)
 
     def get_containers(self, obj):
         """
-        Checks whether the object has a container instance and returns the top container link.
+        Iterates throught the instances in an object and returns the container type and indicator.
         """
         containers = []
         for instance in obj.instances:
