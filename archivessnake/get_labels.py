@@ -14,9 +14,9 @@ class LabelPrinter:
 
     def run(self):
         label_data = []
-        resource_title = self.get_title()
+        resource_title = self.resource.title
         resource_id = self.get_id()
-        for obj in self.get_objects():
+        for obj in self.resource.tree.walk:
             if len(obj.instances):
                 parent = self.get_parent(obj)
                 container = self.get_containers(obj)
@@ -31,22 +31,7 @@ class LabelPrinter:
         with open('box_labels.csv', 'w') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(['ResourceTitle', 'ResourceID', 'ParentTitle', 'Container'])
-            for label in label_data:
-                writer.writerow(label)
-
-    def get_objects(self):
-        """
-        Fetches and returns all the archival objects from that resource tree.
-        """
-        objects = self.resource.tree.walk
-        return objects
-
-    def get_title(self):
-        """
-        Gets and returns the title of a resource record.
-        """
-        title = self.resource.title
-        return title
+            writer.writerows(label_data)
 
     def get_id(self):
         """
