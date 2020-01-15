@@ -33,7 +33,7 @@ class LabelPrinter:
         self.make_csv(set(tuple(row) for row in label_data))
 
     def make_csv(self, label_data):
-        with open("box_labels.csv", "w") as csvfile:
+        with open("{}_box_labels.csv".format(self.get_id()), "w") as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(["ResourceTitle", "ResourceID", "ParentTitle", "Container"])
             writer.writerows(label_data)
