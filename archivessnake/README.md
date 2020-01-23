@@ -7,6 +7,8 @@ These scripts use ArchivesSnake to export data from ArchivesSpace in a variety o
 *   Python 3
 *   ArchivesSnake - https://github.com/archivesspace-labs/ArchivesSnake
 *   ffmpeg (for extractClipsGetInfo)
+*   FuzzyWuzzy - https://github.com/seatgeek/fuzzywuzzy (for edit_notes)
+*   requests - https://requests.readthedocs.io/en/master/ (for edit_notes)
 
 ## Installation
 
@@ -54,3 +56,7 @@ This script takes an input of a textfile (`refids.txt`) where each line is an Ar
 ## archival_objects_by_collection
 
 Exports information about all archival objects in a resource tree to a CSV file. Has one required argument, which is the ArchivesSpace identifier for the resource record whose tree will be walked. 
+
+## edit_notes
+
+A script to modify or delete specified notes within an ArchivesSpace resource record. This script is useful if there are a number of the same notes within a finding aid that need to be changed or deleted simultaneously. When running the script, the user enters note type (ex. bioghist for a biographical/historical note), the action type (modify or delete), resource ID, the original content of the note you want to change or delete, new note content (not required if deleting), and the level of a note within a finding aid hierarchy that the user wants to change (ex. file). A log of the changes are printed to the console and the instance information for changed objects are recorded in a spreadsheet.  
