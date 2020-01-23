@@ -37,7 +37,7 @@ def process_tree(args, resource):
                                 del notes[idx]
                                 print("{} note deleted from object {}".format(
                                     args.note_type, record.uri))
-                            if args.action== "modify":
+                            if args.action == "modify":
                                 print("{} note was originally {} and was changed to {} in object {}".format(
                                     args.note_type, content, args.replace_string, record.uri))
                                 content = args.replace_string
