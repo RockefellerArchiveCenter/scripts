@@ -47,8 +47,8 @@ def process_tree(args, resource):
                 save_record(record.uri, aojson)
 
 
-def contains_match(note_content, search_string):
-    ratio = fuzz.token_sort_ratio(note_content.lower(), search_string.lower())
+def contains_match(content, search_string):
+    ratio = fuzz.token_sort_ratio(content.lower(), search_string.lower())
     return True if ratio > CONFIDENCE_RATIO else False
 
 
