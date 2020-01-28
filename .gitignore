@@ -4,3 +4,5 @@ archivesspace/log.txt
 *.DS_Store
 extractClipGetInfo/local_settings.cfg
 *.mp4
+imaging/*.txt
+imaging/*.img
