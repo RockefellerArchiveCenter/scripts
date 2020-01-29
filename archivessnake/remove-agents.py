@@ -18,7 +18,7 @@ config = configparser.ConfigParser()
 config.read('local_settings.cfg')
 
 aspace = ASpace(baseurl=config['ArchivesSpace']['baseURL'],
-                user=config['ArchivesSpace']['user'],
+                username=config['ArchivesSpace']['user'],
                 password=config['ArchivesSpace']['password'])
 repo = aspace.repositories(config['ArchivesSpace']['repository'])
 
