@@ -40,7 +40,7 @@ def process_tree(args, resource):
                             if args.action == "modify":
                                 print("{} note was originally {} and was changed to {} in object {}".format(
                                     args.note_type, content, args.replace_string, record.uri))
-                                content = args.replace_string
+                                subnote["content"] = args.replace_string
                             log_to_spreadsheet(record)
                             updated = True
             if updated:
