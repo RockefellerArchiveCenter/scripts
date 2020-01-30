@@ -85,7 +85,7 @@ def main():
     global aspace
     aspace = ASpace(
         baseurl=config.get("ArchivesSpace", "baseURL"),
-        user=config.get("ArchivesSpace", "user"),
+        username=config.get("ArchivesSpace", "user"),
         password=config.get("ArchivesSpace", "password"),
     )
     global writer
