@@ -59,4 +59,22 @@ Exports information about all archival objects in a resource tree to a CSV file.
 
 ## edit_notes
 
-A script to modify or delete specified notes within an ArchivesSpace resource record. This script is useful if there are a number of the same notes within a finding aid that need to be changed or deleted simultaneously. When running the script, the user enters note type (ex. bioghist for a biographical/historical note), the action type (modify or delete), resource ID, the original content of the note you want to change or delete, new note content (not required if deleting), and the level of a note within a finding aid hierarchy that the user wants to change (ex. file). A log of the changes are printed to the console and the instance information for changed objects are recorded in a spreadsheet.  
+A script to modify or delete specified notes within an ArchivesSpace resource record. This script is useful if there are a number of the same notes within a finding aid that need to be changed or deleted simultaneously. When running the script, the user enters note type (ex. bioghist for a biographical/historical note), the action type (modify or delete), resource ID (must be an integer), the original content of the note you want to change or delete, the level of a note within a finding aid hierarchy that the user wants to change (ex. file), and the new note content if modifying existing notes (not required if deleting). A log of the changes are printed to the console and the instance information for changed objects are recorded in a spreadsheet.  
+
+The script utilizes argparse, a python module that allows users to write commands directly in the command line that the script can easily parse. If a command is written incorrectly, the argparse module will also provide help messages. For the edit_notes script, you need to provide: 
+ 
+ - note type: "bioghist", "accessrestrict", "odd", "abstract", "arrangement", "userestrict", "fileplan", "acqinfo", "langmaterial", "physdesc", "prefercite", "processinfo", or "relatedmaterial"
+ 
+ - action choice: "modify" or "delete"
+ 
+ - resource identifier: The number found within the URL of a record (ex. 11413)
+ 
+ - search string: Should be in quotes. The string to be matched against the resource record notes (in other words the note content you want to change or delete).
+ 
+ - level: "collection", "file", "series"
+ 
+ - replace string (optional, only necessary if modifying notes): Should be in quotes. The new note content to replace the old note content.
+ 
+ To run the script, a sample command might look like this: python3 edit_notes.py bioghist modify 11413 "the current note content" file -r "new note content"
+ 
+ The script also uses fuzzywuzzy to ensure that no note content is changed unintentionally. Currently, the ratio is 97% between the user input and the note contents within a resource. This can be changed by editing the CONFIDENCE_RATIO.
