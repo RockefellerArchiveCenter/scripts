@@ -77,4 +77,4 @@ The script utilizes argparse, a python module that allows users to write command
  
  To run the script, a sample command might look like this: python3 edit_notes.py bioghist modify 11413 "the current note content" file -r "new note content"
  
- The script also uses fuzzywuzzy to ensure that no note content is changed unintentionally. Currently, the ratio is 97% between the user input and the note contents within a resource. This can be changed by editing the CONFIDENCE_RATIO.
+ The script also uses fuzzywuzzy, a Python library used for string matching, to ensure that no note content is changed unintentionally. Currently, the ratio between the user input and the note contents within a resource is 97%. This can be changed by editing the CONFIDENCE_RATIO.
