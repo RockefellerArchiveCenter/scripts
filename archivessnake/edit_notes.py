@@ -23,6 +23,7 @@ LEVEL = ["collection", "file", "series"]
 CONFIDENCE_RATIO = 97
 
 def process_tree(args, resource):
+    """Iterates through a given collection, file, or series provided by user input. Finds note content that matches user input and then deletes or modifies relevant notes according to user preference.  """
     for record in resource.tree.walk:
         updated = False
         aojson = record.json()
@@ -48,16 +49,19 @@ def process_tree(args, resource):
 
 
 def contains_match(content, search_string):
+    """Returns True if user-provided note input matches the corresponding note within a given ratio (CONFIDENCE_RATIO)."""
     ratio = fuzz.token_sort_ratio(content.lower(), search_string.lower())
     return True if ratio > CONFIDENCE_RATIO else False
 
 
 def save_record(uri, data):
+    """Posts modifications/deletions to ArchivesSpace"""
     updated = aspace.client.post(uri, json=data)
     updated.raise_for_status()
 
 
 def log_to_spreadsheet(archival_object):
+    """Logs top container identifier information of changed archival objects to spreadsheet"""
     for instance in archival_object.instances:
         top_container = instance.sub_container.top_container
         container = "{} {}".format(
@@ -66,6 +70,7 @@ def log_to_spreadsheet(archival_object):
 
 
 def create_spreadsheet(column_headings):
+    """Creates spreadsheet that logs top container information of changed archival objects"""
     writer.writerow(column_headings)
 
 def get_parser():
@@ -79,6 +84,7 @@ def get_parser():
     return parser
 
 def main():
+     """Main function, which is run when this script is executed"""
     start_time = time.time()
     parser = get_parser()
     args = parser.parse_args()
