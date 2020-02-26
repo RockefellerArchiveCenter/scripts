@@ -87,7 +87,7 @@ class ExpressionReplacer:
             print(updated.json())
 
 
-parser = argparse.ArgumentParser(description="Adds dates to components using ArchivesSpace's date calculator endpoint.")
+parser = argparse.ArgumentParser(description="Replaces problematic strings in date expressions and optionally updates the last saved time of all archival objects in a resource tree.")
 parser.add_argument('resource', help='ID of the resource whose tree should be processed.')
 parser.add_argument('-t', '--touch', action='store_true', help='Trigger a save on each archival object.')
 args = parser.parse_args()
