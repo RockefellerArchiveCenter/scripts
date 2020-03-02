@@ -56,25 +56,25 @@ class ExpressionReplacer:
 
     def replace_circa(self, date):
         for variant in CIRCA_VARIANTS:
-            if date["expression"].startswith(variant):
+            if date.get("expression", "").startswith(variant):
                 date["expression"] = date["expression"].replace(variant, "circa")
                 self.updated = True
 
     def replace_undated(self, date):
         for variant in UNDATED_VARIANTS:
-            if date["expression"].strip() == variant:
+            if date.get("expression", "").strip() == variant:
                 date["expression"] = date["expression"].replace(variant, "undated")
                 self.updated = True
 
     def replace_months(self, date):
         for abbreviation, full_month in MONTH_MATCHES:
-            if date["expression"].startswith(abbreviation):
+            if date.get("expression", "").startswith(abbreviation):
                 date["expression"] = date["expression"].replace(abbreviation, full_month)
                 self.updated = True
 
     def remove_strings(self, date):
         for remove in REMOVE_STRINGS:
-            if date["expression"].startswith(remove):
+            if date.get("expression", "").startswith(remove):
                 date["expression"] = date["expression"].replace(remove, "")
                 self.updated = True
 
