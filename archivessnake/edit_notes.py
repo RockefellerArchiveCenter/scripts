@@ -17,7 +17,7 @@ spreadsheet_path = os.path.join(
         "Destinations", "filename")
 )
 
-NOTE_TYPE_CHOICES = ["bioghist", "accessrestrict", "odd", "abstract", "arrangement", "userestrict", "fileplan", "acqinfo", "langmaterial", "physdesc", "prefercite", "processinfo", "relatedmaterial"]
+NOTE_TYPE_CHOICES = ["bioghist", "accessrestrict", "odd", "abstract", "arrangement", "userestrict", "fileplan", "acqinfo", "langmaterial", "physdesc", "prefercite", "processinfo", "separatedmaterial" "relatedmaterial"]
 ACTION_CHOICES = ["modify", "delete"]
 LEVEL = ["collection", "file", "series", "item"]
 CONFIDENCE_RATIO = 97
