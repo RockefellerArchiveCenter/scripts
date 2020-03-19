@@ -63,7 +63,7 @@ A script to modify or delete specified notes within an ArchivesSpace resource re
 
 The script utilizes argparse, a python module that allows users to write commands directly in the command line that the script can easily parse. If a command is written incorrectly, the argparse module will also provide help messages. For the edit_notes script, you need to provide: 
  
- - note type: "bioghist", "accessrestrict", "odd", "abstract", "arrangement", "userestrict", "fileplan", "acqinfo", "langmaterial", "physdesc", "prefercite", "processinfo", or "relatedmaterial"
+ - note type: "bioghist", "accessrestrict", "odd", "abstract", "arrangement", "userestrict", "fileplan", "acqinfo", "langmaterial", "physdesc", "prefercite", "processinfo", "separatedmaterial" or "relatedmaterial"
  
  - action choice: "modify" or "delete"
  
