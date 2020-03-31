@@ -17,7 +17,7 @@ spreadsheet_path = os.path.join(
         "Destinations", "filename")
 )
 
-NOTE_TYPE_CHOICES = ["bioghist", "accessrestrict", "odd", "abstract", "arrangement", "userestrict", "fileplan", "acqinfo", "langmaterial", "physdesc", "prefercite", "processinfo", "separatedmaterial" "relatedmaterial"]
+NOTE_TYPE_CHOICES = ["bioghist", "accessrestrict", "odd", "abstract", "arrangement", "userestrict", "fileplan", "acqinfo", "langmaterial", "physdesc", "prefercite", "processinfo", "relatedmaterial", "separatedmaterial"]
 ACTION_CHOICES = ["modify", "delete"]
 LEVEL = ["collection", "file", "series", "item"]
 CONFIDENCE_RATIO = 97
@@ -84,7 +84,7 @@ def get_parser():
     return parser
 
 def main():
-     """Main function, which is run when this script is executed"""
+     #"""Main function, which is run when this script is executed"""
     start_time = time.time()
     parser = get_parser()
     args = parser.parse_args()
