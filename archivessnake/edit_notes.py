@@ -7,7 +7,8 @@ import os
 import time
 
 from asnake.aspace import ASpace
-from fuzzywuzzy import fuzz
+#from fuzzywuzzy import fuzz
+from rapidfuzz import fuzz
 
 config = ConfigParser()
 config.read("local_settings.cfg")
