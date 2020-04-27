@@ -26,7 +26,11 @@ class DirectorySerializer(object):
             for folder, subfolders, filenames in os.walk(dir):
                 for f in filenames:
                     filepath = os.path.join(folder, f)
-                    zip.write(filepath)
+                    zip.write(
+                        filepath,
+                        arcname=os.path.join(
+                            os.path.basename(dir),
+                            filepath.replace(dir, "").lstrip("/")))
 
     def make_tar(self, dir):
         with tarfile.open(self.get_filepath(dir, "tar"), "w") as tar:
