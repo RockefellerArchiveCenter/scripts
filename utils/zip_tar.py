@@ -42,7 +42,7 @@ class DirectorySerializer(object):
 
 
 parser = argparse.ArgumentParser(description='Creates ZIP and TAR files from a list of directories.')
-parser.add_argument('filepath', help='File path of JSON file to split into separate files.')
+parser.add_argument('filepath', help='File path of directory containing subdirectories to ZIP and TAR.')
 args = parser.parse_args()
 
 
