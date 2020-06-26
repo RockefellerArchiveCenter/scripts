@@ -78,9 +78,21 @@ def delete_agents_families(data):
             except:
                 pass
 
-data = "library_resources.csv"
+def delete_top_containers(data):
+    with open(data, newline='') as data:
+        reader = csv.DictReader(data)
+        for row in reader:
+            try:
+                uri = '/repositories/2/top_containers/'
+                top_container_id = str(row['top_container_id'])
+                delete = aspace.client.delete(uri + top_container_id)
+                print("deleted top_container " + top_container_id)
+            except:
+                pass
+data = "top_container.csv"
 
-delete_resources(data)
+#delete_resources(data)
 #delete_subjects(data)
 #delete_agents_corporate_entities(data)
 #delete_agents_families(data)
+delete_top_containers(data)
