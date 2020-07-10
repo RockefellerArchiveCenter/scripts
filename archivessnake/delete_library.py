@@ -49,7 +49,7 @@ def delete_agents_person(data):
             try:
                 uri = "/agents/people/"
                 agent_person_id = str(row['agent_person_id'])
-                delete = aspace.client.delete(agent_person_id + uri)
+                delete = aspace.client.delete(uri + agent_person_id)
                 print("deleted "+ agent_person_id)
             except:
                 pass
