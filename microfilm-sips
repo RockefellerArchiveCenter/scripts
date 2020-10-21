@@ -1,6 +1,6 @@
 #Prep digitized microfilm files for ingest into Archivematica
 
-import os
+import os, argparse, re
 from csv import writer
 from shutil import copy2
 from time import time
@@ -21,23 +21,21 @@ def makeSipDirectory(topDirectory, folder):
     objectsDirectory = os.path.join(targetDirectory, "objects")
     os.mkdir(os.path.join(objectsDirectory, "access"))
     
-#Ask for Reel folder name (ex. "Reel M01", "Roll_001")
-
-#Ask for folder name in reel folder (ex. Folder 1) 
+#Search for reel number (ex. "Reel M01", "Roll_001", "Roll_1") 
  
-#Search for Master folder in folder
-   Master = "$/{Folder *}/Master"
-   #Copy files from named folder to objects folder
-    echo "Copying master files..."
-	cp $Master/$.tif $objectsDirectory/
-	rm $objectsDirectory/Thumbs.db
+#Copy preservation files in folder
+   def copyFiles(sourceMaster, destination):
+	print("Copying files from " + source + " to " + destination + "...")
+	for f in os.listdir(source):
+		if not f[-5:] == "bs.db":
+			copy2(os.path.join(source, f), destination)
 
-#Search for Service Edited folder in folder
-    ServiceEdited = "$/{Folder *}/Service Edited"
-   #Copy PDF to access folder in objects folder
-    echo "Copying access files..."
-	cp $ServiceEdited/$.pdf $objectsDirectory/access/
-	cp $ServiceEdited/$.pdf $objectsDirectory/
+#Copy access files in folder
+    def copyFiles(sourceAccess, destination):
+	print("Copying files from " + source + " to " + destination + "...")
+	for f in os.listdir(source):
+		if not f[-5:] == "bs.db":
+			copy2(os.path.join(source, f), destination)
     
 def createAspaceCsv(metadata, access):
     print("Creating archivesspaceids.csv...")
@@ -94,3 +92,17 @@ def createRightsCsv(objectsDirectory, metadataDirectory, officer):
                 writer(spreadsheet).writerow(makeCopyrightRow(filename, findDate(f), "120"))
                 writer(spreadsheet).writerow(makePolicyRow(filename, officer))
     print('Done!')
+
+folder = open(args.folder).readlines()
+for r in folder:
+    print("Starting " + r + "...")
+    sourceMaster = os.path.join(args.source_directory, r, "Master")
+    sourceAccess = os.path.join(args.source_directory, r, "Service Edited")
+#  create Archivematica SIP directory and subdirectories
+    makeSipDirectory(args.sip_directory, r)
+    sipDirectory = os.path.join(args.sip_directory, "sip_" + r)
+    metadataDirectory = os.path.join(sipDirectory, "metadata")
+    objectsDirectory = os.path.join(sipDirectory, "objects")
+    accessDirectory = os.path.join(objectsDirectory, "access")
+    copyFiles(sourceMaster, objectsDirectory)
+    copyFiles(sourceAccess, accessDirectory)
