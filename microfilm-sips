@@ -20,8 +20,6 @@ def makeSipDirectory(topDirectory, folder):
     os.mkdir(os.path.join(targetDirectory, "objects"))
     objectsDirectory = os.path.join(targetDirectory, "objects")
     os.mkdir(os.path.join(objectsDirectory, "access"))
-    
-#Search for reel number (ex. "Reel M01", "Roll_001", "Roll_1") 
  
 #Copy preservation files in folder
    def copyFiles(sourceMaster, destination):
