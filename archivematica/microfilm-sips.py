@@ -1,12 +1,9 @@
 # Prep digitized microfilm files for ingest into Archivematica
 
-import argparse
 import os
-import re
 from csv import writer
 from datetime import datetime
 from shutil import copy2
-from time import time
 
 #Create new folder and define name of new folder (probably use txt file that list folders like RFOD script)#
 folder = ["Folder 1", "Folder 2", "Folder 3"]
