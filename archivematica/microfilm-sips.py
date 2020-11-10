@@ -16,9 +16,8 @@ def makeSipDirectory(topDirectory, folder):
     microfilmfolder = "sip_" + folder
     os.mkdir(os.path.join(topDirectory, microfilmfolder))
     targetDirectory = os.path.join(topDirectory, microfilmfolder)
-    os.mkdir(os.path.join(targetDirectory, "logs"))
-    os.mkdir(os.path.join(targetDirectory, "metadata"))
-    os.mkdir(os.path.join(targetDirectory, "objects"))
+    for subdirectory in ["logs", "metadata", "objects"]:
+        os.mkdir(os.path.join(targetDirectory, subdirectory))
     objectsDirectory = os.path.join(targetDirectory, "objects")
     os.mkdir(os.path.join(objectsDirectory, "access"))
 
