@@ -12,7 +12,7 @@ parser.add_argument(
     help='Path to the directory where each SIP should be placed.')
 parser.add_argument(
     'source_directory',
-    help='Path to the directory where the original digital objects (grouped in directories by officers) are.')
+    help='Path to the directory where the original digital objects (grouped in directories by reel) are.')
 parser.add_argument(
     'collection',
     help='Directory name that corresponds to the microfilm collection.')
