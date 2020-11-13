@@ -131,8 +131,7 @@ def makeCopyrightRow(filename, copyrightStartYear, copyrightTerm):
     determination_date = datetime.now().strftime("%Y-%m-%d")
     start_date = copyrightStartYear + "-01-01"
     end_date = getCopyrightEndDate(copyrightStartYear, copyrightTerm)
-    note = 'Work for hire - copyright term ' + copyrightTerm + \
-        ' years from date of creation. Copyright held by the Rockefeller Foundation.'
+    note = "Copyright term 120 years from date of creation."
     return makeRow(
         filename,
         'copyright',
@@ -154,7 +153,7 @@ def makePolicyRow(filename, microfilm):
         'Rockefeller Sanitary Commission microfilm',
         'Bureau of Social Hygiene microfilm',
             'LSRM microfilm']:
-        note = "Rockefeller Foundation records are open after 20 years from creation."
+        note = "Rockefeller family/boards collections are open for research with select materials restricted."
     return makeRow(
         filename,
         'policy',
