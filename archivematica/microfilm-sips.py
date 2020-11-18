@@ -34,19 +34,21 @@ def package_transfer(sip_directory, reel_path, collection, reel, folder):
                 " ", "_"), reel.replace(
                 " ", "_"), folder.replace(
                     " ", "_")))
+    original_directory = os.path.join(reel_path, folder)
+    objects_directory = os.path.join(sip_directory, "objects")
+    copy_files(os.path.join(original_directory, "Master"), objects_directory)
     copy_files(
         os.path.join(
-            reel_path, folder, "Master"), os.path.join(
-            sip_directory, "objects"))
-    copy_files(
-        os.path.join(
-            reel_path,
-            folder,
+            original_directory,
             "Service Edited"),
         os.path.join(
-            sip_directory,
-            "objects",
+            objects_directory,
             "access"))
+    copy_files(
+        os.path.join(
+            original_directory,
+            "Service Edited"),
+        objects_directory)
 
 # Create new folders within each folder
 
