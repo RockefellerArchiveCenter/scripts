@@ -93,7 +93,7 @@ for uri in list_of_uris:
                     "top_container").get("_resolved")
                 if top_container.get("type") == "box":
                     f.write(
-                        "{}\t{} {}, {}\t{}\ts{}\n".format(
+                        "{}\t{} {}, {}\t{}\t{}\n".format(
                             item_json.get("title"),
                             top_container.get("type").capitalize(),
                             top_container.get("indicator"),
