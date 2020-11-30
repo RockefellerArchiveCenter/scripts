@@ -151,9 +151,10 @@ for i, s in enumerate(rsc_list):
     rsc_list[i] = s.split("\t")
 # iterate through sip directories, match metadata with directory
 for sip in list_of_sips:
+    sip_path = join(args.location_of_sips, sip_directory)
     sip_instance = ",".join(sip.split("_")[-2:]).lower()
-    path_to_metadata = join(sip, "metadata")
-    for f in listdir(join(sip, "objects")):
+    path_to_metadata = join(sip_path, "metadata")
+    for f in listdir(join(sip_path, "objects")):
         if "pdf" in f:
             access_pdf = f
     for rsc_row in rsc_list:
@@ -161,7 +162,7 @@ for sip in list_of_sips:
             # make archivesspaceids.csv file
             createAspaceCsv(path_to_metadata, access_pdf, rsc_row[-1])
             # make rights.csv file
-            createRightsCsv(join(sip, "objects"), path_to_metadata, rsc_row[2])
+            createRightsCsv(join(sip_path, "objects"), path_to_metadata, rsc_row[2])
             # remove match in rsc_list before iterating again
             rsc_list.remove(rsc_row)
         else:
