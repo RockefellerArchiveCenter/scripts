@@ -18,7 +18,6 @@ args = parser.parse_args()
 
 
 def createAspaceCsv(metadata, access, refid):
-    print("Creating archivesspaceids.csv...")
     aspacecsv = join(metadata, 'archivesspaceids.csv')
     with open(aspacecsv, 'w', newline='') as csvfile:
         f = "objects/" + access
@@ -148,22 +147,28 @@ rsc_list = open(args.tsv_file).readlines()
 # strip, split list of metadata
 for i, s in enumerate(rsc_list):
     rsc_list[i] = s.rstrip()
+for i, s in enumerate(rsc_list):
     rsc_list[i] = s.split("\t")
 # iterate through sip directories, match metadata with directory
 for sip in list_of_sips:
-    sip_path = join(args.location_of_sips, sip_directory)
-    sip_instance = ",".join(sip.split("_")[-2:]).lower()
-    path_to_metadata = join(sip_path, "metadata")
-    for f in listdir(join(sip_path, "objects")):
-        if "pdf" in f:
-            access_pdf = f
-    for rsc_row in rsc_list:
-        if rsc_row[1].lower().replace(" ", "") == sip_instance:
-            # make archivesspaceids.csv file
-            createAspaceCsv(path_to_metadata, access_pdf, rsc_row[-1])
-            # make rights.csv file
-            createRightsCsv(join(sip_path, "objects"), path_to_metadata, rsc_row[2])
-            # remove match in rsc_list before iterating again
-            rsc_list.remove(rsc_row)
-        else:
-            print("Match not found for {}".format(sip))
+    try:
+        sip_path = join(args.location_of_sips, sip)
+        sip_instance = ",".join(sip.split("_")[-2:]).lower()
+        path_to_metadata = join(sip_path, "metadata")
+        for f in listdir(join(sip_path, "objects")):
+            if "pdf" in f:
+                access_pdf = f
+        rsc_match = False
+        for rsc_row in rsc_list:
+            if rsc_row[1].lower().replace(" ", "") == sip_instance:
+                # make archivesspaceids.csv file
+                createAspaceCsv(path_to_metadata, access_pdf, rsc_row[-1])
+                # make rights.csv file
+                createRightsCsv(join(sip_path, "objects"), path_to_metadata, rsc_row[2])
+                # remove match in rsc_list before iterating again
+                rsc_list.remove(rsc_row)
+                rsc_match = True
+        if rsc_match == False:
+            print(sip)
+    except:
+        print(sip)
