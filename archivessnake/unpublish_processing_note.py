@@ -18,9 +18,7 @@ start_time = time.time()
 
 def unpublish_processinfo_resources():
     for object_type in ['resources']:
-        print(object_type)
         for object in getattr(aspace, object_type):
-            print(object)
             if (object.jsonmodel_type == 'resource' and object.id_0.startswith(("FA"))):
                 for note in object.notes:
                     if (note.type == "processinfo"):
