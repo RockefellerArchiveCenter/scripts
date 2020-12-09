@@ -15,38 +15,35 @@ repo = aspace.repositories(2)
 start_time = time.time()
 
 
-def unpublish_processinfo_resources():
+repo = aspace.repositories(2)
+start_time = time.time()
+
+
+def get_resources_notes():
     for object_type in ['resources']:
         for object in getattr(aspace, object_type):
-            if (object.jsonmodel_type == 'resource' and object.id_0.startswith(("FA"))):
-                for note in object.notes:
-                    if (note.type == "processinfo"):
-                        object_json = object.json()
-                        note_json = note.json()
-                        note_json["publish"] = False
-                        updated = aspace.client.post(object.uri, json=object_json)
-                        if updated.status_code == 200:
-                            print("Resource {} updated".format(object.uri))
-                        else:
-                            print(updated.json())
+            if (object.jsonmodel_type == 'resource' and object.id_0.startswith(('FA'))):
+                unpublish_notes(object)
 
-def unpublish_processinfo_ao():
+def get_ao_notes():
     for object in repo.archival_objects:
             if (object.jsonmodel_type == 'archival_object'):
-                for note in object.notes:
-                    if (note.type == "processinfo"):
-                        object_json = object.json()
-                        note_json = note.json()
-                        note_json["publish"] = False
-                        updated = aspace.client.post(object.uri, json=object_json)
-                        if updated.status_code == 200:
-                            print("Archival object {} updated".format(object.uri))
-                        else:
-                            print(updated.json())
+                unpublish_notes(object)
 
-#unpublish_processinfo_resources()
+def unpublish_notes(object):
+    object_json = object.json()
+    for note in object_json.get('notes'):
+        if note["type"] == 'processinfo':
+            object_json['publish'] = False
+            updated = aspace.client.post(object.uri, json=object_json)
+            if updated.status_code == 200:
+                print("{} updated".format(object.uri))
+            else:
+                print(updated.json())
 
-unpublish_processinfo_ao()
+#get_resources_notes()
+
+get_ao_notes()
 
 elapsed_time = time.time() - start_time
-print("Time Elapsed: " + time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
+print('Time Elapsed: ' + time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
