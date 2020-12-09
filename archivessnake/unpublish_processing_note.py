@@ -2,7 +2,6 @@
 
 import os
 import json
-import csv
 import time
 from asnake.aspace import ASpace
 
