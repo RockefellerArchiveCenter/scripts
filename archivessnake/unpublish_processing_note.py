@@ -27,8 +27,7 @@ def get_resources_notes():
 
 def get_ao_notes():
     for object in repo.archival_objects:
-            if (object.jsonmodel_type == 'archival_object'):
-                unpublish_notes(object)
+        unpublish_notes(object)
 
 def unpublish_notes(object):
     object_json = object.json()
