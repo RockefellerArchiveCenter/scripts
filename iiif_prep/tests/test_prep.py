@@ -39,7 +39,10 @@ def test_get_list_of_diaries():
     """docstring for test_get_list_of_diaries"""
     bates_list_expected = ["RF_Bates-M_1948-1949"]
     bates_list = Preparer().get_list_of_diaries(join(source, "Bates"), "CURRENT")
+    beard_1_list_expected = ["rac_rfdiaries_12-2_beard_1925-1938_001", "rac_rfdiaries_12-2_beard_1925-1938_001a", "rac_rfdiaries_12-2_beard_1925-1938_001b", "rac_rfdiaries_12-2_beard_1925-1938_002"]
+    beard_1_list = Preparer().get_list_of_diaries(join(source, "Beard 1"), "MICROFILM")
     gilpatric_list_expected = ["Gilpatric_1949", "Gilpatric_1950"]
     gilpatric_list = Preparer().get_list_of_diaries(join(source, "Gilpatric"), "LEGACY")
     assert bates_list_expected == bates_list
+    assert sorted(beard_1_list_expected) == sorted(beard_1_list)
     assert sorted(gilpatric_list_expected) == sorted(gilpatric_list)

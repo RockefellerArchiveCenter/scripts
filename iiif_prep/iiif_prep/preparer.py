@@ -68,7 +68,7 @@ class Preparer():
         return structure
 
     def get_list_of_diaries(self, officer_path, structure):
-        """path to mezzanine directory"""
+        """Returns name that matches PDF title, and can be used in filepath to mezzanine directory"""
         diaries_list = []
         if structure == "CURRENT":
             mezzanine_directory = join(officer_path, "TIFFs", "Master-Edited")
@@ -79,11 +79,14 @@ class Preparer():
                         d))]
         elif structure == "LEGACY":
             diaries_list = [d for d in listdir(officer_path) if isdir(join(officer_path, d))]
+        elif structure == "MICROFILM":
+            tiff_directory = [d for d in listdir(officer_path) if "Tiff" in d]
+            diaries_list = [d for d in listdir(join(officer_path, tiff_directory[0])) if isdir(join(officer_path, tiff_directory[0], d))]
         return diaries_list
         
     def get_refids(self, officer, diaries_list):
         """docstring for get_refids"""
-        
+        pass
 
     # get path to diary mezzanine files
 
