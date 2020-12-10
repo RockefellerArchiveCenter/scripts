@@ -31,6 +31,8 @@ def unpublish_notes(object):
         try:
             if note['type'] == 'processinfo' and note['publish'] == True:
                 note['publish'] = False
+                subnotes = note['subnotes']
+                subnotes['publish'] = False
                 updated = aspace.client.post(object.uri, json=object_json)
                 if updated.status_code == 200:
                     print("{} updated".format(object.uri))
