@@ -11,6 +11,7 @@ aspace = ASpace(
               user='',
               password=''
     )
+
 repo = aspace.repositories(2)
 start_time = time.time()
 
@@ -27,20 +28,21 @@ def get_ao_notes():
 
 def unpublish_notes(object):
     object_json = object.json()
-    for note in object_json.get('notes'):
-        try:
-            if note['type'] == 'processinfo' and note['publish'] == True:
-                note['publish'] = False
-                subnotes = note['subnotes']
-                subnotes['publish'] = False
-                updated = aspace.client.post(object.uri, json=object_json)
-                if updated.status_code == 200:
-                    print("{} updated".format(object.uri))
-                else:
-                    print("{} error".format(object.uri))
-                    pass
-        except:
-            print("{} error".format(object.uri))
+    try:
+        for note in object_json.get('notes'):
+            for subnote in note.get('subnotes'):
+                if note['type'] == 'processinfo':
+                    note['publish'] = False
+                    subnote['publish'] = False
+                    updated = aspace.client.post(object.uri, json=object_json)
+                    if updated.status_code == 200:
+                        print("{} updated".format(object.uri))
+                    else:
+                        print("{} error".format(object.uri))
+                        pass
+                        print("{} error".format(object.uri))
+    except:
+        print("{} error".format(object.uri))
 
 
 #get_resources_notes()
