@@ -67,15 +67,18 @@ class Preparer():
                 "{} does not conform to standard structure".format(officer))
         return structure
 
-    def get_list_of_diaries(self, officer_path):
+    def get_list_of_diaries(self, officer_path, structure):
         """path to mezzanine directory"""
         diaries_list = []
-        mezzanine_directory = join(officer_path, "TIFFs", "Master-Edited")
-        diaries_list = [
-            d for d in listdir(mezzanine_directory) if isdir(
-                join(
-                    mezzanine_directory,
-                    d))]
+        if structure == "CURRENT":
+            mezzanine_directory = join(officer_path, "TIFFs", "Master-Edited")
+            diaries_list = [
+                d for d in listdir(mezzanine_directory) if isdir(
+                    join(
+                        mezzanine_directory,
+                        d))]
+        elif structure == "LEGACY":
+            diaries_list = [d for d in listdir(officer_path) if isdir(join(officer_path, d))]
         return diaries_list
         
     def get_refids(self, officer, diaries_list):

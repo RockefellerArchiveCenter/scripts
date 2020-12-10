@@ -38,5 +38,8 @@ def test_determine_structure():
 def test_get_list_of_diaries():
     """docstring for test_get_list_of_diaries"""
     bates_list_expected = ["RF_Bates-M_1948-1949"]
-    bates_list = Preparer().get_list_of_diaries(join(source, "Bates"))
+    bates_list = Preparer().get_list_of_diaries(join(source, "Bates"), "CURRENT")
+    gilpatric_list_expected = ["Gilpatric_1949", "Gilpatric_1950"]
+    gilpatric_list = Preparer().get_list_of_diaries(join(source, "Gilpatric"), "LEGACY")
     assert bates_list_expected == bates_list
+    assert sorted(gilpatric_list_expected) == sorted(gilpatric_list)
