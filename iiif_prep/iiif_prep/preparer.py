@@ -17,11 +17,15 @@ class Preparer():
             self.config.get("ArchivesSpace", "repository"))
         officers = sorted(self.get_officers)
         for officer in officers:
-            officer_path = join(source_directory, officer)
-            structure = self.determine_structure(officer_path, officer)
-            diaries = self.get_list_of_diaries(officer_path)
+            self.officer_path = join(source_directory, officer)
+            self.structure = self.determine_structure(officer)
+            diaries = self.get_list_of_diaries()
+            for d in diaries:
+                refid = as_client.get_diary_refid(d)
+                mezzanine_directory = self.get_mezzanine_path(officer, d)
+                destination = join(target_directory, refid)
+                copy2(mezzanine_directory, destination)
 
-    # get officers
     def get_officers(self, source_directory):
         """docstring for get_officers"""
         return [
