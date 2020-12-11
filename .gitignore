@@ -6,3 +6,4 @@ archivesspace/log.txt
 *.mp4
 imaging/*.txt
 imaging/*.img
+*__pycache__/
