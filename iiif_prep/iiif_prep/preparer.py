@@ -27,7 +27,11 @@ class Preparer():
                 copy2(mezzanine_directory, destination)
 
     def get_officers(self, source_directory):
-        """docstring for get_officers"""
+        """Gets list of subdirectories, corresponding to "Officers", in a directory.
+
+        Args:
+            source_dir (str): A directory containing subdirectoriess for RF and GEB Officers Diaries.
+        """
         return [
             d for d in listdir(source_directory) if isdir(
                 join(
