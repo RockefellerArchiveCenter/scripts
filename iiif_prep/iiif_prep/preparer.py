@@ -1,33 +1,4 @@
-# how these are structured - GEB + newer RF:
-# $Officer
-# PDFs
-# all pdf diaries
-# TIFFs
-# Master-Edited
-# $Diary Name
-# $Diary Name_001_me.tif
-# $Diary Name_002_me.tif
-# how these are structured - legacy RF (not microfilm):
-# $Officer
-# $Diary Name
-# Master Edited
-# ??? (example: Balfour)
-# Service Edited
-# how these are structured - RF microfilm:
-# $Officer NUMBER (the roll #)
-# Officer-Roll_01-PDFs_JPEGS_Altos
-# some text_PDF_images
-# some text_001.pdf
-# some text_002.pdf
-
-# Officer/Tiff folder/diary
-# Officer/diary/Tiff folder
-# TO DO: ADD FUNCTION TO RETURN TYPE OF STRUCTURE - THEN SPECIFIC MEZZANINE FUNCTIONS
-# ITERATE THROUGH DIARIES
-# FIRST - MEZZANINE FILES
-# THEN - SERVICE FILE TO MATCH AGAINST
-# ADD FUNCTION TO FIND OFFICER IN ARCHIVESSPACE?
-
+from configparser import ConfigParser
 from os import listdir
 from os.path import isdir, join
 
