@@ -27,7 +27,9 @@ def test_determine_structure():
     """docstring for test_find_mezzanine"""
     preparer = Preparer()
     for officer_name, expected_structure in [
-            ("Bates", "CURRENT"), ("Beard 1", "MICROFILM"), ("Gilpatric", "LEGACY")]:
+            ("Bates", preparer.CURRENT),
+            ("Beard 1", preparer.MICROFILM),
+            ("Gilpatric", preparer.LEGACY)]:
         preparer.officer_path = join(source, officer_name)
         structure = preparer.determine_structure(officer_name)
         assert structure == expected_structure
@@ -37,7 +39,13 @@ def test_get_list_of_diaries():
     """docstring for test_get_list_of_diaries"""
     preparer = Preparer()
     for officer_name, structure, expected_diaries in [
-            ("Bates", "CURRENT", ["RF_Bates-M_1948-1949"])]:
+            ("Bates", preparer.CURRENT, ["RF_Bates-M_1948-1949"]),
+            ("Beard 1", preparer.MICROFILM,
+                ["rac_rfdiaries_12-2_beard_1925-1938_001",
+                "rac_rfdiaries_12-2_beard_1925-1938_001a",
+                "rac_rfdiaries_12-2_beard_1925-1938_001b",
+                "rac_rfdiaries_12-2_beard_1925-1938_002"]),
+            ("Gilpatric", preparer.LEGACY, ["Gilpatric_1949", "Gilpatric_1950"])]:
         preparer.officer_path = join(source, officer_name)
         preparer.structure = structure
         diaries = preparer.get_list_of_diaries()
