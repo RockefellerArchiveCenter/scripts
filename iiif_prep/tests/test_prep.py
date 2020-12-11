@@ -25,24 +25,20 @@ def test_get_officers():
 
 def test_determine_structure():
     """docstring for test_find_mezzanine"""
-    bates_structure = Preparer().determine_structure(join(source, "Bates"), "Bates")
-    beard_structure = Preparer().determine_structure(
-        join(source, "Beard 1"), "Beard 1")
-    gilpatric_structure = Preparer().determine_structure(
-        join(source, "Gilpatric"), "Gilpatric")
-    assert bates_structure == 'CURRENT'
-    assert beard_structure == 'MICROFILM'
-    assert gilpatric_structure == 'LEGACY'
+    preparer = Preparer()
+    for officer_name, expected_structure in [
+            ("Bates", "CURRENT"), ("Beard 1", "MICROFILM"), ("Gilpatric", "LEGACY")]:
+        preparer.officer_path = join(source, officer_name)
+        structure = preparer.determine_structure(officer_name)
+        assert structure == expected_structure
 
 
 def test_get_list_of_diaries():
     """docstring for test_get_list_of_diaries"""
-    bates_list_expected = ["RF_Bates-M_1948-1949"]
-    bates_list = Preparer().get_list_of_diaries(join(source, "Bates"), "CURRENT")
-    beard_1_list_expected = ["rac_rfdiaries_12-2_beard_1925-1938_001", "rac_rfdiaries_12-2_beard_1925-1938_001a", "rac_rfdiaries_12-2_beard_1925-1938_001b", "rac_rfdiaries_12-2_beard_1925-1938_002"]
-    beard_1_list = Preparer().get_list_of_diaries(join(source, "Beard 1"), "MICROFILM")
-    gilpatric_list_expected = ["Gilpatric_1949", "Gilpatric_1950"]
-    gilpatric_list = Preparer().get_list_of_diaries(join(source, "Gilpatric"), "LEGACY")
-    assert bates_list_expected == bates_list
-    assert sorted(beard_1_list_expected) == sorted(beard_1_list)
-    assert sorted(gilpatric_list_expected) == sorted(gilpatric_list)
+    preparer = Preparer()
+    for officer_name, structure, expected_diaries in [
+            ("Bates", "CURRENT", ["RF_Bates-M_1948-1949"])]:
+        preparer.officer_path = join(source, officer_name)
+        preparer.structure = structure
+        diaries = preparer.get_list_of_diaries()
+        assert (sets(diaries) == set(expected_diaries))
