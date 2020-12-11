@@ -2,13 +2,19 @@ from configparser import ConfigParser
 from os import listdir
 from os.path import isdir, join
 
+from .archivesspace import ArchivesSpaceClient
+
+# TO DO: add officers (including other directory names) to ignore in
+# config setting
+
 
 class Preparer():
-    # Special characters in directory + filename (also must account for
-    # spaces): , ( ) '
-
-    def run(self, source_directory):
-        """docstring for run"""
+    def run(self, source_directory, target_directory):
+        as_client = ArchivesSpaceClient(
+            self.config.get("ArchivesSpace", "baseurl"),
+            self.config.get("ArchivesSpace", "username"),
+            self.config.get("ArchivesSpace", "password"),
+            self.config.get("ArchivesSpace", "repository"))
         officers = sorted(self.get_officers)
         for officer in officers:
             officer_path = join(source_directory, officer)
