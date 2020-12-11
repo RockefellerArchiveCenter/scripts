@@ -1,7 +1,7 @@
 from asnake.aspace import ASpace
 
 
-class ArchivesSpace:
+class ArchivesSpaceClient:
     """docstring for ArchivesSpace"""
 
     def __init__(self, baseurl, username, password, repository):
@@ -12,7 +12,7 @@ class ArchivesSpace:
             repository=repository).client
         self.repository = repository
 
-    def get_diary_uri(self, diary):
+    def get_diary_refid(self, diary):
         refid = None
         search_url = "repositories/{}/search?page=1&type[]=archival_object&q=digital_object:+{}.pdf".format(
             self.repository, diary)
