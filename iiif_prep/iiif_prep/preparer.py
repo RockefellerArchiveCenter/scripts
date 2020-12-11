@@ -28,7 +28,7 @@ class Preparer():
             for d in diaries:
                 refid = as_client.get_diary_refid(d)
                 mezzanine_directory = self.get_mezzanine_path(officer, d)
-                destination = join(target_directory, refid)
+                destination = join(target_directory, refid, "master")
                 copy2(mezzanine_directory, destination)
 
     def get_officers(self, source_directory):
