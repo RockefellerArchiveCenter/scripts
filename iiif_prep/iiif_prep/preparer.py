@@ -10,6 +10,10 @@ from .archivesspace import ArchivesSpaceClient
 
 
 class Preparer():
+    CURRENT = 0
+    MICROFILM = 1
+    LEGACY = 2
+
     def run(self, source_directory, target_directory):
         as_client = ArchivesSpaceClient(
             self.config.get("ArchivesSpace", "baseurl"),
@@ -43,11 +47,11 @@ class Preparer():
         """docstring for find_mezzanine_directory"""
         structure = None
         if "TIFFs" in listdir(self.officer_path):
-            structure = "CURRENT"
+            structure = self.CURRENT
         elif "Roll" in str(listdir(self.officer_path)):
-            structure = "MICROFILM"
+            structure = self.MICROFILM
         elif officer in listdir(self.officer_path)[0].split('_', 1)[0]:
-            structure = "LEGACY"
+            structure = self.LEGACY
         else:
             raise Exception(
                 "{} does not conform to standard structure".format(officer))
@@ -56,7 +60,7 @@ class Preparer():
     def get_list_of_diaries(self):
         """Returns name that matches PDF title, and can be used in filepath to mezzanine directory"""
         diaries_list = []
-        if self.structure == "CURRENT":
+        if self.structure == self.CURRENT:
             mezzanine_directory = join(
                 self.officer_path, "TIFFs", "Master-Edited")
             diaries_list = [
@@ -64,10 +68,10 @@ class Preparer():
                     join(
                         mezzanine_directory,
                         d))]
-        elif self.structure == "LEGACY":
+        elif self.structure == self.LEGACY:
             diaries_list = [d for d in listdir(
                 self.officer_path) if isdir(join(self.officer_path, d))]
-        elif self.structure == "MICROFILM":
+        elif self.structure == self.MICROFILM:
             tiff_directory = [d for d in listdir(
                 self.officer_path) if "Tiff" in d]
             diaries_list = [
@@ -84,13 +88,13 @@ class Preparer():
     def get_mezzanine_path(self, officer, diary):
         """Return path to mezzanine TIFF files for a diary"""
         mezzanine_directory = None
-        if self.structure == "CURRENT":
+        if self.structure == self.CURRENT:
             mezzanine_directory = join(
                 self.officer_path, "TIFFs", "Master-Edited", diary)
-        elif self.structure == "LEGACY":
+        elif self.structure == self.LEGACY:
             mezzanine_directory = join(
                 self.officer_path, diary, "Master_Edited")
-        elif self.structure == "MICROFILM":
+        elif self.structure == self.MICROFILM:
             tiff_directory = [d for d in listdir(
                 self.officer_path) if "Tiff" in d]
             mezzanine_directory = join(
