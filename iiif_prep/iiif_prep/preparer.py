@@ -1,7 +1,7 @@
 from configparser import ConfigParser
 from os import listdir
 from os.path import isdir, join
-from shutil import copy2
+from shutil import copytree
 
 from .archivesspace import ArchivesSpaceClient
 
@@ -29,7 +29,7 @@ class Preparer():
                 refid = as_client.get_diary_refid(d)
                 mezzanine_directory = self.get_mezzanine_path(officer, d)
                 destination = join(target_directory, refid, "master")
-                copy2(mezzanine_directory, destination)
+                copytree(mezzanine_directory, destination)
 
     def get_officers(self, source_directory):
         """Gets list of subdirectories, corresponding to "Officers", in a directory.
