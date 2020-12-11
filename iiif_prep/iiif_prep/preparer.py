@@ -1,6 +1,7 @@
 from configparser import ConfigParser
 from os import listdir
 from os.path import isdir, join
+from shutil import copy2
 
 from .archivesspace import ArchivesSpaceClient
 
@@ -79,10 +80,22 @@ class Preparer():
                         tiff_directory[0],
                         d))]
         return diaries_list
-        
-    def get_refids(self, officer, diaries_list):
-        """docstring for get_refids"""
-        pass
+
+    def get_mezzanine_path(self, officer, diary):
+        """Return path to mezzanine TIFF files for a diary"""
+        mezzanine_directory = None
+        if self.structure == "CURRENT":
+            mezzanine_directory = join(
+                self.officer_path, "TIFFs", "Master-Edited", diary)
+        elif self.structure == "LEGACY":
+            mezzanine_directory = join(
+                self.officer_path, diary, "Master_Edited")
+        elif self.structure == "MICROFILM":
+            tiff_directory = [d for d in listdir(
+                self.officer_path) if "Tiff" in d]
+            mezzanine_directory = join(
+                self.officer_path, tiff_directory[0], diary)
+        return mezzanine_directory
 
     # get path to diary mezzanine files
 
