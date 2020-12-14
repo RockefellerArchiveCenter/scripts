@@ -2,8 +2,6 @@ from asnake.aspace import ASpace
 
 
 class ArchivesSpaceClient:
-    """docstring for ArchivesSpace"""
-
     def __init__(self, baseurl, username, password, repository):
         self.client = ASpace(
             baseurl=baseurl,
