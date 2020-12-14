@@ -33,7 +33,7 @@ def unpublish_notes(object):
             note['publish'] = False
             for subnote in note.get('subnotes'):
                 subnote['publish'] = False
-            object_json["notes"][idx] = note
+            object_json['notes'][idx] = note
     updated = aspace.client.post(object.uri, json=object_json)
     if updated.status_code == 200:
         print("{} updated".format(object.uri))
