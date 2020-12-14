@@ -8,23 +8,19 @@ source = FIXTURES_FILEPATH
 
 expected_officers = ['Bates', 'Beard 2', 'Gilpatric', 'Beard 1']
 
-
-def setup():
-    # for d in [SOURCE_DIR]:
-    #     if isdir(d):
-    #         shutil.rmtree(d)
-    # shutil.copytree(FIXTURES_FILEPATH, SOURCE_DIR)
-    pass
-
+def test_run_method():
+    print("Testing run method...")
+    run = Preparer().run(source, ".")
+    assert run
 
 def test_get_officers():
-    """docstring for test_something"""
-    officers_list = Preparer().get_officers(source)
+    print("Getting officers...")
+    officers_list = Preparer().get_officers(source, ["Test Directory"])
     assert all(item in expected_officers for item in officers_list)
 
 
 def test_determine_structure():
-    """docstring for test_find_mezzanine"""
+    print("Determining structure...")
     preparer = Preparer()
     for officer_name, expected_structure in [
             ("Bates", preparer.CURRENT),
@@ -36,7 +32,7 @@ def test_determine_structure():
 
 
 def test_get_list_of_diaries():
-    """docstring for test_get_list_of_diaries"""
+    print("Getting diaries...")
     preparer = Preparer()
     for officer_name, structure, expected_diaries in [
             ("Bates", preparer.CURRENT, ["RF_Bates-M_1948-1949"]),
@@ -49,4 +45,4 @@ def test_get_list_of_diaries():
         preparer.officer_path = join(source, officer_name)
         preparer.structure = structure
         diaries = preparer.get_list_of_diaries()
-        assert (sets(diaries) == set(expected_diaries))
+        assert (set(diaries) == set(expected_diaries))
