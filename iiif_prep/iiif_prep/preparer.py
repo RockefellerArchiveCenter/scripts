@@ -1,3 +1,5 @@
+import logging
+
 from configparser import ConfigParser
 from os import listdir
 from os.path import isdir, join
@@ -14,34 +16,51 @@ class Preparer():
     MICROFILM = 1
     LEGACY = 2
 
+    def __init__(self):
+        logging.basicConfig(
+            datefmt='%m/%d/%Y %I:%M:%S %p',
+            filename='iiif_preparers.log',
+            format='%(asctime)s %(message)s',
+            level=logging.INFO)
+        self.config = ConfigParser()
+        self.config.read("local_settings.cfg")
+
     def run(self, source_directory, target_directory):
         as_client = ArchivesSpaceClient(
             self.config.get("ArchivesSpace", "baseurl"),
             self.config.get("ArchivesSpace", "username"),
             self.config.get("ArchivesSpace", "password"),
             self.config.get("ArchivesSpace", "repository"))
-        officers = sorted(self.get_officers)
+        officers = sorted(self.get_officers(source_directory,
+                                            self.config.get("IgnoreList", "ignore_list")))
         for officer in officers:
             self.officer_path = join(source_directory, officer)
             self.structure = self.determine_structure(officer)
             diaries = self.get_list_of_diaries()
+            logging.info("Starting {}. {} diaries to process.".format(
+                officer, len(diaries)))
             for d in diaries:
                 refid = as_client.get_diary_refid(d)
                 mezzanine_directory = self.get_mezzanine_path(officer, d)
                 destination = join(target_directory, refid, "master")
                 copytree(mezzanine_directory, destination)
 
-    def get_officers(self, source_directory):
+    # TODO: ADD LIST OF SUBDIRECTORIES TO IGNORE
+    def get_officers(self, source_directory, ignore_list):
         """Gets list of subdirectories, corresponding to "Officers", in a directory.
 
         Args:
             source_dir (str): A directory containing subdirectoriess for RF and GEB Officers Diaries.
+        Returns:
+            officers (list): A list of subdirectories
         """
-        return [
+        subdirectories = [
             d for d in listdir(source_directory) if isdir(
                 join(
                     source_directory,
                     d))]
+        return [s for s in subdirectories if s not in ignore_list]
+        [f for f in files if f.startswith(prefix)]
 
     def determine_structure(self, officer):
         """docstring for find_mezzanine_directory"""
@@ -73,7 +92,7 @@ class Preparer():
                 self.officer_path) if isdir(join(self.officer_path, d))]
         elif self.structure == self.MICROFILM:
             tiff_directory = [d for d in listdir(
-                self.officer_path) if "Tiff" in d]
+                self.officer_path) if "tiff" in d.lower()]
             diaries_list = [
                 d for d in listdir(
                     join(
