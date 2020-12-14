@@ -21,10 +21,9 @@ start_time = time.time()
 
 
 def get_resources_notes():
-    for object_type in ['resources']:
-        for object in getattr(aspace, object_type):
-            if (object.jsonmodel_type == 'resource' and object.id_0.startswith(('FA'))):
-                unpublish_notes(object)
+    for object in aspace.resources:
+        if object.id_0.startswith('FA'):
+            unpublish_notes(object)
 
 def get_ao_notes():
     for object in repo.archival_objects:
@@ -42,7 +41,7 @@ def unpublish_notes(object):
     if updated.status_code == 200:
         print("{} updated".format(object.uri))
     else:
-        print("{}" .format(object.uri))
+        print("{} error".format(object.uri))
         pass
 
 #get_resources_notes()
