@@ -32,7 +32,7 @@ def get_ao_notes():
 
 def unpublish_notes(object):
     object_json = object.json()
-    for idx, note in list(enumerate(object_json.get('notes'))):
+    for idx, note in enumerate(object_json.get('notes')):
         if note.get('type') == 'processinfo':
             note['publish'] = False
             for subnote in note.get('subnotes'):
