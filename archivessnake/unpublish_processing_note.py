@@ -4,13 +4,17 @@ import os
 import json
 import time
 from asnake.aspace import ASpace
+from configparser import ConfigParser
 
+config = ConfigParser()
+config.read("local_settings.cfg")
 
 aspace = ASpace(
-              baseurl='',
-              user='',
-              password=''
+              baseurl=config.get("ArchivesSpace", "baseURL"),
+              username=config.get("ArchivesSpace", "user"),
+              password=config.get("ArchivesSpace", "password"),
     )
+repo = aspace.repositories(2)
 
 repo = aspace.repositories(2)
 start_time = time.time()
