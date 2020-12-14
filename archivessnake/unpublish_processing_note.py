@@ -12,7 +12,7 @@ aspace = ASpace(
               password=''
     )
 
-repo = aspace.repositories(2)
+rrepo = aspace.repositories(2)
 start_time = time.time()
 
 
@@ -27,8 +27,8 @@ def get_ao_notes():
         unpublish_notes(object)
 
 def unpublish_notes(object):
-    object_json = object.json()
     try:
+        object_json = object.json()
         for note in object_json.get('notes'):
             for subnote in note.get('subnotes'):
                 if note['type'] == 'processinfo':
@@ -38,16 +38,15 @@ def unpublish_notes(object):
                     if updated.status_code == 200:
                         print("{} updated".format(object.uri))
                     else:
-                        print("{} error".format(object.uri))
+                        print("{}" .format(object.uri))
                         pass
-                        print("{} error".format(object.uri))
+                        print("{}" .format(object.uri))
     except:
-        print("{} error".format(object.uri))
+        print("{}" .format(object.uri))
 
+get_resources_notes()
 
-#get_resources_notes()
-
-get_ao_notes()
+#get_ao_notes()
 
 elapsed_time = time.time() - start_time
 print('Time Elapsed: ' + time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
