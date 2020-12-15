@@ -16,7 +16,7 @@ class Preparer():
     def __init__(self):
         logging.basicConfig(
             datefmt='%m/%d/%Y %I:%M:%S %p',
-            filename='iiif_preparers.log',
+            filename='iiif_preparer.log',
             format='%(asctime)s %(message)s',
             level=logging.INFO)
         self.config = ConfigParser()
@@ -41,24 +41,32 @@ class Preparer():
             logging.info("Starting {}. {} diaries to process.".format(
                 officer, len(diaries)))
             for d in diaries:
+                logging.info("Starting {}".format(d))
                 self.mezzanine_directory = self.get_mezzanine_path(
                     officer, d)
                 try:
                     self.refid = as_client.get_diary_refid(d)
+                    logging.info(
+                        "Found ref_id {} for {}. Copying...".format(self.refid, d))
                     self.copy_files(target_directory)
                 except NoResultsError as e:
                     if self.structure == self.LEGACY:
                         try:
                             self.refid = as_client.get_diary_refid([f for f in listdir(
                                 join(self.officer_path, "Service Edited"))][0][:-4])
+                            logging.info(
+                                "Found ref_id {} for {}. Copying...".format(self.refid, d))
                             self.copy_files(officer, d, target_directory)
                         except (NoResultsError, MultipleResultsError) as e:
                             print(e)
+                            logging.error(e)
                             pass
                     else:
                         print(e)
+                        logging.error(e)
                 except MultipleResultsError as e:
                     print(e)
+                    logging.error(e)
                     pass
 
     def copy_files(self, target_directory):
