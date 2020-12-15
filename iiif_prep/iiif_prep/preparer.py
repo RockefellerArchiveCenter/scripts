@@ -41,13 +41,17 @@ class Preparer():
             logging.info("Starting {}. {} diaries to process.".format(
                 officer, len(diaries)))
             for d in diaries:
+                self.mezzanine_directory = self.get_mezzanine_path(
+                    officer, d)
                 try:
-                    refid = as_client.get_diary_refid(d)
+                    self.refid = as_client.get_diary_refid(d)
+                    self.copy_files(target_directory)
                 except NoResultsError as e:
                     if self.structure == self.LEGACY:
                         try:
-                            refid = as_client.get_diary_refid([f for f in listdir(
+                            self.refid = as_client.get_diary_refid([f for f in listdir(
                                 join(self.officer_path, "Service Edited"))][0][:-4])
+                            self.copy_files(officer, d, target_directory)
                         except (NoResultsError, MultipleResultsError) as e:
                             print(e)
                             pass
@@ -56,10 +60,10 @@ class Preparer():
                 except MultipleResultsError as e:
                     print(e)
                     pass
-                if refid:
-                    mezzanine_directory = self.get_mezzanine_path(officer, d)
-                    destination = join(target_directory, refid, "master")
-                    copytree(mezzanine_directory, destination)
+
+    def copy_files(self, target_directory):
+        destination = join(target_directory, self.refid, "master")
+        copytree(self.mezzanine_directory, destination)
 
     def get_officers(self, source_directory, ignore_list):
         """Gets list of subdirectories, corresponding to "Officers", in a directory.
