@@ -1,6 +1,14 @@
 from asnake.aspace import ASpace
 
 
+class NoResultsError(Exception):
+    pass
+
+
+class MultipleResultsError(Exception):
+    pass
+
+
 class ArchivesSpaceClient:
     def __init__(self, baseurl, username, password, repository):
         self.client = ASpace(
@@ -17,7 +25,16 @@ class ArchivesSpaceClient:
         results_page = self.client.get(search_url).json()
         if len(results_page.get("results")) == 1:
             refid = results_page.get("results")[0].get("ref_id")
+        elif len(results_page.get("results")) == 0:
+            raise NoResultsError("0 results found for {}".format(diary))
+        elif len(results_page.get("results")) == 2:
+            if results_page.get("results")[0].get(
+                    "ref_id") == results_page.get("results")[0].get("ref_id"):
+                refid = results_page.get("results")[0].get("ref_id")
+            else:
+                raise MultipleResultsError("{} results found for {}".format(
+                    len(results_page.get("results")), diary))
         else:
-            raise Exception("{} results found for {}".format(
+            raise MultipleResultsError("{} results found for {}".format(
                 len(results_page.get("results")), diary))
         return refid

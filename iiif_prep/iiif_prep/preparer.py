@@ -5,10 +5,7 @@ from os import listdir
 from os.path import isdir, join
 from shutil import copytree
 
-from .archivesspace import ArchivesSpaceClient
-
-# TO DO: add officers (including other directory names) to ignore in
-# config setting
+from .archivesspace import ArchivesSpaceClient, NoResultsError, MultipleResultsError
 
 
 class Preparer():
@@ -31,8 +28,12 @@ class Preparer():
             self.config.get("ArchivesSpace", "username"),
             self.config.get("ArchivesSpace", "password"),
             self.config.get("ArchivesSpace", "repository"))
-        officers = sorted(self.get_officers(source_directory,
-                                            self.config.get("IgnoreList", "ignore_list")))
+        officers = sorted(
+            self.get_officers(
+                source_directory,
+                self.config.get(
+                    "IgnoreList",
+                    "ignore_list")))
         for officer in officers:
             self.officer_path = join(source_directory, officer)
             self.structure = self.determine_structure(officer)
@@ -40,12 +41,26 @@ class Preparer():
             logging.info("Starting {}. {} diaries to process.".format(
                 officer, len(diaries)))
             for d in diaries:
-                refid = as_client.get_diary_refid(d)
-                mezzanine_directory = self.get_mezzanine_path(officer, d)
-                destination = join(target_directory, refid, "master")
-                copytree(mezzanine_directory, destination)
+                try:
+                    refid = as_client.get_diary_refid(d)
+                except NoResultsError as e:
+                    if self.structure == self.LEGACY:
+                        try:
+                            refid = as_client.get_diary_refid([f for f in listdir(
+                                join(self.officer_path, "Service Edited"))][0][:-4])
+                        except (NoResultsError, MultipleResultsError) as e:
+                            print(e)
+                            pass
+                    else:
+                        print(e)
+                except MultipleResultsError as e:
+                    print(e)
+                    pass
+                if refid:
+                    mezzanine_directory = self.get_mezzanine_path(officer, d)
+                    destination = join(target_directory, refid, "master")
+                    copytree(mezzanine_directory, destination)
 
-    # TODO: ADD LIST OF SUBDIRECTORIES TO IGNORE
     def get_officers(self, source_directory, ignore_list):
         """Gets list of subdirectories, corresponding to "Officers", in a directory.
 
@@ -60,7 +75,6 @@ class Preparer():
                     source_directory,
                     d))]
         return [s for s in subdirectories if s not in ignore_list]
-        [f for f in files if f.startswith(prefix)]
 
     def determine_structure(self, officer):
         """docstring for find_mezzanine_directory"""
