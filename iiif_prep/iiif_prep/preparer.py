@@ -133,7 +133,7 @@ class Preparer():
                 self.officer_path, diary, "Master_Edited")
         elif self.structure == self.MICROFILM:
             tiff_directory = [d for d in listdir(
-                self.officer_path) if "Tiff" in d]
+                self.officer_path) if "tiff" in d.lower()]
             mezzanine_directory = join(
                 self.officer_path, tiff_directory[0], diary)
         return mezzanine_directory
