@@ -11,7 +11,8 @@ expected_officers = ['Bates', 'Beard 2', 'Gilpatric', 'Beard 1']
 
 def test_run_method():
     print("Testing run method...")
-    run = Preparer().run(source, ".")
+    Preparer().run(source, ".")
+
 
 def test_get_officers():
     print("Getting officers...")
@@ -26,8 +27,8 @@ def test_determine_structure():
             ("Bates", preparer.CURRENT),
             ("Beard 1", preparer.MICROFILM),
             ("Gilpatric", preparer.LEGACY)]:
-        preparer.officer_path = join(source, 
-        officer_name)
+        preparer.officer_path = join(source,
+                                     officer_name)
         structure = preparer.determine_structure(officer_name)
         assert structure == expected_structure
 
