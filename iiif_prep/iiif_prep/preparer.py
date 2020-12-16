@@ -21,18 +21,15 @@ class Preparer():
             level=logging.INFO)
         self.config = ConfigParser()
         self.config.read("local_settings.cfg")
+        self.ignore_list = self.config.get("IgnoreList", "ignore_list")
 
     def run(self, source_directory, target_directory):
         as_client = ArchivesSpaceClient(
             self.config.get("ArchivesSpace", "baseurl"),
             self.config.get("ArchivesSpace", "username"),
             self.config.get("ArchivesSpace", "password"))
-        officers = sorted(
-            self.get_officers(
-                source_directory,
-                self.config.get(
-                    "IgnoreList",
-                    "ignore_list")))
+        officers = sorted(self.get_officers(
+            source_directory, self.ignore_list))
         for officer in officers:
             self.officer_path = join(source_directory, officer)
             self.structure = self.determine_structure(officer)
