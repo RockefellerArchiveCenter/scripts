@@ -56,7 +56,8 @@ class Preparer():
                                 join(self.officer_path, "Service Edited"))][0][:-4])
                             logging.info(
                                 "Found ref_id {} for {}. Copying...".format(self.refid, d))
-                            self.copy_mezzanine_files(officer, d, target_directory)
+                            self.copy_mezzanine_files(
+                                officer, d, target_directory)
                         except (NoResultsError, MultipleResultsError) as e:
                             print(e)
                             logging.error(e)
@@ -90,10 +91,10 @@ class Preparer():
 
     def determine_structure(self, officer):
         """Determines if officer subdirectories follow the structure of current, legacy, or microfilm digitization
-        
+
         Args: 
             officer: officer (directory) name
-        
+
         Returns:
             structure (constant)
         """
