@@ -14,7 +14,8 @@ class ArchivesSpaceClient:
         self.client = ASpace(
             baseurl=baseurl,
             username=username,
-            password=password).client
+            password=password,
+            repository=repository).client
         self.repository = repository
 
     def get_diary_refid(self, diary):
@@ -28,7 +29,7 @@ class ArchivesSpaceClient:
             raise NoResultsError("0 results found for {}".format(diary))
         elif len(results_page.get("results")) == 2:
             if results_page.get("results")[0].get(
-                    "ref_id") == results_page.get("results")[0].get("ref_id"):
+                    "ref_id") == results_page.get("results")[1].get("ref_id"):
                 refid = results_page.get("results")[0].get("ref_id")
             else:
                 raise MultipleResultsError("{} results found for {}".format(
