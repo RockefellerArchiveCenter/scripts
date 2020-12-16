@@ -110,7 +110,7 @@ class Preparer():
         return structure
 
     def get_list_of_diaries(self):
-        """Returns name that matches PDF title, and can be used in filepath to mezzanine directory"""
+        """Returns list of diaries for an officer, which can be used in determining the path to mezzanine files and the PDF name"""
         diaries_list = []
         if self.structure == self.CURRENT:
             mezzanine_directory = join(
