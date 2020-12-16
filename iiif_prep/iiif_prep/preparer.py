@@ -48,7 +48,7 @@ class Preparer():
                     self.refid = as_client.get_diary_refid(d)
                     logging.info(
                         "Found ref_id {} for {}. Copying...".format(self.refid, d))
-                    self.copy_files(target_directory)
+                    self.copy_mezzanine_files(target_directory)
                 except NoResultsError as e:
                     if self.structure == self.LEGACY:
                         try:
@@ -56,7 +56,7 @@ class Preparer():
                                 join(self.officer_path, "Service Edited"))][0][:-4])
                             logging.info(
                                 "Found ref_id {} for {}. Copying...".format(self.refid, d))
-                            self.copy_files(officer, d, target_directory)
+                            self.copy_mezzanine_files(officer, d, target_directory)
                         except (NoResultsError, MultipleResultsError) as e:
                             print(e)
                             logging.error(e)
@@ -69,7 +69,7 @@ class Preparer():
                     logging.error(e)
                     pass
 
-    def copy_files(self, target_directory):
+    def copy_mezzanine_files(self, target_directory):
         destination = join(target_directory, self.refid, "master")
         copytree(self.mezzanine_directory, destination)
 
