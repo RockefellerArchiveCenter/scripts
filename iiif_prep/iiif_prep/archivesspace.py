@@ -21,11 +21,11 @@ class ArchivesSpaceClient:
         search_url = "repositories/2/search?page=1&type[]=archival_object&q=digital_object:+{}.pdf".format(
             diary)
         results_page = self.client.get(search_url).json()
-        if len(results_page.get("results")) == 1:
+        if results_page.get("total_hits") == 1:
             refid = results_page.get("results")[0].get("ref_id")
-        elif len(results_page.get("results")) == 0:
+        elif results_page.get("total_hits") == 0:
             raise NoResultsError("0 results found for {}".format(diary))
-        elif len(results_page.get("results")) == 2:
+        elif results_page.get("total_hits") == 2:
             if results_page.get("results")[0].get(
                     "ref_id") == results_page.get("results")[1].get("ref_id"):
                 refid = results_page.get("results")[0].get("ref_id")
