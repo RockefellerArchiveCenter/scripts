@@ -12,6 +12,10 @@ The entire suite has the following system dependencies:
 
 ## Usage
 
+`iiif_prep.py` requires the following arguments:
+
+* `source_directory`: Path to directory containing subdirectories that correspond to RF and GEB "officers." Subdirectories are expected to be structured 3 different ways, which correspond to the three phases of digitization.
+* `target_directory`: Path to directory to which mezzanine TIFF files should be copied.
 
 
 ## Configuration
