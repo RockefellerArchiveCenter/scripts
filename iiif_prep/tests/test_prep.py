@@ -44,3 +44,7 @@ def test_get_list_of_diaries():
         preparer.structure = structure
         diaries = preparer.get_list_of_diaries()
         assert (set(diaries) == set(expected_diaries))
+
+def test_get_mezzanine():
+    """docstring for test_get_mezzanine"""
+    pass
