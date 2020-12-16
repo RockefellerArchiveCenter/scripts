@@ -14,14 +14,12 @@ class ArchivesSpaceClient:
         self.client = ASpace(
             baseurl=baseurl,
             username=username,
-            password=password,
-            repository=repository).client
-        self.repository = repository
+            password=password).client
 
     def get_diary_refid(self, diary):
         refid = None
-        search_url = "repositories/{}/search?page=1&type[]=archival_object&q=digital_object:+{}.pdf".format(
-            self.repository, diary)
+        search_url = "repositories/2/search?page=1&type[]=archival_object&q=digital_object:+{}.pdf".format(
+            diary)
         results_page = self.client.get(search_url).json()
         if len(results_page.get("results")) == 1:
             refid = results_page.get("results")[0].get("ref_id")
