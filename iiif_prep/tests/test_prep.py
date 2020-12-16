@@ -1,8 +1,12 @@
+from os import listdir, mkdir
 from os.path import join
+from shutil import rmtree
 
 from iiif_prep.preparer import Preparer
 
 FIXTURES_FILEPATH = "fixtures"
+
+TARGET_DIRECTORY = "target_directory"
 
 source = FIXTURES_FILEPATH
 
@@ -10,8 +14,11 @@ expected_officers = ['Bates', 'Beard 2', 'Gilpatric', 'Beard 1']
 
 
 def test_run_method():
+    mkdir(TARGET_DIRECTORY)
     print("Testing run method...")
-    Preparer().run(source, ".")
+    Preparer().run(source, TARGET_DIRECTORY)
+    assert len(listdir(TARGET_DIRECTORY)) == 9
+    rmtree(TARGET_DIRECTORY)
 
 
 def test_get_officers():
@@ -44,6 +51,7 @@ def test_get_list_of_diaries():
         preparer.structure = structure
         diaries = preparer.get_list_of_diaries()
         assert (set(diaries) == set(expected_diaries))
+
 
 def test_get_mezzanine():
     """docstring for test_get_mezzanine"""
