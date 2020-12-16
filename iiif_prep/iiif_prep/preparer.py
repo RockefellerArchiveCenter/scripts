@@ -51,7 +51,7 @@ class Preparer():
                             self.refid = as_client.get_diary_refid([f for f in listdir(
                                 join(self.officer_path, "Service Edited"))][0][:-4])
                             logging.info(
-                                "Found ref_id {} for diary {}. Copying...".format(self.refid, d))
+                                "Multiple DAOs found. Found ref_id {} for diary {}. Copying...".format(self.refid, d))
                             self.copy_mezzanine_files(
                                 officer, d, target_directory)
                         except (NoResultsError, MultipleResultsError) as e:
