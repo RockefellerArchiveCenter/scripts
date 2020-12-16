@@ -41,7 +41,7 @@ class Preparer():
             logging.info("Starting {}. {} diaries to process.".format(
                 officer, len(diaries)))
             for d in diaries:
-                logging.info("Starting {}".format(d))
+                logging.info("Starting diary {}".format(d))
                 self.mezzanine_directory = self.get_mezzanine_path(
                     officer, d)
                 try:
