@@ -14,8 +14,7 @@ class ArchivesSpaceClient:
         self.client = ASpace(
             baseurl=baseurl,
             username=username,
-            password=password,
-            repository=repository).client
+            password=password).client
         self.repository = repository
 
     def get_diary_refid(self, diary):
