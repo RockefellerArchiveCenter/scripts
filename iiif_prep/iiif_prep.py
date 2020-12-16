@@ -8,7 +8,7 @@ def main():
         description="Copies files from an RF or GEB officer's diary to a new location with ref_ids as directory names")
     parser.add_argument(
         "source_directory",
-        help="A directory containing subdirectories (named using ref ids) for archival objects.")
+        help="A directory containing subdirectories of digitized officers diaries.")
     parser.add_argument(
         "target_directory",
         help="A directory in which to create subdirectories and copy TIFFs.")
