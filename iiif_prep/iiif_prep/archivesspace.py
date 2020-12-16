@@ -10,7 +10,7 @@ class MultipleResultsError(Exception):
 
 
 class ArchivesSpaceClient:
-    def __init__(self, baseurl, username, password, repository):
+    def __init__(self, baseurl, username, password):
         self.client = ASpace(
             baseurl=baseurl,
             username=username,
