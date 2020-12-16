@@ -54,7 +54,7 @@ class Preparer():
                                 "Multiple DAOs found. Found ref_id {} for diary {}. Copying...".format(self.refid, d))
                             self.copy_mezzanine_files(
                                 officer, d, target_directory)
-                        except (NoResultsError, MultipleResultsError) as e:
+                        except Exception as e:
                             print(e)
                             logging.error(e)
                             pass
