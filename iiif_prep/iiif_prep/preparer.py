@@ -60,7 +60,7 @@ class Preparer():
                     else:
                         print(e)
                         logging.error(e)
-                except MultipleResultsError as e:
+                except Exception as e:
                     print(e)
                     logging.error(e)
                     pass
