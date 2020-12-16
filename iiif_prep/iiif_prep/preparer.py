@@ -26,8 +26,7 @@ class Preparer():
         as_client = ArchivesSpaceClient(
             self.config.get("ArchivesSpace", "baseurl"),
             self.config.get("ArchivesSpace", "username"),
-            self.config.get("ArchivesSpace", "password"),
-            self.config.get("ArchivesSpace", "repository"))
+            self.config.get("ArchivesSpace", "password"))
         officers = sorted(
             self.get_officers(
                 source_directory,
