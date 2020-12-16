@@ -89,7 +89,14 @@ class Preparer():
         return [s for s in subdirectories if s not in ignore_list]
 
     def determine_structure(self, officer):
-        """docstring for find_mezzanine_directory"""
+        """Determines if officer subdirectories follow the structure of current, legacy, or microfilm digitization
+        
+        Args: 
+            officer: officer (directory) name
+        
+        Returns:
+            structure (constant)
+        """
         structure = None
         if "TIFFs" in listdir(self.officer_path):
             structure = self.CURRENT
