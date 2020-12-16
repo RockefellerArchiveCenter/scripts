@@ -53,6 +53,18 @@ def test_get_list_of_diaries():
         assert (set(diaries) == set(expected_diaries))
 
 
-def test_get_mezzanine():
-    """docstring for test_get_mezzanine"""
-    pass
+def test_get_mezzanine_path():
+    print("Getting paths to mezzanine TIFFs...")
+    preparer = Preparer()
+    for officer_name, structure, diaries, expected_paths in [
+        ("Bates", preparer.CURRENT, ["RF_Bates-M_1948-1949"], ["fixtures/Bates/TIFFs/Master-Edited/RF_Bates-M_1948-1949"]), ("Beard 1", preparer.MICROFILM, [
+            "rac_rfdiaries_12-2_beard_1925-1938_001", "rac_rfdiaries_12-2_beard_1925-1938_001a", "rac_rfdiaries_12-2_beard_1925-1938_001b", "rac_rfdiaries_12-2_beard_1925-1938_002"], [
+            "fixtures/Beard 1/Beard-Roll_01-Tiff_files/rac_rfdiaries_12-2_beard_1925-1938_001", "fixtures/Beard 1/Beard-Roll_01-Tiff_files/rac_rfdiaries_12-2_beard_1925-1938_001a", "fixtures/Beard 1/Beard-Roll_01-Tiff_files/rac_rfdiaries_12-2_beard_1925-1938_001b", "fixtures/Beard 1/Beard-Roll_01-Tiff_files/rac_rfdiaries_12-2_beard_1925-1938_002"]), ("Gilpatric", preparer.LEGACY, [
+                "Gilpatric_1949", "Gilpatric_1950"], [
+                    "fixtures/Gilpatric/Gilpatric_1949/Master_Edited", "fixtures/Gilpatric/Gilpatric_1950/Master_Edited"])]:
+        preparer.officer_path = join(source, officer_name)
+        preparer.structure = structure
+        mezzanine_paths = []
+        for d in diaries:
+            mezzanine_paths.append(preparer.get_mezzanine_path(d))
+        assert (set(mezzanine_paths) == set(expected_paths))

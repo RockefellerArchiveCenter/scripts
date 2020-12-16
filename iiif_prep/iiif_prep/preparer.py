@@ -38,8 +38,7 @@ class Preparer():
                 officer, len(diaries)))
             for d in diaries:
                 logging.info("Starting diary {}".format(d))
-                self.mezzanine_directory = self.get_mezzanine_path(
-                    officer, d)
+                self.mezzanine_directory = self.get_mezzanine_path(d)
                 try:
                     self.refid = as_client.get_diary_refid(d)
                     logging.info(
@@ -134,7 +133,7 @@ class Preparer():
                         d))]
         return diaries_list
 
-    def get_mezzanine_path(self, officer, diary):
+    def get_mezzanine_path(self, diary):
         """Return path to mezzanine TIFF files for a diary"""
         mezzanine_directory = None
         if self.structure == self.CURRENT:
@@ -150,8 +149,4 @@ class Preparer():
                 self.officer_path, tiff_directory[0], diary)
         return mezzanine_directory
 
-    # get path to diary mezzanine files
 
-    # MAYBE get path to diary service pdf (for refid matching)
-
-    # match diary files to refid
