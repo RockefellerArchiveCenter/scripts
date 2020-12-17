@@ -25,14 +25,10 @@ class ArchivesSpaceClient:
             refid = results_page.get("results")[0].get("ref_id")
         elif results_page.get("total_hits") == 0:
             raise NoResultsError("0 results found for {}".format(diary))
-        elif results_page.get("total_hits") == 2:
-            if results_page.get("results")[0].get(
-                    "ref_id") == results_page.get("results")[1].get("ref_id"):
+        else:
+            if len(list(set([r.get("ref_id") for r in page.get("results")]))) == 1:
                 refid = results_page.get("results")[0].get("ref_id")
             else:
                 raise MultipleResultsError("{} results found for {}".format(
                     len(results_page.get("results")), diary))
-        else:
-            raise MultipleResultsError("{} results found for {}".format(
-                len(results_page.get("results")), diary))
         return refid
