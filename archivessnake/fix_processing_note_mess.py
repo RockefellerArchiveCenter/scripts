@@ -25,25 +25,29 @@ aspace = ASpace(
 ns = {'ead': 'urn:isbn:1-931666-22-9'}
 ead_directory = Path(__file__).absolute().parent.parent.parent.joinpath("data", "ead") # assumes that EAD directory is a sibling of scripts directory
 
-def main(ead_id, csv_path):
+def main(csv_path):
     with open(csv_path, "r", encoding='utf-8-sig') as df:
         csv_reader = csv.reader(df)
-        for uri, ref_id in csv_reader:
-            if not(uri):
+        for uri, ref_id, ead_id in csv_reader:
+            if not(all([uri, ref_id, ead_id])):
                 exit()
-            tree = ET.parse(ead_directory.joinpath(ead_id, "{}.xml".format(ead_id)))
-            root = tree.getroot()
-            ead_notes = root.findall(".//*ead:c[@id='{}']/*".format(ref_id), ns)
-            resp = aspace.client.get(uri)
-            resp.raise_for_status()
-            as_object = resp.json()
-            delete_duplicate(as_object)
-            append_replaced(as_object, ead_notes)
-            updated = aspace.client.post(uri, json=as_object)
-            if updated.status_code == 200:
-                print("{} updated".format(uri))
-            else:
-                print("{} error".format(uri))
+            try:
+                tree = ET.parse(ead_directory.joinpath(ead_id, "{}.xml".format(ead_id)))
+                root = tree.getroot()
+                ead_notes = root.findall(".//*ead:c[@id='{}']/*".format(ref_id), ns)
+                resp = aspace.client.get(uri)
+                resp.raise_for_status()
+                as_object = resp.json()
+                delete_duplicate(as_object)
+                append_replaced(as_object, ead_notes)
+                updated = aspace.client.post(uri, json=as_object)
+                if updated.status_code == 200:
+                    print("{} updated".format(uri))
+                else:
+                    print("{} error".format(uri))
+                    pass
+            except FileNotFoundError:
+                print("Cannot find {}".format(ead_directory.joinpath(ead_id, "{}.xml".format(ead_id))))
                 pass
 
 def delete_duplicate(object):
@@ -68,6 +72,7 @@ def append_replaced(object, ead_notes):
                 note_content = "\n\n".join(s.text for s in note.findall("ead:p", ns))
                 new_note = {
                     "jsonmodel_type": "note_multipart",
+                    "persistent_id": note.attrib["id"],
                     "type": raw_tag,
                     "subnotes": [
                         {
@@ -81,8 +86,7 @@ def append_replaced(object, ead_notes):
                 object["notes"].append(new_note)
 
 parser = argparse.ArgumentParser(description="Removes duplicate processinfo notes and adds missing content")
-parser.add_argument('ead_id', help='ead_id of target EAD file.')
 parser.add_argument('csv_path', help='Path to a CSV file containing URIs and ref_ids')
 args = parser.parse_args()
 
-main(args.ead_id, args.csv_path)
+main(args.csv_path)
