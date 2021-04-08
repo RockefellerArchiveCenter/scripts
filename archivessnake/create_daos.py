@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import json
+
 from configparser import ConfigParser
 from os.path import join
 
@@ -26,10 +28,12 @@ def main():
 
 def post_dao(dao_url, aspace, dip_uuid, title, aip_uuid):
     """docstring for post_dao"""
+    aspace_token = aspace.client.authorize()
+    headers = {'X-ArchivesSpace-Session': aspace_token}
     file_uri = join("http://storage.rockarch.org/",
                     "{}-{}.pdf".format(dip_uuid, title))
-    data = { "jsonmodel_type":"digital_object", "is_slug_auto":True, "file_versions":[{ "jsonmodel_type":"file_version", "is_representative":False, "file_uri":"{}".format(file_uri), "xlink_actuate_attribute":"onRequest", "xlink_show_attribute":"new", "file_format_name":"pdf", "file_format_version":"Generic PDF", "publish":True}], "restrictions":False, "notes":[{"content": ["{}".format(aip_uuid)], "jsonmodel_type": "note_digital_object", "type": "originalsloc","publish": False}],  "title":"{}".format(title), "digital_object_id": "{}".format(dip_uuid)}
-    aspace.client.post(dao_url, json=data)
+    data = { "jsonmodel_type":"digital_object", "is_slug_auto":True, "file_versions":[{ "jsonmodel_type":"file_version", "is_representative":False, "file_uri":str(file_uri), "xlink_actuate_attribute":"onRequest", "xlink_show_attribute":"new", "file_format_name":"pdf", "file_format_version":"Generic PDF", "publish":True}], "restrictions":False, "notes":[{"jsonmodel_type": "note_digital_object", "content": [str(aip_uuid)], "type": "originalsloc","publish": False}],  "title":str(title), "digital_object_id": str(dip_uuid)}
+    r = requests.post(url, data=json.dumps(data), headers=headers)
     if r.status_code != 200:
         raise Exception("Could not post {}: {}".format(
             title, r.json().get('error')))
