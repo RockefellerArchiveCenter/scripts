@@ -28,8 +28,8 @@ def post_dao(dao_url, aspace, dip_uuid, title, aip_uuid):
     """docstring for post_dao"""
     file_uri = join("http://storage.rockarch.org/",
                     "{}-{}.pdf".format(dip_uuid, title))
-    data = '{ "jsonmodel_type":"digital_object", "is_slug_auto":true, "file_versions":[{ "jsonmodel_type":"file_version", "is_representative":false, "file_uri":"{}", "xlink_actuate_attribute":"onRequest", "xlink_show_attribute":"new", "file_format_name":"pdf", "file_format_version":"Generic PDF", "publish":true}], "restrictions":false, "notes":[{"content": ["{}"], "jsonmodel_type": "note_digital_object", "type": "originalsloc","publish": false}],  "title":"{}", "digital_object_id": "{}"}'.format(file_uri, aip_uuid, title, dip_uuid)
-    r = aspace.client.post(dao_url, data=data)
+    data = { "jsonmodel_type":"digital_object", "is_slug_auto":True, "file_versions":[{ "jsonmodel_type":"file_version", "is_representative":False, "file_uri":"{}".format(file_uri), "xlink_actuate_attribute":"onRequest", "xlink_show_attribute":"new", "file_format_name":"pdf", "file_format_version":"Generic PDF", "publish":True}], "restrictions":False, "notes":[{"content": ["{}".format(aip_uuid)], "jsonmodel_type": "note_digital_object", "type": "originalsloc","publish": False}],  "title":"{}".format(title), "digital_object_id": "{}".format(dip_uuid)}
+    aspace.client.post(dao_url, json=data)
     if r.status_code != 200:
         raise Exception("Could not post {}: {}".format(
             title, r.json().get('error')))
