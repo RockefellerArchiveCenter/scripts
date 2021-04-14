@@ -1,10 +1,22 @@
 #!/usr/bin/env python3
 
-import json
+"""
+Using DIP information from Archivematica, adds digital object to file-level children of a series in ArchivesSpace.
 
+Expects an external pickle file that contains a list of dictionaries with the following information:
+    current_full_path: full path to DIP (from Archivematica)
+    related_packages: AIP URI (from Archivematica)
+    uuid: DIP UUID (from Archivematica)
+    box: parsed from current_full_path
+    folder: parsed from current_full_path
+"""
+
+import argparse
+import pickle
 from configparser import ConfigParser
 from os.path import join
 
+import requests
 from asnake.aspace import ASpace
 
 # set up archivesspace client
