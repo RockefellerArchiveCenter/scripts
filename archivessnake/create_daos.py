@@ -23,7 +23,15 @@ from asnake.aspace import ASpace
 config = ConfigParser()
 config.read("local_settings.cfg")
 
-# get token
+parser = argparse.ArgumentParser(
+    description="Using DIP information from Archivematica, adds DAOs to file-level children of a series in ArchivesSpace")
+parser.add_argument(
+    'resource', help='ArchivesSpace ID of resource. Example: 123')
+parser.add_argument('series', help='ArchivesSpace ID of series. Example: 4321')
+parser.add_argument(
+    'dip_info_file',
+    help='Path to pickle file containing array of dictionaries with DIP information.')
+args = parser.parse_args()
 
 
 def main():
@@ -54,4 +62,4 @@ def post_dao(dao_url, aspace, dip_uuid, title, aip_uuid):
 
 
 if __name__ == "__main__":
-    main()
+    main(args.resource, args.series, args.dip_info_file)
