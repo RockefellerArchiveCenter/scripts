@@ -42,15 +42,13 @@ def main(resource, series, dip_file):
             "ArchivesSpace", "username"), password=config.get(
                 "ArchivesSpace", "password"))
     aspace_token = aspace.client.authorize()
-    dao_url = join(config.get("ArchivesSpace", "baseURL"),
-                   "repositories/2/digital_objects")
     dip_data = load_dip_file(dip_file)
     print("Starting...")
     for uri in get_uris(aspace, resource, series):
         try:
             dip = match_dip_to_aip(aspace, uri, dip_data)
             dip_uuid, title, aip_uuid = get_dip_info(dip)
-            dao_uri = post_dao(dao_url, aspace_token, dip_uuid, title, aip_uuid)
+            dao_uri = post_dao(join(config.get("ArchivesSpace", "baseURL"), "repositories/2/digital_objects"), aspace_token, dip_uuid, title, aip_uuid)
             update_component(aspace, uri, dao_uri)
         except Exception as e:
             print(e)
