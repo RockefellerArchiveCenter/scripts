@@ -44,12 +44,12 @@ def main(resource, series, dip_file):
     aspace_token = aspace.client.authorize()
     dip_data = load_dip_file(dip_file)
     print("Starting...")
-    for uri in get_uris(aspace, resource, series):
+    for component_uri in get_candidate_uris(aspace, resource, series):
         try:
-            dip = match_dip_to_aip(aspace, uri, dip_data)
+            dip = match_dip_to_aip(aspace, component_uri, dip_data)
             dip_uuid, title, aip_uuid = get_dip_info(dip)
             dao_uri = post_dao(join(config.get("ArchivesSpace", "baseURL"), "repositories/2/digital_objects"), aspace_token, dip_uuid, title, aip_uuid)
-            update_component(aspace, uri, dao_uri)
+            update_component(aspace, component_uri, dao_uri)
         except Exception as e:
             print(e)
 
@@ -67,21 +67,21 @@ def load_dip_file(dip_file):
     return dip_data
 
 
-def get_uris(aspace, resource, series):
+def get_candidate_uris(aspace, resource_id, series_id):
     """Takes a resource and a series from that resource to return all file-level descendants of the series that do not have linked digital objects.
 
     Args:
         aspace (asnake.aspace.ASpace): instantiation of ASpace
-        resource (str): ArchivesSpace ID of resource. Example: 123
-        series (str): ArchivesSpace ID of series. Example: 4321
+        resource_id (str): ArchivesSpace ID of resource. Example: 123
+        series_id (str): ArchivesSpace ID of series. Example: 4321
 
     Returns:
         list of ArchivesSpace URIs (array)
     """
     lsrm_tree = aspace.client.get(
-        "repositories/2/resources/{}/tree".format(resource)).json()
+        "repositories/2/resources/{}/tree".format(resource_id)).json()
     series_tree = [child for child in lsrm_tree.get(
-        'children') if child.get("id") == int(series)][0]
+        'children') if child.get("id") == int(series_id)][0]
     list_of_lsrm_uris = []
     for subseries in series_tree.get("children"):
         for file_level in subseries.get("children"):
