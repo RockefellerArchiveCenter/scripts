@@ -41,6 +41,7 @@ def main(resource, series, dip_file):
             "ArchivesSpace", "baseURL"), username=config.get(
             "ArchivesSpace", "username"), password=config.get(
                 "ArchivesSpace", "password"))
+    aspace_token = aspace.client.authorize()
     dao_url = join(config.get("ArchivesSpace", "baseURL"),
                    "repositories/2/digital_objects")
     dip_data = load_dip_file(dip_file)
@@ -49,7 +50,7 @@ def main(resource, series, dip_file):
         try:
             dip = match_dip_to_aip(aspace, uri, dip_data)
             dip_uuid, title, aip_uuid = get_dip_info(dip)
-            dao_uri = post_dao(dao_url, aspace, dip_uuid, title, aip_uuid)
+            dao_uri = post_dao(dao_url, aspace_token, dip_uuid, title, aip_uuid)
             update_component(aspace, uri, dao_uri)
         except Exception as e:
             print(e)
@@ -133,7 +134,7 @@ def get_dip_info(dip):
     return dip_uuid, title, aip_uuid
 
 
-def post_dao(dao_url, aspace, dip_uuid, title, aip_uuid):
+def post_dao(dao_url, aspace_token, dip_uuid, title, aip_uuid):
     """Creates a digital object in ArchivesSpace
 
     Args:
@@ -146,7 +147,6 @@ def post_dao(dao_url, aspace, dip_uuid, title, aip_uuid):
     Returns:
         DAO URI (string)
     """
-    aspace_token = aspace.client.authorize()
     headers = {'X-ArchivesSpace-Session': aspace_token}
     file_uri = join("http://storage.rockarch.org/",
                     "{}-{}.pdf".format(dip_uuid, title))
