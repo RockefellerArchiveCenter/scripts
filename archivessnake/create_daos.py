@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Using DIP information from Archivematica, adds digital object to file-level children of a series in ArchivesSpace.
+Using DIP information from Archivematica, adds digital object to file-level children of a series in ArchivesSpace. Assumes that all file-level components that do not already have a linked DAO will have a DAO added.
 
 Expects an external pickle file that contains a list of dictionaries with the following information:
     current_full_path: full path to DIP (from Archivematica)
@@ -44,6 +44,7 @@ def main(resource, series, dip_file):
     dao_url = join(config.get("ArchivesSpace", "baseURL"),
                    "repositories/2/digital_objects")
     dip_data = load_dip_file(dip_file)
+    print("Starting...")
     for uri in get_uris(aspace, resource, series):
         try:
             dip = match_dip_to_aip(aspace, uri, dip_data)
@@ -80,9 +81,8 @@ def get_uris(aspace, resource, series):
     """
     lsrm_tree = aspace.client.get(
         "repositories/2/resources/{}/tree".format(resource)).json()
-    lsrm_tree.get('children')[1].get('children')
     series_tree = [child for child in lsrm_tree.get(
-        'children') if child.get("id") == series][0]
+        'children') if child.get("id") == int(series)][0]
     list_of_lsrm_uris = []
     for subseries in series_tree.get("children"):
         for file_level in subseries.get("children"):
