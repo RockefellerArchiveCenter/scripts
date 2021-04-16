@@ -126,9 +126,9 @@ def get_dip_info(dip):
     Returns:
         UUID, file title, and associated AIP UUID (tuple)
     """
-    dip_uuid = dip.get("uuid")
-    title = dip.get("current_full_path")[89:-37]
-    aip_uuid = dip.get("related_packages")[0][13:-1]
+    dip_uuid = dip['uuid']
+    title = dip['current_full_path'].split('/')[-1][:-37]
+    aip_uuid = dip['related_packages'][0].split('/')[-2]
     return dip_uuid, title, aip_uuid
 
 
