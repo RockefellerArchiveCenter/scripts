@@ -48,7 +48,8 @@ def main(resource, series, dip_file):
         try:
             dip = match_dip_to_aip(aspace, component_uri, dip_data)
             dip_uuid, title, aip_uuid = get_dip_info(dip)
-            dao_uri = post_dao(join(config.get("ArchivesSpace", "baseURL"), "repositories/2/digital_objects"), aspace_token, dip_uuid, title, aip_uuid)
+            dao_uri = post_dao(join(config.get("ArchivesSpace", "baseURL"),
+                                    "repositories/2/digital_objects"), aspace_token, dip_uuid, title, aip_uuid)
             update_component(aspace, component_uri, dao_uri)
         except Exception as e:
             print(e)
@@ -78,10 +79,9 @@ def get_candidate_uris(aspace, resource_id, series_id):
     Returns:
         list of ArchivesSpace URIs (array)
     """
-    lsrm_tree = aspace.client.get(
-        "repositories/2/resources/{}/tree".format(resource_id)).json()
-    series_tree = [child for child in lsrm_tree.get(
-        'children') if child.get("id") == int(series_id)][0]
+
+    series_tree = aspace.client.get(
+        'repositories/2/resources/{}/tree/node?node_uri=/repositories/2/archival_objects/{}'.format(resource_id, series_id)).json()
     list_of_lsrm_uris = []
     for subseries in series_tree.get("children"):
         for file_level in subseries.get("children"):
