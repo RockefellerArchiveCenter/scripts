@@ -46,7 +46,7 @@ def main(resource, series, dip_file):
     print("Starting...")
     for component_uri in get_candidate_uris(aspace, resource, series):
         try:
-            dip = match_dip_to_aip(aspace, component_uri, dip_data)
+            dip = match_component_to_dip(aspace, component_uri, dip_data)
             dip_uuid, title, aip_uuid = get_dip_info(dip)
             dao_uri = post_dao(join(config.get("ArchivesSpace", "baseURL"),
                                     "repositories/2/digital_objects"), aspace_token, dip_uuid, title, aip_uuid)
@@ -90,7 +90,7 @@ def get_candidate_uris(aspace, resource_id, series_id):
     return list_of_lsrm_uris
 
 
-def match_dip_to_aip(aspace, ao_uri, dip_list):
+def match_component_to_dip(aspace, ao_uri, dip_list):
     """Using box and folder indicators, matches an ArchivesSpace component to a DIP.
 
     Args:
