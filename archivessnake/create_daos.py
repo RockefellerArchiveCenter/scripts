@@ -48,8 +48,7 @@ def main(resource, series, dip_file):
         try:
             dip = match_component_to_dip(aspace, component_uri, dip_data)
             dip_uuid, title, aip_uuid = get_dip_info(dip)
-            dao_uri = post_dao(join(config.get("ArchivesSpace", "baseURL"),
-                                    "repositories/2/digital_objects"), aspace_token, dip_uuid, title, aip_uuid)
+            dao_uri = post_dao(aspace_token, dip_uuid, title, aip_uuid)
             update_component(aspace, component_uri, dao_uri)
         except Exception as e:
             print(e)
@@ -119,11 +118,10 @@ def get_dip_info(dip):
     return dip_uuid, title, aip_uuid
 
 
-def post_dao(dao_url, aspace, dip_uuid, title, aip_uuid):
+def post_dao(aspace, dip_uuid, title, aip_uuid):
     """Creates a digital object in ArchivesSpace
 
     Args:
-        dao_url (str): URL for posting ArchivesSpace digital objects
         aspace (asnake.aspace.ASpace): instantiation of ASpace
         dip_uuid (str): DIP UUID
         title (str): DAO title
@@ -151,7 +149,7 @@ def post_dao(dao_url, aspace, dip_uuid, title, aip_uuid):
                        "publish": False}],
             "title": str(title),
             "digital_object_id": str(dip_uuid)}
-    r = aspace.post(dao_url, json=data)
+    r = aspace.post("repositories/2/digital_objects", json=data)
     if r.status_code != 200:
         raise Exception("Could not post {}: {}".format(
             title, r.json().get('error')))
