@@ -72,12 +72,12 @@ def get_candidate_uris(aspace, resource_id, series_id):
     series_tree = aspace.client.get(
         'repositories/2/resources/{}/tree/node?node_uri=/repositories/2/archival_objects/{}'.format(
             resource_id, series_id)).json()
-    list_of_lsrm_uris = []
+    uri_list = []
     for subseries in series_tree.get("children"):
         for file_level in subseries.get("children"):
             if "digital_object" not in file_level.get("instance_types"):
-                list_of_lsrm_uris.append(file_level['record_uri'])
-    return list_of_lsrm_uris
+                uri_list.append(file_level['record_uri'])
+    return uri_list
 
 
 def match_component_to_dip(aspace, ao_uri, dip_list):
