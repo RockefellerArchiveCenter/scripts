@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
 """
-Using DIP information from Archivematica, adds digital object to file-level children of a series in ArchivesSpace. Assumes that all file-level components that do not already have a linked DAO will have a DAO added.
+Using DIP information from Archivematica, adds digital object to file-level
+children of a series in ArchivesSpace. Assumes that all file-level components
+that do not already have a linked DAO should have a DAO added.
 
 Expects an external pickle file that contains a list of dictionaries with the following information:
     current_full_path: full path to DIP (from Archivematica)
@@ -55,7 +57,8 @@ def main(resource, series, dip_file):
 
 
 def get_candidate_uris(aspace, resource_id, series_id):
-    """Takes a resource and a series from that resource to return all file-level descendants of the series that do not have linked digital objects.
+    """Takes a resource and a series from that resource to return all file-level
+    descendants of the series that do not have linked digital objects.
 
     Args:
         aspace (asnake.aspace.ASpace): instantiation of ASpace
@@ -67,7 +70,8 @@ def get_candidate_uris(aspace, resource_id, series_id):
     """
 
     series_tree = aspace.client.get(
-        'repositories/2/resources/{}/tree/node?node_uri=/repositories/2/archival_objects/{}'.format(resource_id, series_id)).json()
+        'repositories/2/resources/{}/tree/node?node_uri=/repositories/2/archival_objects/{}'.format(
+            resource_id, series_id)).json()
     list_of_lsrm_uris = []
     for subseries in series_tree.get("children"):
         for file_level in subseries.get("children"):
@@ -157,7 +161,7 @@ def post_dao(aspace, dip_uuid, title, aip_uuid):
 
 
 def update_component(aspace, component, dao):
-    """Add adigital object to an archival object
+    """Add a digital object to an archival object
 
     Args:
         aspace (asnake.aspace.ASpace): instantiation of ASpace
