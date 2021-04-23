@@ -42,7 +42,7 @@ def main(resource, series, dip_file):
             "ArchivesSpace", "username"), password=config.get(
                 "ArchivesSpace", "password"))
     aspace_token = aspace.client.authorize()
-    dip_data = load_dip_file(dip_file)
+    dip_data = pickle.load(open(dip_file, "rb"))
     print("Starting...")
     for component_uri in get_candidate_uris(aspace, resource, series):
         try:
@@ -53,19 +53,6 @@ def main(resource, series, dip_file):
             update_component(aspace, component_uri, dao_uri)
         except Exception as e:
             print(e)
-
-
-def load_dip_file(dip_file):
-    """Uses pickle to open external file of DIP information, stored as an array of dictionaries.
-
-    Args:
-        dip_info (str): path to pickle file
-
-    Returns:
-        DIP information (array)
-    """
-    dip_data = pickle.load(open(dip_file, "rb"))
-    return dip_data
 
 
 def get_candidate_uris(aspace, resource_id, series_id):
