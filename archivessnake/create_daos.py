@@ -72,7 +72,7 @@ def get_candidate_uris(aspace, resource_id, series_id):
     for subseries in series_tree.get("children"):
         for file_level in subseries.get("children"):
             if "digital_object" not in file_level.get("instance_types"):
-                list_of_lsrm_uris.append(file_level.get('record_uri'))
+                list_of_lsrm_uris.append(file_level['record_uri'])
     return list_of_lsrm_uris
 
 
@@ -90,10 +90,9 @@ def match_component_to_dip(aspace, ao_uri, dip_list):
     ao = aspace.client.get(
         ao_uri, params={"resolve": ["top_container"]}).json()
     box = ao.get('instances')[0].get('sub_container').get(
-        'top_container').get('_resolved').get('indicator')
+        'top_container').get('_resolved')['indicator']
     folder = ao.get('instances')[0].get('sub_container').get('indicator_2')
-    dips_same_box = [dip for dip in dip_list if dip.get("box") == box]
-    dip = [dip for dip in dips_same_box if dip.get("folder") == folder]
+    dip = [dip for dip in dip_list if (dip.get("folder") == folder and dip.get("box") == box)]
     if len(dip) == 1:
         dip = dip[0]
         return dip
