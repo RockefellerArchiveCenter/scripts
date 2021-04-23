@@ -42,7 +42,8 @@ def main(resource, series, dip_file):
             "ArchivesSpace", "username"), password=config.get(
                 "ArchivesSpace", "password"))
     aspace_token = aspace.client.authorize()
-    dip_data = pickle.load(open(dip_file, "rb"))
+    with open(dip_file, "rb") as f:
+        dip_data = pickle.load(f)
     print("Starting...")
     for component_uri in get_candidate_uris(aspace, resource, series):
         try:
