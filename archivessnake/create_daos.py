@@ -16,7 +16,6 @@ import pickle
 from configparser import ConfigParser
 from os.path import join
 
-import requests
 from asnake.aspace import ASpace
 
 # set up archivesspace client
@@ -120,7 +119,7 @@ def get_dip_info(dip):
     return dip_uuid, title, aip_uuid
 
 
-def post_dao(dao_url, aspace_token, dip_uuid, title, aip_uuid):
+def post_dao(dao_url, aspace, dip_uuid, title, aip_uuid):
     """Creates a digital object in ArchivesSpace
 
     Args:
@@ -133,7 +132,6 @@ def post_dao(dao_url, aspace_token, dip_uuid, title, aip_uuid):
     Returns:
         DAO URI (string)
     """
-    headers = {'X-ArchivesSpace-Session': aspace_token}
     file_uri = join("http://storage.rockarch.org/",
                     "{}-{}.pdf".format(dip_uuid, title))
     data = {"jsonmodel_type": "digital_object",
@@ -153,7 +151,7 @@ def post_dao(dao_url, aspace_token, dip_uuid, title, aip_uuid):
                        "publish": False}],
             "title": str(title),
             "digital_object_id": str(dip_uuid)}
-    r = requests.post(dao_url, json=data, headers=headers)
+    r = aspace.post(dao_url, json=data)
     if r.status_code != 200:
         raise Exception("Could not post {}: {}".format(
             title, r.json().get('error')))
