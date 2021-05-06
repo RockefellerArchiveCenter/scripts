@@ -37,9 +37,9 @@ def process_tree(args, resource):
 
 def get_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument("note_type", choices=NOTE_TYPE_CHOICES, help="The type of note within a finding aid you wish to modify or delete (ex. bioghist)")
-    parser.add_argument("resource_id", type=int, help="The identifier of the resource record in which you want to search. Found in the URL.")
-    parser.add_argument("level", choices=LEVEL, help="The level within the resource hierarchy you would like to change (collection, series, file, or item).")
+    parser.add_argument("note_type", choices=NOTE_TYPE_CHOICES, help="The type of note within a finding aid you wish to print content from. For example: accessrestrict.")
+    parser.add_argument("resource_id", type=int, help="The identifier of the resource record in which you want to print note content from. Found in the URL.")
+    parser.add_argument("level", choices=LEVEL, help="The level within the resource hierarchy you would like to print note content from (collection, series, file, or item).")
     return parser
 
 def main():
