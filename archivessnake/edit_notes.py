@@ -20,7 +20,7 @@ spreadsheet_path = os.path.join(
 
 NOTE_TYPE_CHOICES = ["bioghist", "accessrestrict", "odd", "abstract", "arrangement", "userestrict", "fileplan", "acqinfo", "langmaterial", "physdesc", "prefercite", "processinfo", "relatedmaterial", "separatedmaterial"]
 ACTION_CHOICES = ["modify", "delete"]
-LEVEL = ["collection", "file", "series", "item"]
+LEVEL = ["collection", "file", "series", "item", "all"]
 CONFIDENCE_RATIO = 97
 
 def process_tree(args, resource):
@@ -28,7 +28,7 @@ def process_tree(args, resource):
     for record in resource.tree.walk:
         updated = False
         aojson = record.json()
-        if record.level == args.level:
+        if args.level in [record.level, "all"]:
             notes = aojson.get("notes")
             for idx, note in reversed(list(enumerate(notes))):
                 if note["type"] == args.note_type:
@@ -47,7 +47,6 @@ def process_tree(args, resource):
                             updated = True
             if updated:
                 save_record(record.uri, aojson)
-
 
 def contains_match(content, search_string):
     """Returns True if user-provided note input matches the corresponding note within a given ratio (CONFIDENCE_RATIO)."""
@@ -80,7 +79,7 @@ def get_parser():
     parser.add_argument("action", choices=ACTION_CHOICES, help="The action you wish to perform against matched notes")
     parser.add_argument("resource_id", type=int, help="The identifier of the resource record in which you want to search. Found in the URL.")
     parser.add_argument("search_string", help="A string to be matched against in resource record notes.")
-    parser.add_argument("level", choices=LEVEL, help="The level within the resource hierarchy you would like to change (collection, series, file, or item).")
+    parser.add_argument("level", choices=LEVEL, help="The level within the resource hierarchy you would like to change (collection, series, file, item, or all).")
     parser.add_argument("-r", "--replace_string", help="The new note content to replace the old note content. (Only relevant if you are modifying note(s))")
     return parser
 
