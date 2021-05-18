@@ -28,7 +28,7 @@ def process_tree(args, resource):
     for record in resource.tree.walk:
         updated = False
         aojson = record.json()
-        if record.level == args.level or args.level == "all":
+        if args.level in [record.level, "all"]:
             notes = aojson.get("notes")
             for idx, note in reversed(list(enumerate(notes))):
                 if note["type"] == args.note_type:

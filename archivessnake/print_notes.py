@@ -26,7 +26,7 @@ def process_tree(args, resource):
     """Iterates through a given collection, file, or series for note type provided by user input. Finds and prints note content."""
     for record in resource.tree.walk:
         aojson = record.json()
-        if record.level == args.level or args.level == "all":
+        if args.level in [record.level, "all"]:
             notes = aojson.get("notes")
             for idx, note in reversed(list(enumerate(notes))):
                 if note["type"] == args.note_type:
