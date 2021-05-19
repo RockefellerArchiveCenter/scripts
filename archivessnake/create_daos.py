@@ -12,10 +12,10 @@ Expects an external pickle file that contains a list of dictionaries with the fo
 """
 
 import argparse
-import pickle
 from configparser import ConfigParser
 from os.path import join
 
+from amclient import AMClient
 from asnake.aspace import ASpace
 
 # set up archivesspace client
@@ -28,22 +28,24 @@ parser.add_argument(
     'resource', help='ArchivesSpace ID of resource. Example: 123')
 parser.add_argument('series', help='ArchivesSpace ID of series. Example: 4321')
 parser.add_argument(
-    'dip_info_file',
-    help='Path to pickle file containing array of dictionaries with DIP information.')
+    'project_name', help='collection or other name expected to be part of SIP name')
+parser.add_argument(
+    'folder_end', help='assumes "Folder" is in DIP name, folder # to stop at')
 args = parser.parse_args()
 
 
-def main(resource, series, dip_file):
+def main(resource, series, dip_file, project_name, folder_end):
     """Main function, which is run when this script is executed"""
+    am_client = AMClient(ss_api_key=config.get("Archivematica", "api_key"), ss_user_name=config.get(
+        "Archivematica", "username"), ss_url=config.get("Archivematica", "ss_baseurl"))
     aspace = ASpace(
         baseurl=config.get(
             "ArchivesSpace", "baseURL"), username=config.get(
             "ArchivesSpace", "username"), password=config.get(
                 "ArchivesSpace", "password"))
     aspace_token = aspace.client.authorize()
-    with open(dip_file, "rb") as f:
-        dip_data = pickle.load(f)
     print("Starting...")
+    dip_data = get_candidate_dips(am_client, project_name, folder_end)
     for component_uri in get_candidate_uris(aspace, resource, series):
         try:
             dip = match_component_to_dip(aspace, component_uri, dip_data)
@@ -52,6 +54,26 @@ def main(resource, series, dip_file):
             update_component(aspace, component_uri, dao_uri)
         except Exception as e:
             print(e)
+
+
+def get_candidate_dips(am_client, project_name, folder_end):
+    '''Gets all DIPs from the Archivematica Storage Service and returns DIPs that match specific criteria.
+
+    Args:
+        am_client (am_client.AMClient.am_client): instantiation of am_client
+        project_name (str): collection or other name expected to be part of SIP name
+        folder_end (int): assumes "Folder" is in DIP name, folder # to stop at
+
+    Returns:
+        list of Archivematica DIPs (array)
+    '''
+    all_dips = am_client.dips()
+    candidate_dips = []
+    for dip in all_dips:
+        original_name = dip['current_path'][40:-37]
+        if project_name in original_name and folder_end > original_name.split('Folder')[1]:
+            candidate_dips.append(dip)
+    return candidate_dips
 
 
 def get_candidate_uris(aspace, resource_id, series_id):
@@ -92,7 +114,8 @@ def match_component_to_dip(aspace, ao_uri, dip_list):
     box = ao.get('instances')[0].get('sub_container').get(
         'top_container').get('_resolved')['indicator']
     folder = ao.get('instances')[0].get('sub_container').get('indicator_2')
-    dip = [dip for dip in dip_list if (dip.get("folder") == folder and dip.get("box") == box)]
+    dip = [dip for dip in dip_list if (
+        dip.get("folder") == folder and dip.get("box") == box)]
     if len(dip) == 1:
         dip = dip[0]
         return dip
@@ -183,4 +206,4 @@ def update_component(aspace, component, dao):
 
 
 if __name__ == "__main__":
-    main(args.resource, args.series, args.dip_info_file)
+    main(args.resource, args.series, args.dip_info_file, args.project_name, args.folder_end)

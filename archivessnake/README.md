@@ -22,6 +22,16 @@ These scripts require a local configurations file, which should be created in th
     password:admin
 ```
 
+The script `create_daos.py` requires an `Archivematica` section, which looks like this:
+
+```
+[Archivematica]
+# the base URL of the Archivematica storage service
+ss_baseurl:http://localhost:8000
+api_key:nc9u4zby5aj4pjmdaaq59u1ixhtdexwl4ljef7o6
+username:admin
+```
+
 ## extractClipsGetInfo
 
 This script uses ffmpeg to extract clips from MP4 videos whose filenames correspond to ArchivesSpace RefIds, uses the find_by_id endpoint of the ArchivesSpace API to retrieve descriptive information, and outputs information to a spreadsheet.
