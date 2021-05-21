@@ -2,15 +2,9 @@
 
 """
 Using DIP information from Archivematica, adds digital object to file-level
-children of a series in ArchivesSpace. Assumes that all file-level components
-that do not already have a linked DAO should have a DAO added.
-
-Expects an external pickle file that contains a list of dictionaries with the following information:
-    current_full_path: full path to DIP (from Archivematica)
-    related_packages: AIP URI (from Archivematica)
-    uuid: DIP UUID (from Archivematica)
-    box: parsed from current_full_path
-    folder: parsed from current_full_path
+children of a series for the first x number of folders in that series in
+ArchivesSpace. Assumes that all file-level components that do not already
+have a linked DAO should have a DAO added.
 """
 
 import argparse
@@ -30,9 +24,9 @@ parser.add_argument(
     'resource', help='ArchivesSpace ID of resource. Example: 123')
 parser.add_argument('series', help='ArchivesSpace ID of series. Example: 4321')
 parser.add_argument(
-    'project_name', help='collection or other name expected to be part of SIP name')
+    'project_name', help='Collection or other name expected to be part of SIP name. Example: Village_Green_Preservation_Society')
 parser.add_argument(
-    'folder_end', help='assumes "Folder" is in DIP name, folder # to stop at')
+    'folder_end', help='assumes "Folder" is in DIP name, folder # to stop at. Must be a number. Example: 321')
 args = parser.parse_args()
 
 
