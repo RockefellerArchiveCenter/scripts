@@ -199,8 +199,6 @@ def update_component(aspace, component, dao):
     if r.status_code != 200:
         raise Exception("Could not post {} to {}: {}".format(
             dao, component, r.json().get('error')))
-    else:
-        return r
 
 
 if __name__ == "__main__":
