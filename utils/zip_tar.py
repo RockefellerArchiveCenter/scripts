@@ -1,5 +1,13 @@
 #!/usr/bin/env python3
 
+"""Creates ZIP and TAR files from all subdirectories in a target directory. 
+
+usage: zip_tar.py [-h] filepath
+
+Args:
+    filepath (str): File path of directory containing subdirectories to ZIP and TAR.
+"""
+
 import argparse
 import os
 import tarfile

@@ -1,5 +1,13 @@
 #!/usr/bin/env python
 
+"""Splits a file containing a JSON array into individual files for each item.
+
+usage: split_json.py [-h] filepath
+
+Args:
+    filepath (str): File path of JSON file to split into separate files.
+"""
+
 import argparse
 import json
 import os
