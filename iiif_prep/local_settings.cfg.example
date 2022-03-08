@@ -1,8 +1,0 @@
-[ArchivesSpace]
-baseurl = http://localhost:8089
-repository = 101
-username = admin
-password = admin
-
-[IgnoreList]
-ignore_list = ["foldername1", "foldername2"]
