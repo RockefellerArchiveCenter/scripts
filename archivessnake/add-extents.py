@@ -13,7 +13,7 @@ def main(resource_id):
           password="admin").client
 
     for obj in walk_tree(f'/repositories/2/resources/{resource_id}', client):
-        if obj["level"] != "file":
+        if obj["level"] not in ["file", "item"]:
             extent = client.get('extent_calculator', params={'record_uri': obj["uri"], 'units': 'feet'}).json()
             if extent["total_extent"] > 0:
                 obj["extents"] = [{
