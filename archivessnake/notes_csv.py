@@ -36,11 +36,11 @@ def process_tree(args, resource):
                             for loc in top_container.container_locations:
                                 container = "{} {}".format(
                                     top_container.type.capitalize(), top_container.indicator)
-                            try:
-                                container_2 = "{} {}".format(sub_container.type_2.capitalize(), sub_container.indicator_2)
-                            except KeyError:
-                                container_2 = None
-                            writer.writerow([resource.title, resource.id_0, record.uri, record.title, expression, content, container, container_2, loc.title])
+                                try:
+                                    container_2 = "{} {}".format(sub_container.type_2.capitalize(), sub_container.indicator_2)
+                                except KeyError:
+                                    container_2 = None
+                                writer.writerow([resource.title, resource.id_0, record.uri, record.title, expression, content, container, container_2, loc.title])
 def get_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument("note_type", choices=NOTE_TYPE_CHOICES, help="The type of note within a finding aid. For example: accessrestrict.")
