@@ -33,7 +33,7 @@ def process_tree(args, resource_id):
                             expression = "undated"
                         for instance in record['instances']:
                             sub_container = instance['sub_container']
-                            top_container = aspace.client.get(instance['sub_container']['top_container']['ref']).json()
+                            top_container = client.get(instance['sub_container']['top_container']['ref']).json()
                             try:
                                 container = "{} {}".format(
                                 top_container['type'].capitalize(), top_container['indicator'])
@@ -46,7 +46,7 @@ def process_tree(args, resource_id):
                             location = ""
                             for loc in top_container['container_locations']:
                                 try:
-                                    l = aspace.client.get(loc['ref']).json()
+                                    l = client.get(loc['ref']).json()
                                     location = l['title']
                                 except KeyError:
                                     location = "None"
@@ -58,7 +58,7 @@ def get_parser():
     parser.add_argument("resource_id", type=int, help="The identifier of the resource record in which you want to write info to a csv. Found in the URL.")
     return parser
 
-def main(aspace, writer):
+def main(client, writer):
      #"""Main function, which is run when this script is executed"""
     start_time = time.time()
     parser = get_parser()
@@ -70,4 +70,4 @@ def main(aspace, writer):
 
 
 if __name__ == "__main__":
-    main(aspace, writer)
+    main(client, writer)
