@@ -12,8 +12,7 @@ from asnake.utils import walk_tree
 config = ConfigParser()
 config.read("local_settings.cfg")
 
-aspace = ASpace(baseurl=config.get('ArchivesSpace', 'baseURL'), username=config.get('ArchivesSpace', 'user'), password=config.get('ArchivesSpace', 'password'))
-client = aspace.client
+client = ASpace(baseurl=config.get('ArchivesSpace', 'baseURL'), username=config.get('ArchivesSpace', 'user'), password=config.get('ArchivesSpace', 'password')).client
 spreadsheet_path = os.path.join(
     os.path.abspath(os.path.dirname(__file__)), config.get(
         "Destinations", "filename"))
