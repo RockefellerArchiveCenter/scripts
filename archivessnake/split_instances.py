@@ -56,10 +56,11 @@ class InstanceSplitter:
                     reel_numbers.append(r)
         return reel_numbers
 
-parser = argparse.ArgumentParser(description="Splits instances in a resource record based on a separator.")
-parser.add_argument('separator', help='Separator character which divides instances')
-parser.add_argument('resource', help='ArchivesSpace ID of resource record to target')
-parser.add_argument('containers_list', help='List of dicts where indicator number is the key and container URI is the value')
-args = parser.parse_args()
 
-InstanceSplitter(args.separator, args.resource, args.containers_list).run()
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="Splits instances in a resource record based on a separator.")
+    parser.add_argument('separator', help='Separator character which divides instances')
+    parser.add_argument('resource', help='ArchivesSpace ID of resource record to target')
+    parser.add_argument('containers_list', help='List of dicts where indicator number is the key and container URI is the value')
+    args = parser.parse_args()
+    InstanceSplitter(args.separator, args.resource, args.containers_list).run()

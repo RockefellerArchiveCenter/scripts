@@ -27,4 +27,5 @@ class ContainerDeleter:
             today = str(date.today())
             out_file.write("Deleted {} top containers on {}.\n".format(delete_count, today))
 
-ContainerDeleter().run()
+if __name__ == "__main__":
+    ContainerDeleter().run()

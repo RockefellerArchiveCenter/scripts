@@ -47,8 +47,8 @@ class ContainerCreator:
         for result in results:
             return result
 
-parser = argparse.ArgumentParser(description="Creates containers given a spreadsheet with indicator and barcode information.")
-parser.add_argument('spreadsheet', help='Filepath to Excel spreadsheet')
-args = parser.parse_args()
-
-ContainerCreator(args.spreadsheet).run()
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Creates containers given a spreadsheet with indicator and barcode information.")
+    parser.add_argument('spreadsheet', help='Filepath to Excel spreadsheet')
+    args = parser.parse_args()
+    ContainerCreator(args.spreadsheet).run()

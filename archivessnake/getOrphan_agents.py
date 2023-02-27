@@ -5,19 +5,17 @@ import json
 import csv
 from asnake.aspace import ASpace
 
-aspace = ASpace()
-repo = aspace.repositories(2)
 
-###Writes orphan agent data to a csv
-def write_agent_csv(csvName):
+def write_agent_csv(csvName, aspace):
+    """Writes orphan agent data to a csv"""
     fieldnames = ['URI', 'agent']
     with open(csvName, 'w', newline='') as outputFile:
         writer = csv.DictWriter(outputFile, fieldnames=fieldnames)
         writer.writeheader()
-        get_agents(writer)
+        get_agents(writer, aspace)
 
-###Gets orphan agents
-def get_agents(writer):
+def get_agents(writer, aspace):
+    """Gets orphan agents"""
     for object_type in ['agents']:
         for object in getattr(aspace, object_type):
             if object.used_within_repositories == []:
@@ -26,5 +24,7 @@ def get_agents(writer):
                 print("agents/{}".format(object.uri.split('/')[-1]))
                 writer.writerow({'URI': str(object.uri), 'agent': object.title})
 
-csvName = "orphan_agents.csv"
-write_agent_csv(csvName)
+if __name__ == "__main__":
+    aspace = ASpace()
+    csvName = "orphan_agents.csv"
+    write_agent_csv(csvName, aspace)

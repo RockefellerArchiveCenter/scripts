@@ -69,11 +69,11 @@ class LabelPrinter:
         except AttributeError:
             return ""
 
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Creates a csv with container labels based on a a given resource ID."
+    )
+    parser.add_argument("resource", help="ArchivesSpace resource id")
+    args = parser.parse_args()
 
-parser = argparse.ArgumentParser(
-    description="Creates a csv with container labels based on a a given resource ID."
-)
-parser.add_argument("resource", help="ArchivesSpace resource id")
-args = parser.parse_args()
-
-LabelPrinter(args.resource).run()
+    LabelPrinter(args.resource).run()

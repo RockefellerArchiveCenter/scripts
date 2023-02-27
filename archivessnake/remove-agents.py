@@ -12,10 +12,6 @@ from asnake.aspace import ASpace
 logging.setup_logging(filename='logging.txt', level='INFO', filemode='a')
 logger = logging.get_logger()
 
-aspace = ASpace()
-repo = aspace.repositories(2)
-
-
 def get_collection():
     """Returns a collection corresponding to an ID provided by user input"""
     try:
@@ -50,9 +46,9 @@ def remove_local_agents(collection):
             logger.info("{} updated".format(ao.uri))
             print("{} updated".format(ao.uri))
 
-
-def main():
-    """Main function, which is run when this script is executed"""
+if __name__ == "__main__":
+    aspace = ASpace()
+    repo = aspace.repositories(2)
     start_time = time.time()
     collection = get_collection()
 
@@ -63,6 +59,3 @@ def main():
         print("Time Elapsed: " + time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
     except Exception as e:
         print(e)
-
-
-main()

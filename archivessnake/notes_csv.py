@@ -9,11 +9,6 @@ from asnake.aspace import ASpace
 from asnake.utils import walk_tree
 
 FILENAME = "out.csv"
-
-client = ASpace().client
-spreadsheet_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), FILENAME)
-writer = csv.writer(open(spreadsheet_path, "w"))
-
 NOTE_TYPE_CHOICES = ["bioghist", "accessrestrict", "odd", "abstract", "arrangement", "userestrict", "fileplan", "acqinfo", "langmaterial", "physdesc", "phystech", "prefercite", "processinfo", "relatedmaterial", "scopecontent", "separatedmaterial"]
 
 def process_tree(args, resource_id):
@@ -66,4 +61,7 @@ def main(client, writer):
 
 
 if __name__ == "__main__":
+    client = ASpace().client
+    spreadsheet_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), FILENAME)
+    writer = csv.writer(open(spreadsheet_path, "w"))
     main(client, writer)

@@ -6,11 +6,6 @@ import time
 from asnake.aspace import ASpace
 
 
-aspace = ASpace()
-repo = aspace.repositories(2)
-start_time = time.time()
-
-
 def get_resources_notes():
     for object in aspace.resources:
         if object.id_0.startswith('FA'):
@@ -35,9 +30,10 @@ def unpublish_notes(object):
         print("{} error".format(object.uri))
         pass
 
-#get_resources_notes()
-
-get_ao_notes()
-
-elapsed_time = time.time() - start_time
-print('Time Elapsed: ' + time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
+if __name__ == '__main__':
+    aspace = ASpace()
+    repo = aspace.repositories(2)
+    start_time = time.time()
+    get_ao_notes()
+    elapsed_time = time.time() - start_time
+    print('Time Elapsed: ' + time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))

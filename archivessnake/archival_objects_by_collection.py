@@ -86,8 +86,8 @@ class DataFetcher:
                 locations.append(l['title'])
         return ", ".join(locations)
 
-parser = argparse.ArgumentParser(description='Fetches data about all archival objects associated with a collection.')
-parser.add_argument('resource_id', help='Identifier for a resource record')
-args = parser.parse_args()
-
-DataFetcher(args.resource_id).run()
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Fetches data about all archival objects associated with a collection.')
+    parser.add_argument('resource_id', help='Identifier for a resource record')
+    args = parser.parse_args()
+    DataFetcher(args.resource_id).run()
