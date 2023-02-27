@@ -10,18 +10,13 @@ from asnake.aspace import ASpace
 #from fuzzywuzzy import fuzz
 from rapidfuzz import fuzz
 
-config = ConfigParser()
-config.read("local_settings.cfg")
-
-spreadsheet_path = os.path.join(
-    os.path.abspath(os.path.dirname(__file__)), config.get(
-        "Destinations", "filename")
-)
-
+AS_REPOSITORY = 2
+OUTPUT_FILENAME = "out.csv"
 NOTE_TYPE_CHOICES = ["bioghist", "accessrestrict", "odd", "abstract", "arrangement", "userestrict", "fileplan", "acqinfo", "langmaterial", "physdesc", "prefercite", "processinfo", "relatedmaterial", "separatedmaterial"]
 ACTION_CHOICES = ["modify", "delete"]
 LEVEL = ["collection", "file", "series", "item", "all"]
 CONFIDENCE_RATIO = 97
+spreadsheet_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), OUTPUT_FILENAME)
 
 def process_tree(args, resource):
     """Iterates through a given collection, file, or series provided by user input. Finds note content that matches user input and then deletes or modifies relevant notes according to user preference.  """
@@ -84,21 +79,16 @@ def get_parser():
     return parser
 
 def main():
-     #"""Main function, which is run when this script is executed"""
+    """Main function, which is run when this script is executed"""
     start_time = time.time()
     parser = get_parser()
     args = parser.parse_args()
     global aspace
-    aspace = ASpace(
-        baseurl=config.get("ArchivesSpace", "baseURL"),
-        username=config.get("ArchivesSpace", "user"),
-        password=config.get("ArchivesSpace", "password"),
-    )
+    aspace = ASpace()
     global writer
     writer = csv.writer(open(spreadsheet_path, "w"))
     create_spreadsheet(["Box Number", "Archival Object URI"])
-    process_tree(args, aspace.repositories(config.get(
-        "ArchivesSpace", "repository")).resources(args.resource_id))
+    process_tree(args, aspace.repositories(AS_REPOSITORY).resources(args.resource_id))
     elapsed_time = time.time() - start_time
     print("Time Elapsed: " + time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
 

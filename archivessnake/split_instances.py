@@ -7,7 +7,6 @@ usage: python split_instances.py separator resource containers_list
 """
 
 import argparse
-import configparser
 import json
 
 from asnake.aspace import ASpace
@@ -15,10 +14,8 @@ from asnake.aspace import ASpace
 
 class InstanceSplitter:
     def __init__(self, separator, resource, containers_list):
-        config = configparser.ConfigParser()
-        config.read('local_settings.cfg')
-        self.aspace = ASpace(baseurl=config.get('ArchivesSpace', 'baseURL'), username=config.get('ArchivesSpace', 'username'), password=config.get('ArchivesSpace', 'password'))
-        self.repo = self.aspace.repositories(config.get('ArchivesSpace', 'repository'))
+        self.aspace = ASpace()
+        self.repo = self.aspace.repositories(2)
         self.separator = separator
         self.resource = resource
         self.containers_list = containers_list

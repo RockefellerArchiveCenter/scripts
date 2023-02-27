@@ -5,8 +5,7 @@ from configparser import ConfigParser
 
 from asnake.aspace import ASpace
 
-config = ConfigParser()
-config.read("local_settings.cfg")
+AS_REPO = 2
 
 def process_tree(client, resource):
     """Iterates through a given collection, file, or series provided by user input.
@@ -63,13 +62,10 @@ def main():
     """Main function, which is run when this script is executed"""
     parser = get_parser()
     args = parser.parse_args()
-    aspace = ASpace(
-        baseurl=config.get("ArchivesSpace", "baseurl"),
-        username=config.get("ArchivesSpace", "username"),
-        password=config.get("ArchivesSpace", "password"))
+    aspace = ASpace()
     process_tree(
         aspace.client,
-        aspace.repositories(config.get("ArchivesSpace", "repository")).resources(args.resource_id))
+        aspace.repositories(AS_REPO).resources(args.resource_id))
 
 
 if __name__ == "__main__":

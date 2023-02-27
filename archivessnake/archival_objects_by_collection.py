@@ -6,26 +6,24 @@
 """
 
 import argparse
-import configparser
 import csv
 import json
 import os
 
 from asnake.aspace import ASpace
 
+OUTPUT_FILE = "data.csv"
 
 class DataFetcher:
     def __init__(self, resource_id):
-        config = configparser.ConfigParser()
-        config.read('local_settings.cfg')
-        if os.path.isfile('data.csv'):
-            raise Exception("data.csv already exists and would be overwritten. Please move or delete this file before running the script again.")
-        self.aspace = ASpace(baseurl=config.get('ArchivesSpace', 'baseURL'), username=config.get('ArchivesSpace', 'username'), password=config.get('ArchivesSpace', 'password'))
+        if os.path.isfile(OUTPUT_FILE):
+            raise Exception(F"{OUTPUT_FILE} already exists and would be overwritten. Please move or delete this file before running the script again.")
+        self.aspace = ASpace()
         self.repo = self.aspace.repositories(2)
         self.resource_id = int(resource_id)
 
     def run(self):
-        writer = csv.writer(open('data.csv', 'w'))
+        writer = csv.writer(open(OUTPUT_FILE, 'w'))
         for record in self.repo.resources(self.resource_id).tree.walk:
             if record.jsonmodel_type == 'archival_object':
                 data = self.get_object_data(record)

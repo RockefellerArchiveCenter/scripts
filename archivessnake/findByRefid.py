@@ -3,8 +3,7 @@
 import json
 import csv
 import getpass
-import configparser
-from asnake.client import ASnakeClient
+from asnake.aspace import ASpace
 
 def get_ao(refid):
     # use find_by_id endpoint
@@ -190,17 +189,9 @@ def make_spreadsheet(filelist):
         if not count % 25:
             print(str(count) + ' rows added')
 
-# enter aspace login info
-config = configparser.ConfigParser()
-config.read('local_settings.cfg')
-baseurl= config.get('ArchivesSpace', 'baseURL')
-user = input('ArchivesSpace username: ')
-pw = getpass.getpass('ArchivesSpace password:')
-
 # start aspace session
-client = ASnakeClient(baseurl=baseurl,username=user,password=pw)
+client = ASpace().client
 print("Logging into ArchivesSpace...")
-client.authorize()
 
 # create spreadsheet
 spreadsheet = open("find_on_demand.csv", "w")

@@ -9,7 +9,6 @@ usage: python add_missing_dates.py resource -t
 """
 
 import argparse
-import configparser
 import json
 import os
 
@@ -32,11 +31,7 @@ REMOVE_STRINGS = ["Exhibited: ", "d. "]
 
 class ExpressionReplacer:
     def __init__(self, resource, touch=False):
-        config = configparser.ConfigParser()
-        config.read('local_settings.cfg')
-        self.aspace = ASpace(baseurl=config.get('ArchivesSpace', 'baseURL'),
-                             username=config.get('ArchivesSpace', 'username'),
-                             password=config.get('ArchivesSpace', 'password'))
+        self.aspace = ASpace()
         self.repo = self.aspace.repositories(2)
         self.resource = resource
         self.touch = touch

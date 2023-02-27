@@ -1,20 +1,16 @@
 ##!/usr/bin/env python3
 
 import argparse
-from configparser import ConfigParser
 import csv
 import os
 import time
 
 from asnake.aspace import ASpace
 
-config = ConfigParser()
-config.read("local_settings.cfg")
+FILENAME = "out.csv"
 
-aspace = ASpace(baseurl=config.get('ArchivesSpace', 'baseURL'), username=config.get('ArchivesSpace', 'user'), password=config.get('ArchivesSpace', 'password'))
-spreadsheet_path = os.path.join(
-    os.path.abspath(os.path.dirname(__file__)), config.get(
-        "Destinations", "filename"))
+aspace = ASpace()
+spreadsheet_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), FILENAME)
 
 NOTE_TYPE_CHOICES = ["bioghist", "accessrestrict", "odd", "abstract", "arrangement", "userestrict", "fileplan", "acqinfo", "langmaterial", "physdesc", "prefercite", "processinfo", "relatedmaterial", "separatedmaterial"]
 LEVEL = ["collection", "file", "series", "item", "all"]
@@ -41,13 +37,8 @@ def main():
     start_time = time.time()
     parser = get_parser()
     args = parser.parse_args()
-    aspace = ASpace(
-        baseurl=config.get("ArchivesSpace", "baseURL"),
-        username=config.get("ArchivesSpace", "user"),
-        password=config.get("ArchivesSpace", "password"),
-    )
-    process_tree(args, aspace.repositories(config.get(
-        "ArchivesSpace", "repository")).resources(args.resource_id))
+    aspace = ASpace()
+    process_tree(args, aspace.repositories(2).resources(args.resource_id))
     elapsed_time = time.time() - start_time
     print("Time Elapsed: " + time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
 

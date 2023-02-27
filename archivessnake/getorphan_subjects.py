@@ -3,16 +3,9 @@
 import os
 import json
 import csv
-import configparser
 from asnake.aspace import ASpace
 
-config = ConfigParser()
-config.read("local_settings.cfg")
-aspace = ASpace(
-              baseurl=config.get("ArchivesSpace", "baseURL"),
-              username=config.get("ArchivesSpace", "user"),
-              password=config.get("ArchivesSpace", "password"),
-    )
+aspace = ASpace()
 repo = aspace.repositories(2)
 
 ###Writes oprhan subject data to a csv

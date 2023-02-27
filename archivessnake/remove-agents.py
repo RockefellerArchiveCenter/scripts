@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import csv
-import configparser
 import json
 import requests
 import time
@@ -9,18 +8,12 @@ import time
 from asnake.client import ASnakeClient
 import asnake.logging as logging
 from asnake.aspace import ASpace
-from configparser import ConfigParser, ExtendedInterpolation
 
 logging.setup_logging(filename='logging.txt', level='INFO', filemode='a')
 logger = logging.get_logger()
 
-config = configparser.ConfigParser()
-config.read('local_settings.cfg')
-
-aspace = ASpace(baseurl=config['ArchivesSpace']['baseURL'],
-                username=config['ArchivesSpace']['user'],
-                password=config['ArchivesSpace']['password'])
-repo = aspace.repositories(config['ArchivesSpace']['repository'])
+aspace = ASpace()
+repo = aspace.repositories(2)
 
 
 def get_collection():

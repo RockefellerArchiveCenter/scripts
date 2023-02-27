@@ -7,10 +7,7 @@ from asnake.utils import walk_tree
 
 
 def main(resource_id):
-    client = ASpace(
-          baseurl="https://localhost:8009/",
-          username="admin",
-          password="admin").client
+    client = ASpace().client
 
     for obj in walk_tree(f'/repositories/2/resources/{resource_id}', client):
         if obj["level"] not in ["file", "item"]:

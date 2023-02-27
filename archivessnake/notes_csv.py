@@ -1,7 +1,6 @@
 ##!/usr/bin/env python3
 
 import argparse
-from configparser import ConfigParser
 import csv
 import os
 import time
@@ -9,13 +8,10 @@ import time
 from asnake.aspace import ASpace
 from asnake.utils import walk_tree
 
-config = ConfigParser()
-config.read("local_settings.cfg")
+FILENAME = "out.csv"
 
-client = ASpace(baseurl=config.get('ArchivesSpace', 'baseURL'), username=config.get('ArchivesSpace', 'user'), password=config.get('ArchivesSpace', 'password')).client
-spreadsheet_path = os.path.join(
-    os.path.abspath(os.path.dirname(__file__)), config.get(
-        "Destinations", "filename"))
+client = ASpace().client
+spreadsheet_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), FILENAME)
 writer = csv.writer(open(spreadsheet_path, "w"))
 
 NOTE_TYPE_CHOICES = ["bioghist", "accessrestrict", "odd", "abstract", "arrangement", "userestrict", "fileplan", "acqinfo", "langmaterial", "physdesc", "phystech", "prefercite", "processinfo", "relatedmaterial", "scopecontent", "separatedmaterial"]

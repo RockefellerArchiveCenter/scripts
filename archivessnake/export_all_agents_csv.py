@@ -6,11 +6,7 @@ import csv
 from asnake.aspace import ASpace
 
 
-aspace = ASpace(
-              baseurl='',
-              user='',
-              password=''
-    )
+aspace = ASpace()
 repo = aspace.repositories(2)
 
 ###Writes agent data to a csv

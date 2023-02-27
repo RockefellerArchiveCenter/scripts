@@ -7,7 +7,6 @@ usage: python create_containers.py spreadsheet
 """
 
 import argparse
-import configparser
 import json
 import openpyxl
 
@@ -16,10 +15,8 @@ from asnake.aspace import ASpace
 
 class ContainerCreator:
     def __init__(self, spreadsheet):
-        config = configparser.ConfigParser()
-        config.read('local_settings.cfg')
-        self.aspace = ASpace(baseurl=config.get('ArchivesSpace', 'baseURL'), username=config.get('ArchivesSpace', 'username'), password=config.get('ArchivesSpace', 'password'))
-        self.repo_id = config.get('ArchivesSpace', 'repository')
+        self.aspace = ASpace()
+        self.repo_id = 2
         self.container_data = openpyxl.load_workbook(spreadsheet).active
 
     def run(self):

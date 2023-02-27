@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import argparse
-import configparser
 import json
 import csv
 import os.path
@@ -11,13 +10,7 @@ from asnake.aspace import ASpace
 
 class LabelPrinter:
     def __init__(self, resource):
-        config = configparser.ConfigParser()
-        config.read("local_settings.cfg")
-        self.aspace = ASpace(
-            baseurl=config.get("ArchivesSpace", "baseURL"),
-            username=config.get("ArchivesSpace", "user"),
-            password=config.get("ArchivesSpace", "password"),
-        )
+        self.aspace = ASpace()
         self.resource = self.aspace.repositories(2).resources(resource)
 
     def run(self):

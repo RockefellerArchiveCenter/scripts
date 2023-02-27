@@ -6,11 +6,7 @@ import csv
 from asnake.aspace import ASpace
 
 
-aspace = ASpace(
-              baseurl='',
-              user='',
-              password=''
-    )
+aspace = ASpace()
 repo = aspace.repositories(2)
 
 ###Writes subject data to a csv

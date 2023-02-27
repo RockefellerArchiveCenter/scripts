@@ -1,16 +1,8 @@
 #!/usr/bin/env python
 
-import configparser
-
 from asnake.aspace import ASpace
 
-config = configparser.ConfigParser()
-config.read("local_settings.cfg")
-aspace = ASpace(
-    baseurl=config.get("ArchivesSpace", "baseURL"),
-    username=config.get("ArchivesSpace", "user"),
-    password=config.get("ArchivesSpace", "password"),
-)
+aspace = ASpace()
 repo = aspace.repositories(2)
 
 output_file = "output_filename.tsv"
