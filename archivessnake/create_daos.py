@@ -8,13 +8,11 @@ have a linked DAO should have a DAO added.
 """
 
 import argparse
-from configparser import ConfigParser
 from os.path import join
 
 from amclient import AMClient
 from asnake.aspace import ASpace
 
-# set up archivesspace client
 config = ConfigParser()
 config.read("local_settings.cfg")
 
@@ -32,13 +30,11 @@ args = parser.parse_args()
 
 def main(resource, series, dip_file, project_name, folder_end):
     """Main function, which is run when this script is executed"""
-    am_client = AMClient(ss_api_key=config.get("Archivematica", "api_key"), ss_user_name=config.get(
-        "Archivematica", "username"), ss_url=config.get("Archivematica", "ss_baseurl"))
-    aspace = ASpace(
-        baseurl=config.get(
-            "ArchivesSpace", "baseURL"), username=config.get(
-            "ArchivesSpace", "username"), password=config.get(
-                "ArchivesSpace", "password"))
+    am_client = AMClient(
+        ss_api_key=config.get("Archivematica", "api_key"), 
+        ss_user_name=config.get("Archivematica", "username"), 
+        ss_url=config.get("Archivematica", "ss_baseurl"))
+    aspace = ASpace()
     aspace_token = aspace.client.authorize()
     print("Starting...")
     dip_data = get_candidate_dips(am_client, project_name, folder_end)

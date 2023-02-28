@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import csv
-import configparser
 import json
 import requests
 import time
@@ -9,19 +8,9 @@ import time
 from asnake.client import ASnakeClient
 import asnake.logging as logging
 from asnake.aspace import ASpace
-from configparser import ConfigParser, ExtendedInterpolation
 
 logging.setup_logging(filename='logging.txt', level='INFO', filemode='a')
 logger = logging.get_logger()
-
-config = configparser.ConfigParser()
-config.read('local_settings.cfg')
-
-aspace = ASpace(baseurl=config['ArchivesSpace']['baseURL'],
-                username=config['ArchivesSpace']['user'],
-                password=config['ArchivesSpace']['password'])
-repo = aspace.repositories(config['ArchivesSpace']['repository'])
-
 
 def get_collection():
     """Returns a collection corresponding to an ID provided by user input"""
@@ -57,9 +46,9 @@ def remove_local_agents(collection):
             logger.info("{} updated".format(ao.uri))
             print("{} updated".format(ao.uri))
 
-
-def main():
-    """Main function, which is run when this script is executed"""
+if __name__ == "__main__":
+    aspace = ASpace()
+    repo = aspace.repositories(2)
     start_time = time.time()
     collection = get_collection()
 
@@ -70,6 +59,3 @@ def main():
         print("Time Elapsed: " + time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
     except Exception as e:
         print(e)
-
-
-main()

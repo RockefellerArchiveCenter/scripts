@@ -6,11 +6,8 @@ from asnake.aspace import ASpace
 from asnake.utils import walk_tree
 
 
-def main(resource_id, baseurl, username, password):
-    client = ASpace(
-          baseurl=baseurl,
-          username=username,
-          password=password).client
+def main(resource_id):
+    client = ASpace().client
 
     resource = client.get(f'/repositories/2/resources/{resource_id}').json()
 
@@ -36,15 +33,5 @@ if __name__ == '__main__':
     parser.add_argument(
         'resource_id',
         help='The ArchivesSpace ID for a resource record')
-    parser.add_argument(
-        'username',
-        help='An ArchivesSpace user with write permissions')
-    parser.add_argument(
-        'password',
-        help='The password for the ArchivesSpace user')
-    parser.add_argument(
-        '--baseurl',
-        help='The base URL for an ArchivesSpace instance',
-        default='https://as.dev.rockarch.org/api')
     args = parser.parse_args()
-    main(args.resource_id, args.baseurl, args.username, args.password)
+    main(args.resource_id)

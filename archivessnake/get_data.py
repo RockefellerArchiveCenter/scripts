@@ -5,17 +5,6 @@
 import os
 import json
 from asnake.aspace import ASpace
-from configparser import ConfigParser
-
-config = ConfigParser()
-config.read("local_settings.cfg")
-
-aspace = ASpace(
-              baseurl=config.get("ArchivesSpace", "baseURL"),
-              username=config.get("ArchivesSpace", "user"),
-              password=config.get("ArchivesSpace", "password"),
-    )
-repo = aspace.repositories(2)
 
 
 def save_data(object_type, object):
@@ -26,11 +15,15 @@ def save_data(object_type, object):
         json.dump(object.json(), outfile, indent=2)
     print(os.path.join(path, "{}.json".format(object.uri.split('/')[-1])))
 
-for object_type in ['resources', 'archival_objects']:
-    for object in getattr(aspace, object_type):
-        if not (object.jsonmodel_type == 'resource' and object.id_0.startswith('LI')):
-            save_data(object_type, object)
 
-for object_type in ['agents', 'subjects']:
-    for object in getattr(aspace, object_type):
-        save_data(object_type, object)
+if __name__ == "__main__":
+    aspace = ASpace()
+
+    for object_type in ['resources', 'archival_objects']:
+        for object in getattr(aspace, object_type):
+            if not (object.jsonmodel_type == 'resource' and object.id_0.startswith('LI')):
+                save_data(object_type, object)
+
+    for object_type in ['agents', 'subjects']:
+        for object in getattr(aspace, object_type):
+            save_data(object_type, object)

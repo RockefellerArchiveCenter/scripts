@@ -6,7 +6,6 @@ Deletes top containers not associated with any collections.
 usage: python delete_orphan_containers.py
 """
 
-import configparser
 import json
 from datetime import date
 
@@ -15,10 +14,8 @@ from asnake.aspace import ASpace
 
 class ContainerDeleter:
     def __init__(self):
-        config = configparser.ConfigParser()
-        config.read('local_settings.cfg')
-        self.aspace = ASpace(baseurl=config.get('ArchivesSpace', 'baseURL'), username=config.get('ArchivesSpace', 'username'), password=config.get('ArchivesSpace', 'password'))
-        self.repo = self.aspace.repositories(config.get('ArchivesSpace', 'repository'))
+        self.aspace = ASpace()
+        self.repo = self.aspace.repositories(2)
 
     def run(self):
         delete_count = 0
@@ -30,4 +27,5 @@ class ContainerDeleter:
             today = str(date.today())
             out_file.write("Deleted {} top containers on {}.\n".format(delete_count, today))
 
-ContainerDeleter().run()
+if __name__ == "__main__":
+    ContainerDeleter().run()

@@ -1,7 +1,6 @@
 ##!/usr/bin/env python3
 
 import argparse
-from configparser import ConfigParser
 import csv
 import os
 import time
@@ -9,15 +8,7 @@ import time
 from asnake.aspace import ASpace
 from asnake.utils import walk_tree
 
-config = ConfigParser()
-config.read("local_settings.cfg")
-
-client = ASpace(baseurl=config.get('ArchivesSpace', 'baseURL'), username=config.get('ArchivesSpace', 'user'), password=config.get('ArchivesSpace', 'password')).client
-spreadsheet_path = os.path.join(
-    os.path.abspath(os.path.dirname(__file__)), config.get(
-        "Destinations", "filename"))
-writer = csv.writer(open(spreadsheet_path, "w"))
-
+FILENAME = "out.csv"
 NOTE_TYPE_CHOICES = ["bioghist", "accessrestrict", "odd", "abstract", "arrangement", "userestrict", "fileplan", "acqinfo", "langmaterial", "physdesc", "phystech", "prefercite", "processinfo", "relatedmaterial", "scopecontent", "separatedmaterial"]
 
 def process_tree(args, resource_id):
@@ -70,4 +61,7 @@ def main(client, writer):
 
 
 if __name__ == "__main__":
+    client = ASpace().client
+    spreadsheet_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), FILENAME)
+    writer = csv.writer(open(spreadsheet_path, "w"))
     main(client, writer)
