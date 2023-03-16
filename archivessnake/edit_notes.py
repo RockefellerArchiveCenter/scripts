@@ -11,7 +11,6 @@ from asnake.utils import walk_tree
 #from fuzzywuzzy import fuzz
 from rapidfuzz import fuzz
 
-AS_REPOSITORY = 2
 OUTPUT_FILENAME = "out.csv"
 NOTE_TYPE_CHOICES = ["bioghist", "accessrestrict", "odd", "abstract", "arrangement", "userestrict", "fileplan", "acqinfo", "langmaterial", "physdesc", "prefercite", "processinfo", "relatedmaterial", "separatedmaterial"]
 ACTION_CHOICES = ["modify", "delete"]
@@ -26,7 +25,7 @@ def process_tree(args, resource_id):
             notes = client.get(record['notes']).json()
             for idx, note in reversed(list(enumerate(notes))):
                 if note['type'] == args.note_type:
-                    for subnote in note.get(['subnotes']):
+                    for subnote in note.get('subnotes'):
                         content = subnote['content']
                         if contains_match(content, args.search_string):
                             if args.action == "delete":
@@ -83,7 +82,7 @@ def main(client, writer):
     parser = get_parser()
     args = parser.parse_args()
     create_spreadsheet(["Collection Title", "Finding Aid Number", "URI", "Ref ID", "Object Title", "Box Number"])
-    process_tree(args, client.repositories(AS_REPOSITORY).resources(args.resource_id))
+    process_tree(args, client.get(f'/repositories/2/resources/{(args.resource_id)}').json())
     elapsed_time = time.time() - start_time
     print("Time Elapsed: " + time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
 
