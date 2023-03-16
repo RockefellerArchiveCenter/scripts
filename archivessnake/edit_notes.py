@@ -7,6 +7,7 @@ import os
 import time
 
 from asnake.aspace import ASpace
+from asnake.utils import walk_tree
 #from fuzzywuzzy import fuzz
 from rapidfuzz import fuzz
 
@@ -16,32 +17,30 @@ NOTE_TYPE_CHOICES = ["bioghist", "accessrestrict", "odd", "abstract", "arrangeme
 ACTION_CHOICES = ["modify", "delete"]
 LEVEL = ["collection", "file", "series", "item", "all"]
 CONFIDENCE_RATIO = 97
-spreadsheet_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), OUTPUT_FILENAME)
 
-def process_tree(args, resource):
+def process_tree(args, resource_id):
     """Iterates through a given collection, file, or series provided by user input. Finds note content that matches user input and then deletes or modifies relevant notes according to user preference.  """
-    for record in resource.tree.walk:
+    for record in walk_tree(resource_id, client):
         updated = False
-        aojson = record.json()
-        if args.level in [record.level, "all"]:
-            notes = aojson.get("notes")
+        if args.level in [record['level'], "all"]:
+            notes = client.get(record['notes']).json()
             for idx, note in reversed(list(enumerate(notes))):
-                if note["type"] == args.note_type:
-                    for subnote in note.get("subnotes"):
-                        content = subnote["content"]
+                if note['type'] == args.note_type:
+                    for subnote in note.get(['subnotes']):
+                        content = subnote['content']
                         if contains_match(content, args.search_string):
                             if args.action == "delete":
                                 del notes[idx]
                                 print("{} note deleted from object {}".format(
-                                    args.note_type, record.uri))
+                                    args.note_type, record['uri']))
                             if args.action == "modify":
                                 print("{} note was originally {} and was changed to {} in object {}".format(
-                                    args.note_type, content, args.replace_string, record.uri))
-                                subnote["content"] = args.replace_string
+                                    args.note_type, content, args.replace_string, record['uri']))
+                                subnote['content'] = args.replace_string
                             log_to_spreadsheet(record)
                             updated = True
             if updated:
-                save_record(record.uri, aojson)
+                save_record(record['uri'], record.json())
 
 def contains_match(content, search_string):
     """Returns True if user-provided note input matches the corresponding note within a given ratio (CONFIDENCE_RATIO)."""
@@ -49,19 +48,19 @@ def contains_match(content, search_string):
     return True if ratio > CONFIDENCE_RATIO else False
 
 
-def save_record(uri, data):
+def save_record(record, data):
     """Posts modifications/deletions to ArchivesSpace"""
-    updated = aspace.client.post(uri, json=data)
+    updated = client.post(record['uri'], json=data)
     updated.raise_for_status()
 
 
-def log_to_spreadsheet(archival_object):
+def log_to_spreadsheet(archival_object, resource_id, record):
     """Logs top container identifier information of changed archival objects to spreadsheet"""
-    for instance in archival_object.instances:
+    for instance in archival_object['instances']:
         top_container = instance.sub_container.top_container
         container = "{} {}".format(
             top_container.type.capitalize(), top_container.indicator)
-        writer.writerow([container, archival_object.uri])
+        writer.writerow([resource_id['title'], resource_id['id_0'], record['uri'], record['ref_id'], record['title'], container])
 
 
 def create_spreadsheet(column_headings):
@@ -78,20 +77,18 @@ def get_parser():
     parser.add_argument("-r", "--replace_string", help="The new note content to replace the old note content. (Only relevant if you are modifying note(s))")
     return parser
 
-def main():
+def main(client, writer):
     """Main function, which is run when this script is executed"""
     start_time = time.time()
     parser = get_parser()
     args = parser.parse_args()
-    global aspace
-    aspace = ASpace()
-    global writer
-    writer = csv.writer(open(spreadsheet_path, "w"))
-    create_spreadsheet(["Box Number", "Archival Object URI"])
-    process_tree(args, aspace.repositories(AS_REPOSITORY).resources(args.resource_id))
+    create_spreadsheet(["Collection Title", "Finding Aid Number", "URI", "Ref ID", "Object Title", "Box Number"])
+    process_tree(args, client.repositories(AS_REPOSITORY).resources(args.resource_id))
     elapsed_time = time.time() - start_time
     print("Time Elapsed: " + time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
 
-
 if __name__ == "__main__":
-    main()
+    client = ASpace().client
+    spreadsheet_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), OUTPUT_FILENAME)
+    writer = csv.writer(open(spreadsheet_path, "w"))
+    main(client, writer)
