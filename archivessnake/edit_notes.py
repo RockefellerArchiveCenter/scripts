@@ -17,51 +17,55 @@ ACTION_CHOICES = ["modify", "delete"]
 LEVEL = ["collection", "file", "series", "item", "all"]
 CONFIDENCE_RATIO = 97
 
-def process_tree(client, parser):
+def process_tree(client, parser, writer):
     """Iterates through a given collection, file, or series provided by user input. Finds note content that matches user input and then deletes or modifies relevant notes according to user preference.  """
     args = parser.parse_args()
-    for record in walk_tree(args, client):
+    resource_id = client.get(f'/repositories/2/resources/{(args.resource_id)}').json()
+    for record in walk_tree(resource_id, client):
         updated = False
         if args.level in [record['level'], "all"]:
-            notes = client.get(record['notes']).json()
+            notes = record['notes']
             for idx, note in reversed(list(enumerate(notes))):
                 if note['type'] == args.note_type:
                     for subnote in note.get('subnotes'):
                         content = subnote['content']
                         if contains_match(content, args.search_string):
-                            handle_matching_notes(args, notes, record, subnote, client)
+                            handle_matching_notes(args, notes, idx, record, content, subnote, client, resource_id, writer, updated)
                             
-def handle_matching_notes(args, notes, record, subnote, client):
+def handle_matching_notes(args, notes, idx, record, content, subnote, client, resource_id, writer, updated):
     if args.action == "delete":
         del notes[idx]
-        print("{} note deleted from object {}".format(
-            args.note_type, record['uri']))
+        print("{} note {} deleted from object {}".format(
+            args.note_type, args.search_string, record['uri']))
     if args.action == "modify":
         print("{} note was originally {} and was changed to {} in object {}".format(
             args.note_type, content, args.replace_string, record['uri']))
         subnote['content'] = args.replace_string
-        log_to_spreadsheet(record)
-        updated = True
-        if updated:
-            save_record(client, record['uri'], record.json())
+    log_to_spreadsheet(record, writer, resource_id, client)
+    updated = True
+    if updated:
+        save_record(client, record['uri'], record)
 
 def contains_match(content, search_string):
     """Returns True if user-provided note input matches the corresponding note within a given ratio (CONFIDENCE_RATIO)."""
     ratio = fuzz.token_sort_ratio(content.lower(), search_string.lower())
     return True if ratio > CONFIDENCE_RATIO else False
 
-def save_record(client, record, data):
+def save_record(client, uri, data):
     """Posts modifications/deletions to ArchivesSpace"""
-    updated = client.post(record['uri'], json=data)
+    updated = client.post(uri, json=data)
     updated.raise_for_status()
 
-def log_to_spreadsheet(archival_object, resource_id, record, writer):
+def log_to_spreadsheet(record, writer, resource_id, client):
     """Logs top container identifier information of changed archival objects to spreadsheet"""
-    for instance in archival_object['instances']:
-        top_container = instance.sub_container.top_container
-        container = "{} {}".format(
-            top_container.type.capitalize(), top_container.indicator)
-        writer.writerow([resource_id['title'], resource_id['id_0'], record['uri'], record['ref_id'], record['title'], container])
+    if record['instances']:
+        for instance in record['instances']:
+            top_container = client.get(instance['sub_container']['top_container']['ref']).json()
+            container = "{} {}".format(
+            top_container['type'].capitalize(), top_container['indicator'])
+    else: 
+        container = "None"
+    writer.writerow([resource_id['title'], resource_id['id_0'], record['uri'], record['ref_id'], record['title'], container])
 
 def create_spreadsheet(writer, column_headings):
     """Creates spreadsheet that logs top container information of changed archival objects"""
@@ -85,7 +89,7 @@ def main():
     spreadsheet_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), OUTPUT_FILENAME)
     writer = csv.writer(open(spreadsheet_path, "w"))
     create_spreadsheet(writer, ["Collection Title", "Finding Aid Number", "URI", "Ref ID", "Object Title", "Box Number"])
-    process_tree(client.get(f'/repositories/2/resources/{(args.resource_id)}').json(), parser)
+    process_tree(client, parser, writer)
     elapsed_time = time.time() - start_time
     print("Time Elapsed: " + time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
 
