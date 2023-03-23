@@ -17,36 +17,36 @@ ACTION_CHOICES = ["modify", "delete"]
 LEVEL = ["collection", "file", "series", "item", "all"]
 CONFIDENCE_RATIO = 97
 
-def process_tree(client, args.resource_id, args.level, args.note_type, args.search_string):
+def process_tree(client, resource_id, level, note_type, search_string, replace_string):
     """Iterates through a given collection, file, or series provided by user input. Finds note content that matches user input."""
-    resource = client.get(f'/repositories/2/resources/{(args.resource_id)}').json()
+    resource = client.get(f'/repositories/2/resources/{(resource_id)}').json()
     for record in walk_tree(resource, client):
         updated = False
-        if args.level in [record['level'], "all"]:
+        if level in [record['level'], "all"]:
             notes = record['notes']
             for idx, note in reversed(list(enumerate(notes))):
-                if note['type'] == args.note_type:
+                if note['type'] == note_type:
                     for subnote in note.get('subnotes', []):
                         content = subnote['content']
-                        if contains_match(content, args.search_string):
-                            handle_matching_notes(args.action, notes, idx, args.note_type, args.search_string, record, content, subnote, args.replace_string, updated)
+                        if contains_match(content, search_string):
+                            handle_matching_notes(action, notes, idx, note_type, search_string, record, content, subnote, replace_string, updated)
                    
-def handle_matching_notes(args.action, notes, idx, args.note_type, args.search_string, record, content, subnote, args.replace_string, updated):
+def handle_matching_notes(action, notes, idx, note_type, search_string, record, content, subnote, replace_string, updated):
     """Deletes or modifies relevant notes according to user preference"""
-    if args.action == "delete":
+    if action == "delete":
         del notes[idx]
         print("{} note {} deleted from object {}".format(
-            args.note_type, args.search_string, record['uri']))
-    if args.action == "modify":
+            note_type, search_string, record['uri']))
+    if action == "modify":
         print("{} note was originally {} and was changed to {} in object {}".format(
-            args.note_type, content, args.replace_string, record['uri']))
-        subnote['content'] = args.replace_string
+            note_type, content, replace_string, record['uri']))
+        subnote['content'] = replace_string
     updated = True
     return updated
 
-def contains_match(content, args.search_string, CONFIDENCE_RATIO):
+def contains_match(content, search_string, CONFIDENCE_RATIO):
     """Returns True if user-provided note input matches the corresponding note within a given ratio (CONFIDENCE_RATIO)"""
-    text_in_note(content, args.search_string, CONFIDENCE_RATIO)
+    text_in_note(content, search_string, CONFIDENCE_RATIO)
 
 def save_record(client, uri, data):
     """Posts modifications/deletions to ArchivesSpace"""
@@ -79,7 +79,7 @@ def main(note_type, action, resource_id, search_string, level, replace_string):
     spreadsheet_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), OUTPUT_FILENAME)
     writer = csv.writer(open(spreadsheet_path, "w"))
     create_spreadsheet(writer, ["Collection Title", "Finding Aid Number", "URI", "Ref ID", "Object Title", "Box Number"])
-    if process_tree(client, resource_id, level, note_type, search_string) = True:
+    if process_tree(client, resource_id, level, note_type, search_string, replace_string) = True:
         get_container(record, client)
         log_to_spreadsheet(record, writer, resource, client, container)
         save_record(client, uri, data)
