@@ -16,37 +16,27 @@ NOTE_TYPE_CHOICES = ["bioghist", "accessrestrict", "odd", "abstract", "arrangeme
 ACTION_CHOICES = ["modify", "delete"]
 LEVEL = ["collection", "file", "series", "item", "all"]
 CONFIDENCE_RATIO = 97
-
-def process_tree(client, resource_id, level, note_type, search_string, replace_string):
-    """Iterates through a given collection, file, or series provided by user input. Finds note content that matches user input."""
-    resource = client.get(f'/repositories/2/resources/{(resource_id)}').json()
-    for record in walk_tree(resource, client):
-        updated = False
-        if level in [record['level'], "all"]:
-            notes = record['notes']
-            for idx, note in reversed(list(enumerate(notes))):
-                if note['type'] == note_type:
-                    for subnote in note.get('subnotes', []):
-                        content = subnote['content']
-                        if contains_match(content, search_string):
-                            handle_matching_notes(action, notes, idx, note_type, search_string, record, content, subnote, replace_string, updated)
-                   
-def handle_matching_notes(action, notes, idx, note_type, search_string, record, content, subnote, replace_string, updated):
+                  
+def process_record(record, level, note_type, action, search_string, replace_string):
     """Deletes or modifies relevant notes according to user preference"""
-    if action == "delete":
-        del notes[idx]
-        print("{} note {} deleted from object {}".format(
-            note_type, search_string, record['uri']))
-    if action == "modify":
-        print("{} note was originally {} and was changed to {} in object {}".format(
-            note_type, content, replace_string, record['uri']))
-        subnote['content'] = replace_string
-    updated = True
-    return updated
-
-def contains_match(content, search_string, CONFIDENCE_RATIO):
-    """Returns True if user-provided note input matches the corresponding note within a given ratio (CONFIDENCE_RATIO)"""
-    text_in_note(content, search_string, CONFIDENCE_RATIO)
+    updated = False
+    if level in [record['level'], "all"]:
+        notes = record['notes']
+        for idx, note in reversed(list(enumerate(notes))):
+            if note['type'] == note_type:
+                for subnote in note.get('subnotes', []):
+                    content = subnote['content']
+                    if text_in_note(content, search_string, CONFIDENCE_RATIO)
+                        updated = True
+                        if action == "delete":
+                            del notes[idx]
+                            print("{} note {} deleted from object {}".format(
+                                note_type, search_string, record['uri']))
+                        if action == "modify":
+                            print("{} note was originally {} and was changed to {} in object {}".format(
+                                note_type, content, replace_string, record['uri']))
+                            subnote['content'] = replace_string
+    return (record, updated)
 
 def save_record(client, uri, data):
     """Posts modifications/deletions to ArchivesSpace"""
@@ -54,7 +44,7 @@ def save_record(client, uri, data):
     updated.raise_for_status()
 
 def get_container(record, client):
-    """Gets container data"""
+    """Gets container data."""
     if record['instances']:
         for instance in record.get('instances', []):
             top_container = client.get(instance['sub_container']['top_container']['ref']).json()
@@ -64,25 +54,22 @@ def get_container(record, client):
         container = "None"
     return container
 
-def log_to_spreadsheet(record, writer, resource, container):
-    """Logs top container identifier information of changed archival objects to spreadsheet"""
-    writer.writerow([resource['title'], resource['id_0'], record['uri'], record['ref_id'], record.get('title'), container])
-
-def create_spreadsheet(writer, column_headings):
-    """Creates spreadsheet that logs top container information of changed archival objects"""
-    writer.writerow(column_headings)
-
 def main(note_type, action, resource_id, search_string, level, replace_string):
     """Main function, which is run when this script is executed"""
     start_time = time.time()
     client = ASpace().client
+
     spreadsheet_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), OUTPUT_FILENAME)
-    writer = csv.writer(open(spreadsheet_path, "w"))
-    create_spreadsheet(writer, ["Collection Title", "Finding Aid Number", "URI", "Ref ID", "Object Title", "Box Number"])
-    if process_tree(client, resource_id, level, note_type, search_string, replace_string) = True:
-        get_container(record, client)
-        log_to_spreadsheet(record, writer, resource, client, container)
-        save_record(client, uri, data)
+    with open(csv.writer(spreadsheet_path, "w")) as writer:
+        writer.writerow(["Collection Title", "Finding Aid Number", "URI", "Ref ID", "Object Title", "Box Number"])
+        resource = client.get(f'/repositories/2/resources/{(resource_id)}').json()
+        for record in walk_tree(resource, client):
+            processed_record, updated = process_record(record, level, note_type, action, search_string, replace_string)
+            if updated:
+                container = get_container(record, client)
+                writer.writerow([resource['title'], resource['id_0'], record['uri'], record['ref_id'], record.get('title'), container])
+                save_record(client, record.uri, processed_record)
+    
     elapsed_time = time.time() - start_time
     print("Time Elapsed: " + time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
 
