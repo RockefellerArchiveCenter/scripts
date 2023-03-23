@@ -4,9 +4,6 @@ This repository contains miscellaneous scripts that we use to help automate our 
 ## archivematica
 Scripts for pre-Archivematica ingest processes.
 
-## archivesspace
-Scripts for automatically exporting EAD and METS from ArchivesSpace through the API.
-
 ## archivessnake
 Scripts using ArchivesSnake to export data from ArchivesSpace in a variety of formats.
 
