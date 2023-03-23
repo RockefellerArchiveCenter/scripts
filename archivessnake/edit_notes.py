@@ -72,9 +72,21 @@ def create_spreadsheet(writer, column_headings):
     """Creates spreadsheet that logs top container information of changed archival objects"""
     writer.writerow(column_headings)
 
-def main():
+def main(note_type, action, resource_id, search_string, level, replace_string):
     """Main function, which is run when this script is executed"""
     start_time = time.time()
+    client = ASpace().client
+    spreadsheet_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), OUTPUT_FILENAME)
+    writer = csv.writer(open(spreadsheet_path, "w"))
+    create_spreadsheet(writer, ["Collection Title", "Finding Aid Number", "URI", "Ref ID", "Object Title", "Box Number"])
+    if process_tree(client, resource_id, level, note_type, search_string) = True:
+        get_container(record, client)
+        log_to_spreadsheet(record, writer, resource, client, container)
+        save_record(client, uri, data)
+    elapsed_time = time.time() - start_time
+    print("Time Elapsed: " + time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
+
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("note_type", choices=NOTE_TYPE_CHOICES, help="The type of note within a finding aid you wish to modify or delete (ex. bioghist)")
     parser.add_argument("action", choices=ACTION_CHOICES, help="The action you wish to perform against matched notes")
@@ -83,16 +95,4 @@ def main():
     parser.add_argument("level", choices=LEVEL, help="The level within the resource hierarchy you would like to change (collection, series, file, item, or all).")
     parser.add_argument("-r", "--replace_string", help="The new note content to replace the old note content. (Only relevant if you are modifying note(s))")
     args = parser.parse_args()
-    client = ASpace().client
-    spreadsheet_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), OUTPUT_FILENAME)
-    writer = csv.writer(open(spreadsheet_path, "w"))
-    create_spreadsheet(writer, ["Collection Title", "Finding Aid Number", "URI", "Ref ID", "Object Title", "Box Number"])
-    if process_tree(client, args.resource_id, args.level, args.note_type, args.search_string) = True:
-        get_container(record, client)
-        log_to_spreadsheet(record, writer, resource, client, container)
-        save_record(client, uri, data)
-    elapsed_time = time.time() - start_time
-    print("Time Elapsed: " + time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
-
-if __name__ == "__main__":
-    main()
+    main(args.note_type, args.action, args.resource_id, args.search_string, args.level, args.replace_string)
