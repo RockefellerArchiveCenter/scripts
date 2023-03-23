@@ -1,15 +1,12 @@
 #!/usr/bin/env python3
 
 import argparse
-from configparser import ConfigParser
 import csv
 import os
 import time
 
 from asnake.aspace import ASpace
 from asnake.utils import walk_tree, text_in_note
-#from fuzzywuzzy import fuzz
-from rapidfuzz import fuzz
 
 OUTPUT_FILENAME = "out.csv"
 NOTE_TYPE_CHOICES = ["bioghist", "accessrestrict", "odd", "abstract", "arrangement", "userestrict", "fileplan", "acqinfo", "langmaterial", "physdesc", "prefercite", "processinfo", "relatedmaterial", "separatedmaterial"]
