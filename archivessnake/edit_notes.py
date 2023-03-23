@@ -26,7 +26,7 @@ def process_record(record, level, note_type, action, search_string, replace_stri
             if note['type'] == note_type:
                 for subnote in note.get('subnotes', []):
                     content = subnote['content']
-                    if text_in_note(content, search_string, CONFIDENCE_RATIO)
+                    if text_in_note(content, search_string, CONFIDENCE_RATIO):
                         updated = True
                         if action == "delete":
                             del notes[idx]
