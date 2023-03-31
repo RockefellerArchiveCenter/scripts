@@ -57,7 +57,9 @@ def main(note_type, action, resource_id, search_string, level, replace_string):
     client = ASpace().client
 
     spreadsheet_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), OUTPUT_FILENAME)
-    with open(csv.writer(spreadsheet_path, "w")) as writer:
+    print(spreadsheet_path)
+    with open(spreadsheet_path, "w") as csvfile:
+        writer = csv.writer(csvfile)
         writer.writerow(["Collection Title", "Finding Aid Number", "URI", "Ref ID", "Object Title", "Box Number"])
         resource = client.get(f'/repositories/2/resources/{(resource_id)}').json()
         for record in walk_tree(resource, client):
