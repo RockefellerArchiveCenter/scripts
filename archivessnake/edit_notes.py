@@ -6,7 +6,8 @@ import os
 import time
 
 from asnake.aspace import ASpace
-from asnake.utils import walk_tree, text_in_note
+from asnake.utils import walk_tree
+from rapidfuzz import fuzz
 
 OUTPUT_FILENAME = "out.csv"
 NOTE_TYPE_CHOICES = ["bioghist", "accessrestrict", "odd", "abstract", "arrangement", "userestrict", "fileplan", "acqinfo", "langmaterial", "physdesc", "prefercite", "processinfo", "relatedmaterial", "separatedmaterial"]
@@ -23,7 +24,7 @@ def process_record(record, level, note_type, action, search_string, replace_stri
             if note['type'] == note_type:
                 for subnote in note.get('subnotes', []):
                     content = subnote['content']
-                    if text_in_note(content, search_string, CONFIDENCE_RATIO):
+                    if contains_match(content, search_string):
                         updated = True
                         if action == "delete":
                             del notes[idx]
@@ -34,6 +35,11 @@ def process_record(record, level, note_type, action, search_string, replace_stri
                                 note_type, content, replace_string, record['uri']))
                             subnote['content'] = replace_string
     return (record, updated)
+
+def contains_match(content, search_string):
+    """Returns True if user-provided note input matches the corresponding note within a given ratio (CONFIDENCE_RATIO)."""
+    ratio = fuzz.token_sort_ratio(content.lower(), search_string.lower())
+    return True if ratio > CONFIDENCE_RATIO else False
 
 def save_record(client, uri, data):
     """Posts modifications/deletions to ArchivesSpace"""
@@ -55,7 +61,6 @@ def main(note_type, action, resource_id, search_string, level, replace_string):
     """Main function, which is run when this script is executed"""
     start_time = time.time()
     client = ASpace().client
-
     spreadsheet_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), OUTPUT_FILENAME)
     print(spreadsheet_path)
     with open(spreadsheet_path, "w") as csvfile:
@@ -67,7 +72,7 @@ def main(note_type, action, resource_id, search_string, level, replace_string):
             if updated:
                 container = get_container(record, client)
                 writer.writerow([resource['title'], resource['id_0'], record['uri'], record['ref_id'], record.get('title'), container])
-                save_record(client, record.uri, processed_record)
+                save_record(client, record['uri'], processed_record)
     
     elapsed_time = time.time() - start_time
     print("Time Elapsed: " + time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
