@@ -2,9 +2,6 @@
 
 """Remove whitespace and lowercase a from barcodes."""
 
-import csv
-
-from asnake import utils
 from asnake.aspace import ASpace
 
 
