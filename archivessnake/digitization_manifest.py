@@ -64,7 +64,7 @@ def object_data(ref_id, client):
     """
     results = client.get(f"/repositories/{REPO_ID}/find_by_id/archival_objects?ref_id[]={ref_id}&resolve[]=archival_objects").json()
     if len(results['archival_objects']) != 1:
-        raise Exception(f'Expecting to get only on result for ref id {ref_id} but got {len(results["archival_objects"])} instead.')
+        raise Exception(f'Expecting to get only one result for ref id {ref_id} but got {len(results["archival_objects"])} instead.')
     return results['archival_objects'][0]['_resolved']    
 
 def series_data(ref_id, client):
@@ -82,18 +82,20 @@ def series_data(ref_id, client):
     next(tree) # skip first item, which is the parent.
     return tree
 
-def parse_input_file(filepath):
-    """Parses a list of values from a file.
+def resource_data(resource_id, client):
+    """Fetches data about archival objects contained within a resource.
     
     Args:
-        filepath (str): Location of input file to parse.
+        resource_id (str): identifier for a resource
+        client (asnake.aspace.ASpace instance): ASpace client
 
     Returns:
-        text (list): list of values.
+        resource_data (generator): List of dictionaries with data about archival objects in the resource.
     """
-    with open(filepath, 'r') as input_file:
-        text = input_file.read()
-    return [refid.strip() for refid in text.split(',')]
+    resource_uri = f'/repositories/{REPO_ID}/resources/{resource_id}'
+    tree = walk_tree(resource_uri, client)
+    next(tree) # skip first item, which is the resource.
+    return tree
 
 def format_output_filename(filename):
     """Returns a normalized filename for the output file.
@@ -231,7 +233,7 @@ def format_data(unformatted_objects, format, client):
                 'filename': obj['ref_id']
             }
 
-def main(output_filename, format, object, series, file):
+def main(output_filename, format, object, series, resource):
     client = ASpace().client
     if object:
         print(f"Fetching data for archival object {object}.")
@@ -239,12 +241,9 @@ def main(output_filename, format, object, series, file):
     elif series:
         print(f"Fetching data for children of archival object {series}.")
         data = series_data(series, client)
-    else:
-        print(f"Fetching data about all archival objects in file {file}.")
-        if not Path(file).is_file():
-            raise FileNotFoundError(f'The input file {file} could not be found')
-        ref_ids = parse_input_file(file)
-        data = [object_data(ref_id, client) for ref_id in ref_ids]
+    elif resource:
+        print(f"Fetching data for children of resource {resource}.")
+        data = resource_data(resource, client)
     formatted = format_data(data, format, client)
     normalized_output = format_output_filename(output_filename)
     already_exists = Path(normalized_output).is_file()
@@ -276,7 +275,7 @@ if __name__ == '__main__':
         '--series',
         help='ArchivesSpace RefID for a series containing archival objects to add to the manifest.')
     group.add_argument(
-        '--file',
-        help='File containing a list of comma-separated ArchivesSpace RefIDs for archival objects to add to the manifest.')
+        '--resource',
+        help='ArchivesSpace resource record ID containing archival objects to add to the manifest.')
     args = parser.parse_args()
     main(args.output_filename, args.format, args.object, args.series, args.file)
