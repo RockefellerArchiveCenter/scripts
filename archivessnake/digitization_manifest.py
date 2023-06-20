@@ -12,8 +12,8 @@
 #                    manifest.
 #   --series SERIES  ArchivesSpace RefID of a series containing archival objects
 #                    to add to the manifest.
-#   --file FILE      File containing a list of comma-separated ArchivesSpace
-#                    RefIDs of objects to add to the manifest.
+#   --file RESOURCE  ArchivesSpace identifier for a resource containing archival
+#                    objects to add to the manifest.
 
 from csv import DictWriter
 from argparse import ArgumentParser
@@ -21,11 +21,13 @@ from os.path import splitext
 from pathlib import Path
 
 from asnake.aspace import ASpace
-from asnake.utils import get_note_text, walk_tree
+from asnake.utils import format_resource_id, get_note_text, walk_tree
 
 REPO_ID = 2
 
 TEXT_FIELDNAMES = {
+            "resource_id": "Resource ID",
+            "series": "Series",
             "box_number": "Box", 
             "folder_number": "Folder", 
             "title": "Title", 
@@ -96,6 +98,35 @@ def resource_data(resource_id, client):
     tree = walk_tree(resource_uri, client)
     next(tree) # skip first item, which is the resource.
     return tree
+
+def already_digitized(instances):
+    """Determines if a digital object already exists for an object.
+    
+    Args:
+        instances (list): ArchivesSpace instance data.
+
+    Returns:
+        already_digitized (bool)
+    """
+    digital_instances = [v for v in instances if v["instance_type"] == "digital_object"]
+    return bool(len(digital_instances))
+
+def instance_matches_format(format, instances):
+    """Determines if a given instance type is present in an object's instances.
+    
+    Args:
+        instance_type (string): lowercased instance type to search for.
+        instances (list): ArchivesSpace instance data.
+
+    Returns:
+        has_instance_type (bool)
+    """
+    normalized_format = f"{format.replace('_', ' ')}"
+    if normalized_format == 'text':
+        return True
+    else:
+        found = [instance for instance in instances if instance.get('instance_type', '').lower() == normalized_format]
+        return bool(len(found))
 
 def format_output_filename(filename):
     """Returns a normalized filename for the output file.
@@ -175,16 +206,19 @@ def get_date(dates):
             formatted.append(f"{date['begin']} - {date['end']}")
     return ', '.join(formatted)
 
-def get_parent(top_containers):
-    """Parses series name from ArchivesSpace archival object.
+def get_series_path(ancestors, client):
+    """Return series path for object.
     
     Args:
-        top_containers (dict): ArchivesSpace top_container data.
+        ancestors (list): ArchivesSpace ancestors data.
 
     Returns:
-        series (str): Title of the object's parent.
+        series_path (str): Series path of the archival object.
     """
-    return ', '.join([container['series'][0]['display_string'] for container in top_containers])
+    ancestors.pop()
+    resolved_ancestors = [client.get(a['ref']).json() for a in ancestors]
+    return ' > '.join([r['title'] for r in reversed(resolved_ancestors)])
+    
 
 def get_title(data):
     """Returns a title for an archival object.
@@ -206,32 +240,35 @@ def format_data(unformatted_objects, format, client):
             client.get(instance['sub_container']['top_container']['ref']).json() for
             instance in obj['instances'] if 'sub_container' in instance
         ]
-        if format == 'av':
-            yield {
-                'shipping_date': '',
-                'shipping_box_number': '',
-                'rac_box_number': get_box_number(top_containers),
-                'object_unique_identifier': get_av_number(obj['instances']),
-                'number_of_units': 1,
-                'program_unique_identifier': get_av_number(obj['instances']),
-                'original_format': get_format(obj['notes'], client),
-                'original_recording_date': get_date(obj['dates']),
-                'title': get_title(obj),
-                'series': get_parent(top_containers),
-                'file_name_root': obj['ref_id'],
-                'notes_to_engineer_speed': '',
-                'notes_to_engineer': '',
-                'format_specific_notes_tape': '',
-                'format_specific_notes': '',
-                'audio_reel_size': '',
-            }
-        else:
-            yield {
-                'box_number': get_box_number(top_containers),
-                'folder_number': get_folder_number(obj['instances']),
-                'title': get_title(obj),
-                'filename': obj['ref_id']
-            }
+        if not already_digitized(obj['instances']) and instance_matches_format(format, obj['instances']):
+            if format in ['audio', 'moving_images']:
+                yield {
+                    'shipping_date': '',
+                    'shipping_box_number': '',
+                    'rac_box_number': get_box_number(top_containers),
+                    'object_unique_identifier': get_av_number(obj['instances']),
+                    'number_of_units': 1,
+                    'program_unique_identifier': get_av_number(obj['instances']),
+                    'original_format': get_format(obj['notes'], client),
+                    'original_recording_date': get_date(obj['dates']),
+                    'title': get_title(obj),
+                    'series': get_series_path(obj['ancestors'], client),
+                    'file_name_root': obj['ref_id'],
+                    'notes_to_engineer_speed': '',
+                    'notes_to_engineer': '',
+                    'format_specific_notes_tape': '',
+                    'format_specific_notes': '',
+                    'audio_reel_size': '',
+                }
+            else:
+                yield {
+                    'resource_id': format_resource_id(obj['resource']['ref'], client),
+                    'series': get_series_path(obj['ancestors'], client),
+                    'box_number': get_box_number(top_containers),
+                    'folder_number': get_folder_number(obj['instances']),
+                    'title': get_title(obj),
+                    'filename': obj['ref_id']
+                }
 
 def main(output_filename, format, object, series, resource):
     client = ASpace().client
@@ -245,14 +282,14 @@ def main(output_filename, format, object, series, resource):
         print(f"Fetching data for children of resource {resource}.")
         data = resource_data(resource, client)
     formatted = format_data(data, format, client)
-    normalized_output = format_output_filename(output_filename)
-    already_exists = Path(normalized_output).is_file()
-    with open(normalized_output, 'a') as csv_file:
-        fieldnames = AV_FIELDNAMES if format == 'av' else TEXT_FIELDNAMES
+    normalized_filename = format_output_filename(output_filename)
+    already_exists = Path(normalized_filename).is_file()
+    with open(normalized_filename, 'a') as csv_file:
+        fieldnames = AV_FIELDNAMES if format in ['audio', 'moving_images'] else TEXT_FIELDNAMES
         writer = DictWriter(csv_file, fieldnames=fieldnames)
         if not already_exists:
             writer.writerow(fieldnames)
-        print(f"Writing data to {normalized_output}.")
+        print(f"Writing data to {normalized_filename}.")
         for object in formatted:
             writer.writerow(object)
         print("Done.")
@@ -265,7 +302,7 @@ if __name__ == '__main__':
         help='File path for the manifest.')
     parser.add_argument(
         'format',
-        choices=['av', 'text'],
+        choices=['audio', 'moving_images', 'text'],
         help='The format of the materials to be digitized.')
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument(
@@ -278,4 +315,4 @@ if __name__ == '__main__':
         '--resource',
         help='ArchivesSpace resource record ID containing archival objects to add to the manifest.')
     args = parser.parse_args()
-    main(args.output_filename, args.format, args.object, args.series, args.file)
+    main(args.output_filename, args.format, args.object, args.series, args.resource)
