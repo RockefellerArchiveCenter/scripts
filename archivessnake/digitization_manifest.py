@@ -149,7 +149,7 @@ def get_av_number(instances):
     Returns:
         av_number (str): AV number for the archival object.
     """
-    av_numbers = [instance.get('sub_container', {}).get('indicator_2') for instance in instances if instance.get('sub_container', {}).get('indicator_2').startswith('AV')]
+    av_numbers = [instance.get('sub_container', {}).get('indicator_2') for instance in instances if instance.get('sub_container', {}).get('indicator_2', '').startswith('AV')]
     return ', '.join(number for number in av_numbers if number is not None)
 
 def get_box_number(top_containers):
@@ -201,7 +201,7 @@ def get_date(dates):
     formatted = []
     for date in dates:
         if date['date_type'] == 'single':
-            formatted.append(date['begin'])
+            formatted.append(date.get('begin', ''))
         else:
             formatted.append(f"{date['begin']} - {date['end']}")
     return ', '.join(formatted)
@@ -235,6 +235,16 @@ def get_title(data):
         return data['display_string']
 
 def format_data(unformatted_objects, format, client):
+    """Prepares data for writing to CSV file.
+
+    Args:
+        unformatted_objects (list of dicts): Unformatted data from ArchivesSpace.
+        format (string): Export format for objects.
+        client (Aspace.client): Authenticated ArchivesSnake client.
+
+    Returns:
+        formatted_objects (generator): list of formatted dicts.
+    """
     for obj in unformatted_objects:
         top_containers = [
             client.get(instance['sub_container']['top_container']['ref']).json() for
@@ -271,6 +281,7 @@ def format_data(unformatted_objects, format, client):
                 }
 
 def main(output_filename, format, object, series, resource):
+    """Main method which calls all other logic."""
     client = ASpace().client
     if object:
         print(f"Fetching data for archival object {object}.")
@@ -285,7 +296,7 @@ def main(output_filename, format, object, series, resource):
     normalized_filename = format_output_filename(output_filename)
     already_exists = Path(normalized_filename).is_file()
     with open(normalized_filename, 'a') as csv_file:
-        fieldnames = AV_FIELDNAMES if format in ['audio', 'moving_images'] else TEXT_FIELDNAMES
+        fieldnames = TEXT_FIELDNAMES if format == 'text' else AV_FIELDNAMES
         writer = DictWriter(csv_file, fieldnames=fieldnames)
         if not already_exists:
             writer.writerow(fieldnames)
