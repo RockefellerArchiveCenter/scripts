@@ -218,21 +218,6 @@ def get_series_path(ancestors, client):
     ancestors.pop()
     resolved_ancestors = [client.get(a['ref']).json() for a in ancestors]
     return ' > '.join([r['title'] for r in reversed(resolved_ancestors)])
-    
-
-def get_title(data):
-    """Returns a title for an archival object.
-    
-    Args:
-        data (dict): ArchivesSpace archival object data.
-
-    Returns:
-        title (str): Title of the archival object.
-    """
-    try:
-        return data['title']
-    except KeyError:
-        return data['display_string']
 
 def format_data(unformatted_objects, format, client):
     """Prepares data for writing to CSV file.
@@ -261,7 +246,7 @@ def format_data(unformatted_objects, format, client):
                     'program_unique_identifier': get_av_number(obj['instances']),
                     'original_format': get_format(obj['notes'], client),
                     'original_recording_date': get_date(obj['dates']),
-                    'title': get_title(obj),
+                    'title': obj['display_string'],
                     'series': get_series_path(obj['ancestors'], client),
                     'file_name_root': obj['ref_id'],
                     'notes_to_engineer_speed': '',
@@ -276,7 +261,7 @@ def format_data(unformatted_objects, format, client):
                     'series': get_series_path(obj['ancestors'], client),
                     'box_number': get_box_number(top_containers),
                     'folder_number': get_folder_number(obj['instances']),
-                    'title': get_title(obj),
+                    'title': obj['display_string'],
                     'filename': obj['ref_id']
                 }
 
