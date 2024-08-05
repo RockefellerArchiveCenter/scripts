@@ -2,18 +2,20 @@
 
 # Creates or updates a digitization manifest.
 
+# usage: digitization_manfiest.py [-h] {--object REF_ID|--series REF_ID|--resource RESOURCE_ID} output_filename format
+
 # positional arguments:
-#   output_filename  File path for the manifest.
-#   {av,text}        The format of the materials to be digitized.
+#   output_filename  File path where the manifest CSV file will be saved.
+#   {audio,moving_images,text}  The format of the materials to be digitized.
 
 # options:
-#   -h, --help       show this help message and exit
-#   --ref_id REF_ID  ArchivesSpace RefID of an archival object to add to the
+#   -h, --help       show this help message and exit.
+#   --object REF_ID  ArchivesSpace RefID of an archival object to add to the
 #                    manifest.
-#   --series SERIES  ArchivesSpace RefID of a series containing archival objects
+#   --series REF_ID  ArchivesSpace RefID of a series containing archival objects
 #                    to add to the manifest.
-#   --file RESOURCE  ArchivesSpace identifier for a resource containing archival
-#                    objects to add to the manifest.
+#   --resource RESOURCE_ID  ArchivesSpace resource record ID for a resource containing 
+                            archival objects to add to the manifest.
 
 from csv import DictWriter
 from argparse import ArgumentParser
@@ -295,7 +297,7 @@ if __name__ == '__main__':
     parser = ArgumentParser(description='Creates or updates a digitization manifest.')
     parser.add_argument(
         'output_filename',
-        help='File path for the manifest.')
+        help='File path where the manifest CSV file will be saved.')
     parser.add_argument(
         'format',
         choices=['audio', 'moving_images', 'text'],
@@ -309,6 +311,6 @@ if __name__ == '__main__':
         help='ArchivesSpace RefID for a series containing archival objects to add to the manifest.')
     group.add_argument(
         '--resource',
-        help='ArchivesSpace resource record ID containing archival objects to add to the manifest.')
+        help='ArchivesSpace resource record ID for a resource containing archival objects to add to the manifest.')
     args = parser.parse_args()
     main(args.output_filename, args.format, args.object, args.series, args.resource)
