@@ -2,18 +2,20 @@
 
 # Creates or updates a digitization manifest.
 
+# usage: digitization_manfiest.py [-h] (--object OBJECT | --series SERIES | --resource RESOURCE} output_filename {audio,moving_images,text}
+
 # positional arguments:
-#   output_filename  File path for the manifest.
-#   {av,text}        The format of the materials to be digitized.
+#   output_filename  File path where the manifest CSV file will be saved.
+#   {audio,moving_images,text}  The format of the materials to be digitized.
 
 # options:
-#   -h, --help       show this help message and exit
-#   --ref_id REF_ID  ArchivesSpace RefID of an archival object to add to the
+#   -h, --help       show this help message and exit.
+#   --object OBJECT  ArchivesSpace RefID of an archival object to add to the
 #                    manifest.
 #   --series SERIES  ArchivesSpace RefID of a series containing archival objects
 #                    to add to the manifest.
-#   --file RESOURCE  ArchivesSpace identifier for a resource containing archival
-#                    objects to add to the manifest.
+#   --resource RESOURCE  ArchivesSpace resource record ID for a resource containing
+#                        archival objects to add to the manifest.
 
 from csv import DictWriter
 from argparse import ArgumentParser
@@ -67,7 +69,7 @@ def object_data(ref_id, client):
     results = client.get(f"/repositories/{REPO_ID}/find_by_id/archival_objects?ref_id[]={ref_id}&resolve[]=archival_objects").json()
     if len(results['archival_objects']) != 1:
         raise Exception(f'Expecting to get only one result for ref id {ref_id} but got {len(results["archival_objects"])} instead.')
-    return results['archival_objects'][0]['_resolved']    
+    return results['archival_objects'][0]['_resolved']
 
 def series_data(ref_id, client):
     """Fetches data about archival objects contained within a series.
@@ -295,7 +297,7 @@ if __name__ == '__main__':
     parser = ArgumentParser(description='Creates or updates a digitization manifest.')
     parser.add_argument(
         'output_filename',
-        help='File path for the manifest.')
+        help='File path where the manifest CSV file will be saved.')
     parser.add_argument(
         'format',
         choices=['audio', 'moving_images', 'text'],
@@ -309,6 +311,6 @@ if __name__ == '__main__':
         help='ArchivesSpace RefID for a series containing archival objects to add to the manifest.')
     group.add_argument(
         '--resource',
-        help='ArchivesSpace resource record ID containing archival objects to add to the manifest.')
+        help='ArchivesSpace resource record ID for a resource containing archival objects to add to the manifest.')
     args = parser.parse_args()
     main(args.output_filename, args.format, args.object, args.series, args.resource)
