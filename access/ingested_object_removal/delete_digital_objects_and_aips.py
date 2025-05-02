@@ -59,8 +59,7 @@ def main(csv_path, config_path):
         for row in csv_reader:
             if is_valid_uri(row[0]):
                 try:
-                    # bag_identifier = delete_digital_object(row[0], as_client)
-                    bag_identifier = "d5a50e7d-381a-4846-adee-cf2c9ca70e0f"
+                    bag_identifier = delete_digital_object(row[0], as_client)
                     uuid_list = delete_am_aip(bag_identifier, am_client)
                     delete_fedora_aip(uuid_list, fedora_client)
                 except Exception as e:
