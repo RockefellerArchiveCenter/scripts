@@ -1,0 +1,291 @@
+#!/usr/bin/env python3
+
+"""Uploads digitized files delivered from vendor to S3
+
+Assumes these files have been structured as expected by digitized ingest pipeline.
+
+Requires the following env variables:
+- AWS_ACCESS_KEY_ID
+- AWS_SECRET_ACCESS_KEY
+- AWS_S3_BUCKET_NAME
+- SOURCE_DIR
+"""
+
+import tarfile
+from os import getenv
+from pathlib import Path
+
+import bagit
+import boto3
+
+REFIDS = [
+    "f9316d9731e345db861dfffdf5d8e65d",
+    "802e2b0582134f08893118c05eaff1ea",
+    "d019287aadf2497dbb22ee928bd50478",
+    "83243e5ea15d4740bb54cbbceeeadc57",
+    "fafc0e90ef2a4e968a67f14cd745513b",
+    "f3a2132fca8c47d18739c956441b4fa6",
+    "0cc4bd0903a147e5b268d727fb938d56",
+    "203037a45dd9423e969ff987fd3ef353",
+    "d59bd9acbab847c0a4eab71610d3beb7",
+    "88fb7f0c5d4c4e24b138611a1992d7df",
+    "15a5540322df4e9c903b0e8909566596",
+    "8a13dca447124b0cbedc848cf5e6234e",
+    "3ab7627876294b74a3123496fa8c00f2",
+    "780870c5ce0a49cabcd41e2f702643f9",
+    "920ca807b0f443819ad662340aa12236",
+    "b6a8a24aa4144ed2acdbb189b77f8beb",
+    "c652dafb66164b54b546bd5ec6caeb66",
+    "a1d9d9187d5440cfbc250a04d37bb35f",
+    "4398d80d9df54217a4921f3e9c7f47fd",
+    "843d9d2c439441ef96863251c0629a34",
+    "40e97fc9fb3b458083bd8e90ddf50974",
+    "48ac9f8dda9746b0a3322b8f2f261eb2",
+    "19e806860a914860a752a61e0012b217",
+    "d69452038f8440b480f3ffffc355386f",
+    "bc7fcf6f6f6440e2af6549d1e45a37fe",
+    "271b31a3c35b43c8a68f087e41e53a14",
+    "22027446782f45f0b7a779999adc3e6d",
+    "7d101eec827d43cd8a962a42f32902d2",
+    "cb19a273e15547988e16671c7e6bf0ec",
+    "9b8cf29a9d2c4313b8f2c32f4994aba0",
+    "8210b5801fe1422ba4ea18b4216597c5",
+    "f8c5f1239d3e46e3853a9b506e4bf1c0",
+    "302691704531411a89e5e674f35fb4dc",
+    "317518bf1d1b4bce98fcc69ba14be250",
+    "7dda15a7a8444134a6843f46e202eae1",
+    "db7c7fa09a0441b29be006587b237558",
+    "ec950f876fed4536af092cb2a470bcb6",
+    "444aea264b534848af0717475d6bf9cc",
+    "f127fffae2704f7bb84524959a5a706e",
+    "9a938f005f59451ea88004384f19dfac",
+    "ed3d9940ff6f476283ba6fc9dbf4d934",
+    "90926770c1be42e98db7ca9d58d834e0",
+    "52d8a9f1ccbd4495914c53acce3cc0d4",
+    "a064b3017a384feca6f67e824a81569d",
+    "c3afdc005aa146bd838cac0a8e724225",
+    "7cf6345da26745539e67af5e146a91ce",
+    "095656e10d4e41c9bfaff09596445e6f",
+    "2b12e177107744b69e534c5d3d88ec69",
+    "a9ba94b89f4549afbcad85cbfd95bc00",
+    "0f600e87967346259990c4c2461c72a4",
+    "aab52a2274214a5fbaf37aeccb5473d9",
+    "26a0ebdfe15b448c81d9ebb1d3f40377",
+    "e020a3eedc0743a2aa85efb2ebabf090",
+    "24e024da52fc465f818726867f91e5e1",
+    "8dea6c5cd5ea4c7a9891d429390a992f",
+    "259ae6f73f0849e2ae1b2ff383fbe38b",
+    "56f22288b42e47e2b7deec06ca846e01",
+    "651304ff620340b9b365e25393f9e733",
+    "da1cf396d8574be2a1610f975e1785e4",
+    "6fb37b51847a42df9a82d3eac1bb4b80",
+    "0021fd79d58d4ffa9d9492796de67b6a",
+    "0d0c83d70a524cf9ac8369b1ca9aee6f",
+    "9b89e171ebad4e0daefe0ff0a597e1ef",
+    "bf101477819241a097948053db66af49",
+    "1d4f855a2ac148aabf585c2a050045b3",
+    "3db54dd747404b3cac170a95642b2615",
+    "6aa42370f32f4faa8ba0d26d0100f378",
+    "f9cc3cfb60ea4ca1be88ebe2e49d52e8",
+    "ab6125cbff28459f9385c4d1afbb0b4a",
+    "50467d894bad4b1e99f9cce8abfd2b49",
+    "e6cfeee7cabd4907b87f8778b85fe5a3",
+    "e944f59eebd8459cbbb52fb587619bdc",
+    "afad13f2b6e848728f6a5f469d76cfd2",
+    "4a58338bc590404587a938d229798617",
+    "d19ae3c2e68b4b3096075ff5d1cef505",
+    "3825ad4e57384cf7aa00d6486a745aeb",
+    "3f8c070204cb45e69fa6c1a846b4a331",
+    "e116ed9301594ed7ad4cebb4ffc750da",
+    "a4455408418eb77fc683964e26233882",
+    "98d85d86674aac56fa9e1238e74f988d",
+    "ecd7c48827d64b45a7ff61bafe7e6b57",
+    "8e9aaf7282f44feaa51ebf601c021575",
+    "28d33384636b49029b814643d456f272",
+    "fcde64f8414a467fa78fe6bfd958610b",
+    "40f73851a0b74f65858c1457be2555e6",
+    "1d6b40df2d6f4703bd9590143781fb7b",
+    "e6f46829fbd843c8b3f95c6a81d574ab",
+    "803b91448b1a4057878f3950be287f8a",
+    "8b703acd0d45410e83c8935d6a3d2d0f",
+    "893776c2ffcb4fa7a2afd3572add68f9",
+    "4838be80289842c1ba518245b5174dd2",
+    "9046619269f24bceba3ae188e3e6fd4e",
+    "c8b3a5ac48e74c558a82e1a912d31dc9",
+    "c83a9158c49d488d9ad0aebf5bb17d12",
+    "85fd70ba00ab4935bd70c26d7a5d1e4a",
+    "55cf6dc676a74903a0e1a2047adfaa77",
+    "66fc16ca5aac4a79a53de9521574203d",
+    "33cf8387bb8f451fb0b1c5a5b6940e9c",
+    "9126941599f14a8093a99c1c8662a7f0",
+    "fb2b78772c6647bea9555d0d6be55a84",
+    "a4a4e739027e4641911fe1037e73468d",
+    "1f15ddb94cf749feb718beb33a3e5cb8",
+    "5da4b88a91554c9fbf1d76e48099c4a9",
+    "634a0ec49f6142c3acbb8ca8466ba7d1",
+    "0774a972744d4f7983fb62ad437f8acd",
+    "eb909b11d8aa4e8e8278494395ac81fa",
+    "bdbceb24eb9849758c820c8ec8b36fb9",
+    "3b425ff97aaf410599ad8017fae5bfba",
+    "d9ed19e17e434c42b7879e21ff30e692",
+    "f626d42db25e4e5c916a14f60e260571",
+    "429afa7be0524753bae6063b55ca2b6c",
+    "eca5d3f70cd74626b2c468310ed688c8",
+    "4e6783384809464baed9970080e05b0d",
+    "07713dc7a769465f972502fd12277295",
+    "e4b6277ea4ce41cab5bdfdf416f5a260",
+    "4fe1bbc56a174790b3f5bce29912e4e9",
+    "5238362c3025484a8ddd7f2523c678ec",
+    "ec6d3f769ed0410aa6837401a9670a87",
+    "6a6911f0e4bd4b8c925211b3cba90e31",
+    "d7adec00cc7e4c9ca3eb9d1c6f98dfb0",
+    "a4ad7369090c4ddaab6adc70c14768ab",
+    "0477c3a324574c61976c62b3177b83c5",
+    "e2f054f0451246b7b7ced42e95dec2ef",
+    "e602649b24b34b9e8f230984b061be41",
+    "b37a2c1c28cb4c31b891b4c03edb9a57",
+    "5f1bab06d3f8491abf34625de8de9295",
+    "dee6070042344fc989ef6c7580cfadc4",
+    "4599ab656b354c77b5630a58124f6859",
+    "4a71c08922014db5bfde314709ff8f1e",
+    "fb43f98c60654e279aaacbc504b0d641",
+    "48ffe80241b9403aacdfc33a8afe7509",
+    "86571b2cce3544ffba97996c15afd6a8",
+    "cdd2ba8b5bf6459898cad3d9eacf425e",
+    "15bbe33e281a4f53b40aedbed0bea1c8",
+    "b825e479fd4748c0889845aa78a60871",
+    "1cf219b6d7774ed39776a64441ec25aa",
+    "0376fa062b9945f6b42585ccdb1ed91e",
+    "afed76d840786497dc1751884ffe59fa",
+    "21c7898788984392a302a3446f0f9a02",
+    "fdb6cdcd80994ba7adaa55e5da9cc2d5",
+    "618982b6db5840d88d04fe1f83a729ef",
+    "dea4c939c73f494f81f2350e5b421a0f",
+    "3661c3f2cc4a475abf6313c84b34505d",
+    "c0989e9918f649e290fb237f175640a7",
+    "2b784797f5e94f83902f5144ed9ce09a",
+    "6bdc22eb3aa14a22a342a7b222c21f88",
+    "72555153207e41fdaeddbedc7ab6886f",
+    "ae2afafe078e4762b2e3047f5a965153",
+    "d3c9455758ad40dc8faf5efffebbac7f",
+    "8bcca5dfc3cb4237bc535c3f778ebfd5",
+    "5f4277117c8140eb8cc469b3cfaa4cdc",
+    "a784cacf7e8345798e837bf5d0f0bc02",
+    "1156091e747444c1ac6ee358317b7aed",
+    "b415114082cb4085a29c358fc618eb1b",
+    "157bc90a740b4c1aa1a6be94e531953f",
+    "89dc4b6730b544d0915b064911615fcf",
+    "e17ab8350ecf40d3bd6ff768aebbdd98",
+    "d59265f97d16482b95241c7f09b8263f",
+    "9d68b08ff03b42a7952548b298f79fba",
+    "1ccd22e9ca6942348bdc1d9638589d40",
+    "7de931d04445497cab0a090dd44cd8b1",
+    "7dc668cd12a646c09788c3e81b25b196",
+    "c5125db12599427581d748bf90f4f3e2",
+    "676f20674f0f403d9944146efb9a8d2b",
+    "ece719a41b0041a6a29b139d959f022c",
+    "03b662e0ac22418cbe101d8e4b1526af",
+    "ad7e421f08af49cc827c88fd5e3763b0",
+    "1f3c4dc4c27d4535adc6c6e4d5964be2",
+    "a3da2fe3be7342ceb56418b4799d9ddd",
+    "9ce201e3493c462596791c95de395036",
+    "fb558e8368ad49678374a643734df94b",
+    "891c86526d144ab49ced67f4307f6724",
+    "28d4da28e7794c0d92f0802c0ac99d87",
+    "0ed1cd4f2dfe47c28f8dd349c67330f7",
+    "8e9b9698d82b415c9650d8e2bae52bdd",
+    "b52239e19df64f24afee9878eb87202f",
+    "e5893b2eab9e475b9bd7db9e09cbb2b3",
+    "73f36c5f402a43c7b71a21db0682c048",
+    "01429ffa019144a2b50337e57cba0754",
+    "07e6538529d94f49a51abef52528604a",
+    "af70266d912e48a59b3edeeb493a54d5",
+    "e76ba2cf149d4385919003b86efa4985",
+    "d776eb2a4db64f57b91bf1b288848f7e",
+    "bbfb2d5c284b43bcbce079486de4ae49",
+    "f0f0760e57bd4d5991b43879a100bb7b",
+    "46d1da6442604b3c93673bf8423e92d0",
+    "8ccc91e7ac7842c8be478970dc040030",
+    "8ff5fe8854a64022ae37709b16f156d1",
+    "aee822df17e94af1b981f29603b8a319",
+    "5974e20aedff405da88e9308629bd03f",
+    "258221b6ac554c8fa5d5fdd74d2fdee8",
+    "a340fb3858a64edcb7ddbf8d22c3c041",
+    "b77a6235dbc74603b31e31cd4caf2ec0",
+    "0930185e81374c7e8b32156c6ca24944",
+    "c4fa41ca54cc4916a7364911ccad22de",
+    "5fc7407037f6437ab290eb7b9f59474c",
+    "f0dccd47d16d4a09ace3efd0785aa825",
+    "51e3f3a3904045d3b7bb910e95bca9ea",
+    "086c15303c814fd086ab71099d076985",
+    "fbce52d1fe344a7fb9934f64c4299138",
+    "910d9469f5864359822a674a5e71e0c9",
+    "dac1eba3d80d4881b15a18d5f6750fd2",
+    "a36701092b964ff0974eccc61ddd3798",
+    "b8f926fa73a94e2aa9de8a1f21742704",
+    "439037cfa8464a60827e23603633ea0f",
+    "2c2584bb70524287b924e2a3547dd83c",
+    "b91d0ade7ea04840a52609eb31b8e11f",
+    "0732a0df99424b6aa0cf52a2dfa91b4e",
+    "7e4550bb99da4efa858bf02ab6157063",
+    "3094bdbc451543cf8275944aebafe752",
+    "3a0ce4748ed64edcbdadb8b69fd50f19",
+    "b931b42c141445bcbdb0d963714b65f8",
+    "675fd201c1e441f082e3ca75d4fbe983",
+    "dcc576bf901548189d1e803d248d1c6a",
+    "f0242481f7144a8eb4fb18a2268957ee",
+    "7f8a83eb69cc527e6cdb174b72d51d92",
+    "78be9b2169944a4eb35a53d5d24f642c",
+    "9e2217799b1b4807a09b305df7ed78c1",
+    "6a69bf1b354b47d1a8a457477e647e63",
+    "5c79b5956e1fa61c9d9576775d7b9226",
+    "5f570bc90abb45c29887229ebd6f4b51",
+    "3e077775dc8c429ebf93764e8aa2231a",
+    "68a6934f1a914981b543bd7ec532618b",
+    "d32749e6d23402f9661917d4be16cdad",
+    "1481ed3b70d08e7334f4d52b1ec16db3",
+    "9beda6c33cc2a0a5ca17496537665f06",
+    "059358e93e5045efa720ad702882c094",
+    "39d87681aca24b94b5ce290df2f79059",
+    "07189cf0330440298eab69f9e4ed38a1",
+    "53f7886caf3841309ed3ab0d32b34f75",
+    "7065917b9a16439895bd34c7f791d279",
+    "dded406be1d84eddaa3a0afccb52e6bd",
+]
+
+def main():
+    s3_client = boto3.client('s3')
+    for bag_dir in Path(getenv('SOURCE_DIR')).iterdir():
+        if bag_dir.is_dir() and bag_dir.stem in REFIDS:
+            print(bag_dir.stem)
+            for fp in bag_dir.rglob("*"):
+                # Remove hidden files and Thumbs.db
+                if fp.name.startswith(".") or fp.name == "Thumbs.db":
+                    print(f"removing {fp}")
+                    fp.unlink()
+            
+            # Save bag
+            bag = bagit.Bag(str(bag_dir))
+            bag.save(manifests=True)
+            print("bag saved")
+
+            # Create tarball
+            tar_filename = bag_dir.parents[0] / f"{bag_dir.stem}.tar.gz"
+            with tarfile.open(tar_filename, "w:gz") as tar_file:
+                tar_file.add(bag_dir, arcname=bag_dir.stem)
+            print("bag tarballed")
+
+            # upload to S3
+            s3_client.upload_file(
+                tar_filename,
+                getenv("AWS_S3_BUCKET_NAME"),
+                tar_filename.name
+            )
+            print("bag uploaded")
+
+            tar_filename.unlink()
+            print("tarfile deleted")
+
+
+if __name__ == '__main__':
+    main()
