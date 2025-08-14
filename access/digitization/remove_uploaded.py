@@ -45,7 +45,9 @@ class DigitalObjectRemover(object):
                     print(fp.stem, e)
 
     def dimes_url_from_refid(self, refid):
-        results = self.as_client.get(f"/repositories/{getenv('AS_REPO_ID')}/find_by_id/archival_objects?ref_id[]={refid}").json()
+        resp = self.as_client.get(f"/repositories/{getenv('AS_REPO_ID')}/find_by_id/archival_objects?ref_id[]={refid}")
+        resp.raise_for_status()
+        results = resp.json()
         if len(results.get("archival_objects")) == 1:
             as_uri = results['archival_objects'][0]['ref']
             return f"/objects/{shortuuid.uuid(as_uri)}"
@@ -53,7 +55,9 @@ class DigitalObjectRemover(object):
             raise Exception(f"{results.get('archival_objects')} results found for ref_id {refid}.")
 
     def check_object(self, url):
-        object_data = self.dimes_client.get(f"https://api.rockarch.org{url}").json()
+        resp = self.dimes_client.get(f"https://api.rockarch.org{url}")
+        resp.raise_for_status()
+        object_data = resp.json()
                         
         assert object_data['online'], f'online attribute for {url} is false'
         
