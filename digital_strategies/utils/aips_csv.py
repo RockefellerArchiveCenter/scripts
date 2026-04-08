@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-#This script generates a csv file of AIPs in a specific Archivematica Storage Service location.
+# This script generates a CSV file of all AIPs, with columns for location, origin pipeline, and status.
 
 import csv
 from amclient import AMClient
