@@ -25,6 +25,12 @@ Tools to support QC of Ford Foundation Grants microfilm digitization
 - Move into the directory containing these files: `cd qc_assist`
 - Run the script: `python check_package_by_status.py crowley_spreadsheet_path cue_see_csv_path {approved,delivered}`
 
+## Check Duplicate Delivery
+
+- Log in using the AWS client: `aws sso login --profile rac-sso`
+- Move into the directory containing these files: `cd qc_assist`
+- Run the script: `python check_dupe_delivery.py 2026-03-09 00455a772f0d2c3dde0bb2847243b2e2 0090be7a99292ea3c88aeddbebc9d341`
+
 ## Find Data Problems
 
 - Move into the directory containing these files: `cd qc_assist`
