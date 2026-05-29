@@ -13,10 +13,9 @@
 
 import argparse
 import configparser
-from datetime import datetime
+from datetime import datetime, timezone
 from datetime import timedelta
 
-import pytz
 import boto3
 
 
@@ -39,7 +38,7 @@ def main(approval_date, refids):
     embargo_pdf_error_packages = []
     errors = []
 
-    parsed_approval_date = approval_date.replace(tzinfo=pytz.UTC)
+    parsed_approval_date = approval_date.replace(tzinfo=timezone.utc)
     max_modified_date = parsed_approval_date + timedelta(hours=48)
 
     for r in refids:
