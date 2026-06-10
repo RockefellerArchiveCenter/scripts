@@ -5,8 +5,10 @@
 # Confirms delivery or approval of duplicate packages.
 
 # positional arguments:
-#   approval_date
-#   refids
+#   approval_start_date
+#   approval_end_date
+#   reel_start
+#   reel_end
 
 # options:
 #   -h, --help     show this help message and exit
