@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# usage: check_dupe_delivery.py [-h] approval_date refids [refids ...]
+# usage: check_dupe_delivery.py [-h] approval_start_date approval_end_date reel_start reel_end
 
 # Confirms delivery or approval of duplicate packages.
 
