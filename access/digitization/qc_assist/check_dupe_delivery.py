@@ -64,7 +64,7 @@ def main(approval_start_date, approval_end_date, reel_start, reel_end):
     rac_refids_on_reels = get_rac_data(config, reel_list, approval_start_date, approval_end_date)
 
     for reel in reel_list:
-        reel_refids = [r for r in rac_refids_on_reels if r[1] == reel]
+        reel_refids = list(set([r for r in rac_refids_on_reels if r[1] == reel]))
         for refid, reel_number in reel_refids:
             rac_package_count = len([r for r in rac_refids_on_reels if r[0] == refid])
             s3_package_count = packages_in_bucket(
