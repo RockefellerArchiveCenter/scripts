@@ -87,11 +87,11 @@ def main(approval_start_date, approval_end_date, reel_start, reel_end):
                 embargo_pdf_error_packages.append(f"{refid} (expected {rac_package_count}, found {s3_pdf_count} in bucket)")
 
     if len(embargo_error_packages):
-        package_list = "\n".join(embargo_error_packages)
+        package_list = "\n".join(list(set(embargo_error_packages)))
         errors.append(f"The following approved packages in {config['AWS']['embargo_bucket_name']} did not match the expected number:\n{package_list}")
 
     if len(embargo_pdf_error_packages):
-        package_list = "\n".join(embargo_pdf_error_packages)
+        package_list = "\n".join(list(set(embargo_pdf_error_packages)))
         errors.append(f"The following approved packages in {config['AWS']['embargo_pdf_bucket_name']} did not match the expected number:\n{package_list}")
     
     if len(errors):
