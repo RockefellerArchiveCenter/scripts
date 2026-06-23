@@ -1,0 +1,3 @@
+bagit~=1.9
+boto3~=1.43
+requests~=2.34
