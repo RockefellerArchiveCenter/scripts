@@ -6,6 +6,7 @@
 # Update AWS session credentials
 
 import argparse
+import tarfile
 from datetime import datetime
 from os import getenv
 from pathlib import Path
@@ -13,14 +14,16 @@ from shutil import rmtree, copytree
 
 import bagit
 import boto3
+import pymupdf
+from PIL import Image
 from requests import Session
 
-AQUILA_BASEURL = getenv('AQUILA_BASEURL')
-AWS_ROLE_NAME = getenv('AWS_ROLE_NAME')
-AWS_BUCKET_NAME = getenv('AWS_BUCKET_NAME')
-RESTRICTED_DIR = getenv('RESTRICTED_DIR')
-UPLOADED_DIR = getenv('UPLOADED_DIR')
-INVALID_DIR = getenv('INVALID_DIR')
+AQUILA_BASEURL = "https://aquila.rockarch.org/api"
+AWS_ROLE_NAME = "avdev"
+AWS_BUCKET_NAME = "test"
+RESTRICTED_DIR = "restricted"
+UPLOADED_DIR = "uploaded"
+INVALID_DIR = "invalid"
 
 class AquilaClient(object):
     """Client for Aquila"""
@@ -41,27 +44,32 @@ class AquilaClient(object):
             (list): rights statements
         """
         data = {
-            'identifiers': rights_ids,
+            'identifiers': rights_ids.split(','),
             'start_date': start_date,
             'end_date': end_date
         }
-        resp = self.session.post(
-            f'{self.baseurl.rstrip("/")}/rights-assemble/',
-            json=data)
-        resp.raise_for_status()
-        return resp.json()['rights_statements']
+        try:
+            resp = self.session.post(
+                f'{self.baseurl.rstrip("/")}/rights-assemble/',
+                json=data,
+                verify=False)
+            resp.raise_for_status()
+            return resp.json()['rights_statements']
+        except Exception as e:
+            print(resp.text)
+            raise Exception(e)
 
 
 def main(
-    base_dir, 
-    transaction_number, 
-    refid, 
-    rights_ids, 
-    start_date,
-    end_date):
+        base_dir, 
+        transaction_number, 
+        refid, 
+        rights_ids, 
+        start_date,
+        end_date):
     """Main method which calls all other submethods."""
     
-    aws_session = boto3.Session(role_name=AWS_ROLE_NAME)
+    aws_session = boto3.Session(profile_name=AWS_ROLE_NAME)
     s3_client = aws_session.client('s3')
     aquila_client = AquilaClient(AQUILA_BASEURL)
 
@@ -78,11 +86,12 @@ def main(
             aquila_client):
         move_to_dir(renamed_path, RESTRICTED_DIR)
     else:
-        if is_valid_package(renamed_path):
-            create_bag(renamed_path)
+        if is_valid_package(renamed_path, refid):
+            bagit.make_bag(str(renamed_path))
             tarball_path = create_tarball(renamed_path)
             upload_package(tarball_path, s3_client)
             tarball_path.rename(Path(UPLOADED_DIR, tarball_path.name))
+            rmtree(renamed_path)
         else:
             move_to_dir(renamed_path, INVALID_DIR)
 
@@ -109,8 +118,10 @@ def is_restricted(rights_ids, start_date, end_date, aquila_client):
     Returns:
         (bool): indication of whether package is restricted or not
     """
-
-    rights_statements = aquila_client.get_rights_data(rights_ids, start_date, end_date)
+    rights_statements = aquila_client.get_rights_data(
+        rights_ids, 
+        datetime.strftime(start_date, "%Y-%m-%d"), 
+        datetime.strftime(end_date, "%Y-%m-%d"))
     for rights_statement in rights_statements:
         for granted in get_active_rights_acts(rights_statement['rights_granted']):
             if granted['act'] in ['publish', 'disseminate'] and granted['grant_restriction'] != 'allow':
@@ -124,21 +135,123 @@ def move_to_dir(current_path, target_dir):
         current_path (pathlib.Path): current path of digitized object
         target_dir (pathlib.path): path for new digitized object
     """
-
     copytree(current_path, target_dir)
     rmtree(current_path)
 
-def is_valid_package(dir_path):
+def is_valid_package(dir_path, refid):
     """Validates package structure and assets.
     
     Args:
         dir_path (pathlib.Path): path of digitized object to validate.
     """
+    return bool(all([
+        validate_assets(dir_path, refid),
+        validate_file_formats(dir_path),
+        validate_ocr(dir_path, refid)]))
 
-    for expected_subdir in ['master', 'master_edited', 'service_edited']:
-        assert (dir_path / expected_subdir).is_dir()
-    assert len([(dir_path / 'master').iterdir()]) == len([(dir_path / 'master_edited').iterdir()])
-    assert (dir_path / 'service_edited' / "*.pdf").is_file()
+def validate_bag(bag_path):
+    """Validates a bag.
+
+    Args:
+        bag_path (pathlib.Path): path of bagit Bag to validate.
+
+    Raises:
+        bagit.BagValidationError with the error in the `details` property.
+    """
+    bag = bagit.Bag(str(bag_path))
+    bag.validate()
+
+def validate_directories(bag_path):
+    """Checks for the presence of expected directories.
+
+    Args:
+        bag_path (pathlib.Path): path of bagit Bag containing assets.
+
+    Raises:
+        FileNotFoundError if not all directories are present.
+    """
+    for dir in ['master', 'master_edited', 'service_edited']:
+        if not (bag_path / dir).is_dir():
+            raise FileNotFoundError(f"Expected directory {dir} is missing")
+
+def validate_file_counts(bag_path, refid):
+    """Asserts correct number of files is present in each directory."""
+    with pymupdf.open(bag_path / 'service_edited' / f'{refid}.pdf', filetype='pdf') as document:
+        pdf_page_count = document.page_count
+    master_file_count = len(list((bag_path / 'master').glob(f'{refid}*.tif')))
+    master_edited_file_count = len(
+        list((bag_path / 'master_edited').glob(f'{refid}*.tif')))
+    if pdf_page_count != master_edited_file_count:
+        raise Exception(
+            f"PDF has {pdf_page_count} pages but found {master_edited_file_count} files in master_edited directory")
+    if master_file_count < master_edited_file_count:
+        raise Exception(
+            f"{master_edited_file_count} files found in master_edited directory but only {master_file_count} in master directory")
+
+def validate_file_names(bag_path):
+    """Ensures file names are valid.
+
+    Args:
+        bag_path (pathlib.Path): path of bagit Bag containing assets.
+    """
+    for dir in ['master', 'master_edited', 'service_edited']:
+        for fp in (bag_path / dir).iterdir():
+            if " " in fp.name:
+                raise Exception(f"File name {str(fp)} contains space.")
+
+def validate_ocr(bag_path, refid):
+    """Ensures there is an OCR layer for each page of the PDF.
+
+    Args:
+        bag_path (pathlib.Path): path of bagit Bag containing assets.
+    """
+    with pymupdf.open(bag_path / 'service_edited' / f'{refid}.pdf', filetype='pdf') as document:
+        for page in document:
+            if page.get_text("text"):
+                return True
+    raise Exception(f'No OCR detected in package {refid}')
+
+def validate_assets(bag_path, refid):
+    """Ensures that all expected directories and files are present.
+
+    Args:
+        bag_path (pathlib.Path): path of bagit Bag containing assets.
+
+    Raises:
+        AssetValidationError if files delivered do not match expected files.
+    """
+    try:
+        validate_directories(bag_path)
+        validate_file_counts(bag_path, refid)
+        validate_file_names(bag_path)
+        return True
+    except Exception as e:
+        raise Exception(
+            f"Package structure is invalid: {e}") from e
+
+def validate_file_characteristics(image_path):
+    with Image.open(image_path) as image:
+        image.load()  # Ensures TIFF is valid
+        assert image.mode in ["L", "RGB"], f"Image format should be RGB or L, got {image.mode}."
+        resolution = image.info.get('dpi', image.info.get('resolution'))
+        assert resolution, "Image does not have embedded resolution information."
+        assert resolution[0] >= 400 and resolution[1] >= 400, f"Image resolution should be at least 400dpi, got {image.info['dpi']}"
+
+def validate_file_formats(bag_path):
+    """Ensures that files pass format validation rules.
+
+    Args:
+        bag_path (pathlib.Path): path of bagit Bag containing assets.
+    """
+    for dir in ['master', 'master_edited']:
+        for fp in (bag_path / dir).glob('*.tif'):
+            try:
+                validate_file_characteristics(fp)
+            except AssertionError as e:
+                raise Exception(f"TIFF file does not meet specs: {e}")
+            except Exception as e:
+                raise Exception(f"Invalid TIFF file {str(fp)}: {e}")
+    return True 
 
 def remove_unwanted_files(dir_path):
     """Removes unwanted files from directory.
@@ -146,7 +259,6 @@ def remove_unwanted_files(dir_path):
     Args:
         dir_path (pathlib.Path): directory from which files should be removed.
     """
-
     for fp in dir_path.rglob("*"):
         if fp.name in ["Thumbs.db", ".DS_Store"]:
             fp.unlink()
@@ -158,10 +270,9 @@ def rename_files(dir_path, refid):
         dir_path (pathlib.Path): path of digital object to rename
         refid (str): ref ID for digital object, used as basis for file renaming
     """
-
-    for fp in dir_path.iter_dir():
+    for fp in dir_path.rglob("*"):
         if fp.is_file():
-            iterator = str(int(fp.stem.split("_")[-1])).zfill(4) if len(fp.stem.split("_") > 1) else None
+            iterator = str(int(fp.stem.split("_")[-1])).zfill(4) if len(fp.stem.split("_")) > 1 else None
             if iterator:
                 new_name = fp.with_name(f"{refid}_{iterator}{fp.suffix}")
             else:
@@ -169,16 +280,7 @@ def rename_files(dir_path, refid):
             fp.rename(new_name)
     copytree(dir_path, dir_path.with_name(refid))
     rmtree(dir_path)
-
-def create_bag(dir_path):
-    """Creates BagIt bag from digital object.
-    
-    Args:
-        dir_path (pathlib.Path): path of digital object to bag
-    """
-
-    bag = bagit.Bag(str(dir_path))
-    bag.save()
+    return(dir_path.with_name(refid))
 
 def create_tarball(dir_path):
     """Create tarball from bagged path.
@@ -189,11 +291,9 @@ def create_tarball(dir_path):
     Returns:
         tar_path (pathlib.Path): path to tarball
     """
-
-    tar_path = dir_path.with_name(f"{str(dir_path)}.tar.gz")
-    with open(tar_path, "w:gz") as tf:
-        for fp in dir_path.iter_dir():
-            tf.add(fp.relative_to(dir_path))
+    tar_path = dir_path.with_name(f"{dir_path.name}.tar.gz")
+    with tarfile.open(tar_path, "w:gz") as tf:
+        tf.add(dir_path, arcname=dir_path.name)
     return tar_path
 
 def upload_package(package_path, client):
