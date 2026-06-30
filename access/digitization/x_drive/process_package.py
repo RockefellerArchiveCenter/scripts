@@ -14,85 +14,46 @@ from shutil import rmtree, copytree
 
 import bagit
 import boto3
+import pandas
 import pymupdf
 from PIL import Image
-from requests import Session
 
-AQUILA_BASEURL = "https://aquila.rockarch.org/api"
 AWS_ROLE_NAME = "avdev"
 AWS_BUCKET_NAME = "test"
+
 RESTRICTED_DIR = "restricted"
 UPLOADED_DIR = "uploaded"
 INVALID_DIR = "invalid"
 
-class AquilaClient(object):
-    """Client for Aquila"""
 
-    def __init__(self, baseurl):
-        self.session = Session()
-        self.baseurl = baseurl
-
-    def get_rights_data(self, rights_ids, start_date, end_date):
-        """Returns rights data from Aquila.
-        
-        Args:
-            rights_ids (str): comma-separated list of rights identifiers
-            start_date (str): ISO-formatted start date
-            end_date (str): ISO-formatted end date
-
-        Returns:
-            (list): rights statements
-        """
-        data = {
-            'identifiers': rights_ids.split(','),
-            'start_date': start_date,
-            'end_date': end_date
-        }
-        try:
-            resp = self.session.post(
-                f'{self.baseurl.rstrip("/")}/rights-assemble/',
-                json=data,
-                verify=False)
-            resp.raise_for_status()
-            return resp.json()['rights_statements']
-        except Exception as e:
-            print(resp.text)
-            raise Exception(e)
-
-
-def main(
-        base_dir, 
-        transaction_number, 
-        refid, 
-        rights_ids, 
-        start_date,
-        end_date):
+def main(base_dir, spreadsheet_path, restricted):
     """Main method which calls all other submethods."""
     
-    aws_session = boto3.Session(profile_name=AWS_ROLE_NAME)
+    aws_session = boto3.Session(profile_name=AWS_ROLE_NAME) # TODO this will likely need to be changed
     s3_client = aws_session.client('s3')
-    aquila_client = AquilaClient(AQUILA_BASEURL)
 
-    package_path = Path(base_dir, transaction_number)
-    assert package_path.is_dir(), f"Expected package with transaction {transaction_number} does not exist at {package_path}"
+    df = pandas.read_excel(spreadsheet_path, header=0) # TODO sheet name
+    for index, row in df.iterrows():
+        transaction_number = row['current_path'].strip().split("/")[-1]
+        refid = row['refid'].strip()
 
-    remove_unwanted_files(package_path)
-    renamed_path = rename_files(package_path, refid)
-            
-    if is_restricted(
-            rights_ids, 
-            start_date, 
-            end_date, 
-            aquila_client):
-        move_to_dir(renamed_path, RESTRICTED_DIR)
-    else:
-        if is_valid_package(renamed_path, refid):
-            bagit.make_bag(str(renamed_path))
-            tarball_path = create_tarball(renamed_path)
-            upload_package(tarball_path, s3_client)
-            tarball_path.rename(Path(UPLOADED_DIR, tarball_path.name))
+        package_path = Path(base_dir, transaction_number)
+        assert package_path.is_dir(), f"Expected package with transaction {transaction_number} does not exist at {package_path}"
+
+        remove_unwanted_files(package_path)
+
+        if is_valid_package(package_path, refid):
+            renamed_path = rename_files(package_path, refid)
+            if restricted:
+                move_to_dir(renamed_path, RESTRICTED_DIR)
+            else:
+                bagit.make_bag(str(renamed_path))
+                tarball_path = create_tarball(renamed_path)
+                upload_package(tarball_path, s3_client)
+                tarball_path.rename(Path(UPLOADED_DIR, tarball_path.name))
             rmtree(renamed_path)
         else:
+            renamed_path = rename_files(package_path, refid)
             move_to_dir(renamed_path, INVALID_DIR)
 
 def get_active_rights_acts(acts):
@@ -144,22 +105,15 @@ def is_valid_package(dir_path, refid):
     Args:
         dir_path (pathlib.Path): path of digitized object to validate.
     """
-    return bool(all([
-        validate_assets(dir_path, refid),
-        validate_file_formats(dir_path),
-        validate_ocr(dir_path, refid)]))
+    try:
+        validate_assets(dir_path, refid)
+        validate_file_formats(dir_path)
+        validate_ocr(dir_path, refid)
+        return True
+    except Exception as e:
+        print(e)
+        return False
 
-def validate_bag(bag_path):
-    """Validates a bag.
-
-    Args:
-        bag_path (pathlib.Path): path of bagit Bag to validate.
-
-    Raises:
-        bagit.BagValidationError with the error in the `details` property.
-    """
-    bag = bagit.Bag(str(bag_path))
-    bag.validate()
 
 def validate_directories(bag_path):
     """Checks for the presence of expected directories.
@@ -224,7 +178,6 @@ def validate_assets(bag_path, refid):
         validate_directories(bag_path)
         validate_file_counts(bag_path, refid)
         validate_file_names(bag_path)
-        return True
     except Exception as e:
         raise Exception(
             f"Package structure is invalid: {e}") from e
@@ -251,7 +204,6 @@ def validate_file_formats(bag_path):
                 raise Exception(f"TIFF file does not meet specs: {e}")
             except Exception as e:
                 raise Exception(f"Invalid TIFF file {str(fp)}: {e}")
-    return True 
 
 def remove_unwanted_files(dir_path):
     """Removes unwanted files from directory.
@@ -306,18 +258,9 @@ def upload_package(package_path, client):
     client.upload_file(str(package_path), AWS_BUCKET_NAME, package_path.name)
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Assesses rights status, restructures files, and uploads to S3')
+    parser = argparse.ArgumentParser(description='Validates, restructures, and uploads locally digitized packages to S3')
     parser.add_argument('base_dir', help='The base directory to iterate through.')
-    parser.add_argument('transaction_number', help='Aeon transaction number for package')
-    parser.add_argument('refid', help='ArchivesSpace Ref ID for package')
-    parser.add_argument('rights_ids', help='Aquila rights IDs for package')
-    parser.add_argument('start_date', help='Start date for package', type=datetime.fromisoformat)
-    parser.add_argument('end_date', help='End date for package', type=datetime.fromisoformat)
+    parser.add_argument('spreadsheet_path', help='Path to spreadsheet containing information about packages to be processed')
+    parser.add_argument('restricted_batch', help='Boolean indicating if the batch is restricted or not.', default=False, type=bool)
     args = parser.parse_args()
-    main(
-        args.base_dir, 
-        args.transaction_number, 
-        args.refid, 
-        args.rights_ids, 
-        args.start_date,
-        args.end_date)
+    main(args.base_dir, args.spreadsheet_path, args.restricted_batch)

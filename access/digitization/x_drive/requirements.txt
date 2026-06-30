@@ -1,5 +1,5 @@
 bagit~=1.9
 boto3~=1.43
+pandas~=2.3
 Pillow~=11.3
 pymupdf~=1.24
-requests~=2.34
