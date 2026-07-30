@@ -13,22 +13,19 @@ import pymupdf
 from PIL import Image
 
 
-def main(base_dir, spreadsheet_path):
+def main(spreadsheet_path):
     """Main method which calls all other submethods."""
 
-    df = pandas.read_excel(spreadsheet_path, header=0) # TODO sheet name
+    df = pandas.read_excel(spreadsheet_path, header=0)
     for index, row in df.iterrows():
-        transaction_number = row['current_path'].strip().split("/")[-1]
-        refid = row['refid'].strip()
-
-        package_path = Path(base_dir, transaction_number)
-        assert package_path.is_dir(), f"Expected package with transaction {transaction_number} does not exist at {package_path}"
+        package_path = Path(row['current_path'].strip())
 
         try:
-            validate_assets(package_path, refid)
+            assert package_path.is_dir(), f"Package does not exist at {package_path}"
+            validate_assets(package_path, package_path.stem)
             validate_file_formats(package_path)
-            validate_ocr(package_path, refid)
-            return True
+            validate_ocr(package_path, package_path.stem)
+            print(f"{package_path} is valid")
         except Exception as e:
             print(e)
 
@@ -45,13 +42,13 @@ def validate_directories(bag_path):
         if not (bag_path / dir).is_dir():
             raise FileNotFoundError(f"Expected directory {dir} is missing")
 
-def validate_file_counts(bag_path, refid):
+def validate_file_counts(bag_path, transaction_number):
     """Asserts correct number of files is present in each directory."""
-    with pymupdf.open(bag_path / 'service_edited' / f'{refid}.pdf', filetype='pdf') as document:
+    with pymupdf.open(bag_path / 'service_edited' / f'{transaction_number}.pdf', filetype='pdf') as document:
         pdf_page_count = document.page_count
-    master_file_count = len(list((bag_path / 'master').glob(f'{refid}*.tif')))
+    master_file_count = len(list((bag_path / 'master').glob('*.tif')))
     master_edited_file_count = len(
-        list((bag_path / 'master_edited').glob(f'{refid}*.tif')))
+        list((bag_path / 'master_edited').glob('*.tif')))
     if pdf_page_count != master_edited_file_count:
         raise Exception(
             f"PDF has {pdf_page_count} pages but found {master_edited_file_count} files in master_edited directory")
@@ -70,19 +67,20 @@ def validate_file_names(bag_path):
             if " " in fp.name:
                 raise Exception(f"File name {str(fp)} contains space.")
 
-def validate_ocr(bag_path, refid):
+def validate_ocr(bag_path, transaction_number):
     """Ensures there is an OCR layer for each page of the PDF.
 
     Args:
         bag_path (pathlib.Path): path of bagit Bag containing assets.
+        transaction_number (str): transaction number of package.
     """
-    with pymupdf.open(bag_path / 'service_edited' / f'{refid}.pdf', filetype='pdf') as document:
+    with pymupdf.open(bag_path / 'service_edited' / f'{transaction_number}.pdf', filetype='pdf') as document:
         for page in document:
             if page.get_text("text"):
                 return True
-    raise Exception(f'No OCR detected in package {refid}')
+    raise Exception(f'No OCR detected in package {transaction_number}')
 
-def validate_assets(bag_path, refid):
+def validate_assets(bag_path, transaction_number):
     """Ensures that all expected directories and files are present.
 
     Args:
@@ -93,7 +91,7 @@ def validate_assets(bag_path, refid):
     """
     try:
         validate_directories(bag_path)
-        validate_file_counts(bag_path, refid)
+        validate_file_counts(bag_path, transaction_number)
         validate_file_names(bag_path)
     except Exception as e:
         raise Exception(
@@ -124,7 +122,6 @@ def validate_file_formats(bag_path):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Validates, restructures, and uploads locally digitized packages to S3')
-    parser.add_argument('base_dir', help='The base directory to iterate through.')
     parser.add_argument('spreadsheet_path', help='Path to spreadsheet containing information about packages to be processed')
     args = parser.parse_args()
-    main(args.base_dir, args.spreadsheet_path)
+    main(args.spreadsheet_path)

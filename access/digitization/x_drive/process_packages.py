@@ -8,7 +8,6 @@
 import argparse
 import tarfile
 from datetime import datetime
-from os import getenv
 from pathlib import Path
 from shutil import rmtree, copytree
 
@@ -21,28 +20,26 @@ from PIL import Image
 AWS_ROLE_NAME = "avdev"
 AWS_BUCKET_NAME = "test"
 
-RESTRICTED_DIR = "restricted"
-UPLOADED_DIR = "uploaded"
-INVALID_DIR = "invalid"
+RESTRICTED_DIR = "RESTRICTED"
+UPLOADED_DIR = "UPLOADED"
+INVALID_DIR = "INVALID"
 
 
-def main(base_dir, spreadsheet_path, restricted):
+def main(spreadsheet_path, restricted):
     """Main method which calls all other submethods."""
     
     aws_session = boto3.Session(profile_name=AWS_ROLE_NAME) # TODO this will likely need to be changed
     s3_client = aws_session.client('s3')
 
-    df = pandas.read_excel(spreadsheet_path, header=0) # TODO sheet name
+    df = pandas.read_excel(spreadsheet_path, header=0)
     for index, row in df.iterrows():
-        transaction_number = row['current_path'].strip().split("/")[-1]
         refid = row['refid'].strip()
-
-        package_path = Path(base_dir, transaction_number)
-        assert package_path.is_dir(), f"Expected package with transaction {transaction_number} does not exist at {package_path}"
+        package_path = Path(row['current_path'].strip())
+        assert package_path.is_dir(), f"Package does not exist at {package_path}"
 
         remove_unwanted_files(package_path)
 
-        if is_valid_package(package_path, refid):
+        if is_valid_package(package_path):
             renamed_path = rename_files(package_path, refid)
             if restricted:
                 move_to_dir(renamed_path, RESTRICTED_DIR)
@@ -50,8 +47,8 @@ def main(base_dir, spreadsheet_path, restricted):
                 bagit.make_bag(str(renamed_path))
                 tarball_path = create_tarball(renamed_path)
                 upload_package(tarball_path, s3_client)
+                Path(UPLOADED_DIR).mkdir(exist_ok=True)
                 tarball_path.rename(Path(UPLOADED_DIR, tarball_path.name))
-            rmtree(renamed_path)
         else:
             renamed_path = rename_files(package_path, refid)
             move_to_dir(renamed_path, INVALID_DIR)
@@ -94,21 +91,23 @@ def move_to_dir(current_path, target_dir):
     
     Args:
         current_path (pathlib.Path): current path of digitized object
-        target_dir (pathlib.path): path for new digitized object
+        target_dir (str): path for new digitized object
     """
-    copytree(current_path, target_dir)
+    dest_path = Path(target_dir, current_path.stem)
+    Path(target_dir).mkdir(exist_ok=True, parents=True)
+    copytree(current_path, dest_path)
     rmtree(current_path)
 
-def is_valid_package(dir_path, refid):
+def is_valid_package(dir_path):
     """Validates package structure and assets.
     
     Args:
         dir_path (pathlib.Path): path of digitized object to validate.
     """
     try:
-        validate_assets(dir_path, refid)
+        validate_assets(dir_path, dir_path.stem)
         validate_file_formats(dir_path)
-        validate_ocr(dir_path, refid)
+        validate_ocr(dir_path, dir_path.stem)
         return True
     except Exception as e:
         print(e)
@@ -128,13 +127,13 @@ def validate_directories(bag_path):
         if not (bag_path / dir).is_dir():
             raise FileNotFoundError(f"Expected directory {dir} is missing")
 
-def validate_file_counts(bag_path, refid):
+def validate_file_counts(bag_path, current_dir):
     """Asserts correct number of files is present in each directory."""
-    with pymupdf.open(bag_path / 'service_edited' / f'{refid}.pdf', filetype='pdf') as document:
+    with pymupdf.open(bag_path / 'service_edited' / f'{current_dir}.pdf', filetype='pdf') as document:
         pdf_page_count = document.page_count
-    master_file_count = len(list((bag_path / 'master').glob(f'{refid}*.tif')))
+    master_file_count = len(list((bag_path / 'master').glob(f'{current_dir}*.tif')))
     master_edited_file_count = len(
-        list((bag_path / 'master_edited').glob(f'{refid}*.tif')))
+        list((bag_path / 'master_edited').glob(f'{current_dir}*.tif')))
     if pdf_page_count != master_edited_file_count:
         raise Exception(
             f"PDF has {pdf_page_count} pages but found {master_edited_file_count} files in master_edited directory")
@@ -153,19 +152,19 @@ def validate_file_names(bag_path):
             if " " in fp.name:
                 raise Exception(f"File name {str(fp)} contains space.")
 
-def validate_ocr(bag_path, refid):
+def validate_ocr(bag_path, current_dir):
     """Ensures there is an OCR layer for each page of the PDF.
 
     Args:
         bag_path (pathlib.Path): path of bagit Bag containing assets.
     """
-    with pymupdf.open(bag_path / 'service_edited' / f'{refid}.pdf', filetype='pdf') as document:
+    with pymupdf.open(bag_path / 'service_edited' / f'{current_dir}.pdf', filetype='pdf') as document:
         for page in document:
             if page.get_text("text"):
                 return True
-    raise Exception(f'No OCR detected in package {refid}')
+    raise Exception(f'No OCR detected in package {current_dir}')
 
-def validate_assets(bag_path, refid):
+def validate_assets(bag_path, current_dir):
     """Ensures that all expected directories and files are present.
 
     Args:
@@ -176,7 +175,7 @@ def validate_assets(bag_path, refid):
     """
     try:
         validate_directories(bag_path)
-        validate_file_counts(bag_path, refid)
+        validate_file_counts(bag_path, current_dir)
         validate_file_names(bag_path)
     except Exception as e:
         raise Exception(
@@ -259,8 +258,7 @@ def upload_package(package_path, client):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Validates, restructures, and uploads locally digitized packages to S3')
-    parser.add_argument('base_dir', help='The base directory to iterate through.')
     parser.add_argument('spreadsheet_path', help='Path to spreadsheet containing information about packages to be processed')
-    parser.add_argument('restricted_batch', help='Boolean indicating if the batch is restricted or not.', default=False, type=bool)
+    parser.add_argument('--restricted_batch', action=argparse.BooleanOptionalAction, help='Boolean indicating if the batch is restricted or not.', default=False)
     args = parser.parse_args()
-    main(args.base_dir, args.spreadsheet_path, args.restricted_batch)
+    main(args.spreadsheet_path, args.restricted_batch)

@@ -12,6 +12,7 @@ from dateutil import parser, relativedelta
 from requests.sessions import Session
 
 INVENTORY_FILENAME = f"inventory_{int(datetime.now().timestamp())}.csv"
+
 AS_REPO = 2
 AEON_BASEURL = "https://raccess.rockarch.org/aeonapi"
 API_BASEURL = "https://api.rockarch.org/"
@@ -54,18 +55,22 @@ def main(base_dir, aeon_access_key):
     rac_api_client = RacApiClient(API_BASEURL)
 
     output_path = Path(".", INVENTORY_FILENAME)
-    with open(output_path, "w") as csv_file:
+    with open(output_path, "a") as csv_file:
         csv_writer = csv.DictWriter(csv_file, fieldnames=FIELDNAMES)
         csv_writer.writeheader()
         for fp in Path(base_dir).iterdir():
             if is_processable(fp):
                 current_filepath = str(fp)
-                transaction_number = fp.stem
-                refid = None
+                directory = fp.stem
                 try:
-                    refid = get_aeon_data(aeon_client, transaction_number)
-                    if not refid:
-                        raise Exception(f"No refid found for transaction {transaction_number}")
+                    if len(directory) == 6:
+                        transaction_number = directory
+                        refid = get_aeon_data(aeon_client, transaction_number)
+                        if not refid:
+                            raise Exception(f"No refid found for transaction {transaction_number}")
+                    else:
+                        transaction_number = None
+                        refid = directory
                     uri, title, start_date, end_date, resource_title, resource_date = get_as_data(as_client, refid)
                     dimes_id, already_online = get_online_status(uri, rac_api_client)
                     csv_writer.writerow({
@@ -80,11 +85,11 @@ def main(base_dir, aeon_access_key):
                         "already_online": already_online,
                         "dimes_id": dimes_id})
                 except Exception as e:
-                    print(transaction_number, refid, e)
+                    print(directory, e)
 
 
 def is_processable(file_path):
-    """Determines if file path represents a valid Aeon transaction.
+    """Determines if file path represents a valid Aeon transaction or ArchivesSpace refid.
     
     Args:
         file_path (pathlib.Path): file path to evaluate.
@@ -92,7 +97,9 @@ def is_processable(file_path):
     Returns:
         is_processible (bool): whether file path is processable
     """
-    return bool(file_path.is_dir() and len(file_path.stem) == 6 and file_path.stem.isdigit())
+    valid_transaction_number = bool(file_path.is_dir() and len(file_path.stem) == 6 and file_path.stem.isdigit())
+    valid_refid = bool(file_path.is_dir() and len(file_path.stem) == 32)
+    return any([valid_transaction_number, valid_refid])
 
         
 def get_aeon_data(client, transaction_number):
