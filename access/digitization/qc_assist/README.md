@@ -41,3 +41,9 @@ Tools to support QC of Ford Foundation Grants microfilm digitization
 - Log in using the AWS client: `aws sso login --profile rac-sso`
 - Move into the directory containing these files: `cd qc_assist`
 - Run the script: `python report.py start_date --end-date (optional)`
+
+## Check Approved Packages
+
+- Log in using the AWS client: `aws sso login --profile rac-sso`
+- Move into the directory containing these files: `cd qc_assist`
+- Run the script: `python check_approved.py`
