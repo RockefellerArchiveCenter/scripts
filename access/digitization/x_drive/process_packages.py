@@ -9,6 +9,7 @@ import argparse
 import tarfile
 from datetime import datetime
 from pathlib import Path
+from os import getenv
 from shutil import rmtree, copytree
 
 import bagit
@@ -17,12 +18,12 @@ import pandas
 import pymupdf
 from PIL import Image
 
-AWS_ROLE_NAME = "avdev"
-AWS_BUCKET_NAME = "test"
+AWS_ROLE_NAME = getenv('AWS_ROLE_NAME')
+AWS_BUCKET_NAME = getenv('AWS_BUCKET_NAME')
 
-RESTRICTED_DIR = "RESTRICTED"
-UPLOADED_DIR = "UPLOADED"
-INVALID_DIR = "INVALID"
+RESTRICTED_DIR = getenv("RESTRICTED_DIR")
+UPLOADED_DIR = getenv("UPLOADED_DIR")
+INVALID_DIR = getenv("INVALID_DIR")
 
 
 def main(spreadsheet_path, restricted):
