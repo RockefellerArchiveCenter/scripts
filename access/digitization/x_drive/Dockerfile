@@ -1,4 +1,4 @@
-FROM python:3.12-alpine AS base
+FROM python:3.12 AS base
 
 ENV PYTHONUNBUFFERED=1
 
@@ -9,6 +9,6 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 # Add application code
-COPY process_package.py .
+COPY process_packages.py .
 
-ENTRYPOINT [ "python", "process_package.py" ]
+ENTRYPOINT [ "python", "process_packages.py" ]
