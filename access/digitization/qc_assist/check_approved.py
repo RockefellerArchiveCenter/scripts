@@ -19,7 +19,8 @@ def main():
     s3_client = session.client('s3')
     df = pandas.read_excel(config['RAC']['spreadsheet_path'], sheet_name='Reel', header=0)
     df.columns = df.columns.str.strip()
-    series = df['Filename'].value_counts()
+    filtered_df = df[df['Approved/Rejected'] == 'Approved']
+    series = filtered_df['Filename'].value_counts()
     for refid, spreadsheet_count in (zip(series.index, series)):
         packages = s3_client.list_objects_v2(Bucket=config['AWS']['embargo_bucket_name'], Prefix=refid)
         pdfs = s3_client.list_objects_v2(Bucket=config['AWS']['embargo_pdf_bucket_name'], Prefix=refid)
