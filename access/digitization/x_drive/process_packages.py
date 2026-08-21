@@ -29,7 +29,7 @@ INVALID_DIR = getenv("INVALID_DIR")
 def main(spreadsheet_path, restricted):
     """Main method which calls all other submethods."""
     
-    aws_session = boto3.Session(profile_name=AWS_ROLE_NAME) # TODO this will likely need to be changed
+    aws_session = boto3.Session(profile_name=AWS_ROLE_NAME)
     s3_client = aws_session.client('s3')
 
     df = pandas.read_excel(spreadsheet_path, header=0)
