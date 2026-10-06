@@ -25,13 +25,13 @@ def main():
         packages = s3_client.list_objects_v2(Bucket=config['AWS']['embargo_bucket_name'], Prefix=refid)
         pdfs = s3_client.list_objects_v2(Bucket=config['AWS']['embargo_pdf_bucket_name'], Prefix=refid)
         if not (spreadsheet_count == pdfs['KeyCount'] == packages['KeyCount']):
-            formatted_package_data = None
-            formatted_pdf_data = None
-            if packages['KeyCount'] > 0:
-                formatted_package_data = format_package_data(packages['Contents'], config, s3_client)
-            if pdfs['KeyCount'] > 0:
-                formatted_pdf_data = format_pdf_data(pdfs['Contents'], config, s3_client)
-            # print(f"Refid {refid}: {spreadsheet_count} found in RAC inventory, {packages['KeyCount']} in embargo bucket, {pdfs['KeyCount']} in embargo PDF bucket")
+            # formatted_package_data = None
+            # formatted_pdf_data = None
+            # if packages['KeyCount'] > 0:
+            #     formatted_package_data = format_package_data(packages['Contents'], config, s3_client)
+            # if pdfs['KeyCount'] > 0:
+            #     formatted_pdf_data = format_pdf_data(pdfs['Contents'], config, s3_client)
+            print(f"Refid {refid}: {spreadsheet_count} found in RAC inventory, {packages['KeyCount']} in embargo bucket, {pdfs['KeyCount']} in embargo PDF bucket")
             # if formatted_package_data:
             #     print(f"Packages in embargo bucket:\n{formatted_package_data}")
             # if formatted_pdf_data:
@@ -42,15 +42,15 @@ def format_package_data(packages, config, s3_client):
     package_list = []
     for p in packages:
         page_count = 0
-        # try:
-        #     data = s3_client.get_object(Bucket=config['AWS']['embargo_bucket_name'], Key=p['Key'])['Body'].read()
-        #     fileobj = io.BytesIO(data)
-        #     with tarfile.open(fileobj=fileobj) as tf:
-        #         for n in tf.getnames():
-        #             if 'master_edited' in n:
-        #                 page_count += 1
-        # except Exception:
-        #     pass
+        try:
+            data = s3_client.get_object(Bucket=config['AWS']['embargo_bucket_name'], Key=p['Key'])['Body'].read()
+            fileobj = io.BytesIO(data)
+            with tarfile.open(fileobj=fileobj) as tf:
+                for n in tf.getnames():
+                    if 'master_edited' in n:
+                        page_count += 1
+        except Exception:
+            pass
         package_list.append(f"{p['Key']}\t{page_count}\t{p['LastModified']}")
     return "\n".join(package_list)
 
@@ -59,14 +59,14 @@ def format_pdf_data(pdfs, config, s3_client):
     pdf_list = []
     for p in pdfs:
         page_count = 0
-        # try:
-        #     resp = s3_client.get_object(Bucket=config['AWS']['embargo_pdf_bucket_name'], Key=p['Key'])
-        #     body = resp['Body'].read()
-        #     doc = pymupdf.open(resp['ContentType'], body)
-        #     page_count = doc.page_count
-        # except Exception as e:
-        #     print(e)
-        #     pass
+        try:
+            resp = s3_client.get_object(Bucket=config['AWS']['embargo_pdf_bucket_name'], Key=p['Key'])
+            body = resp['Body'].read()
+            doc = pymupdf.open(resp['ContentType'], body)
+            page_count = doc.page_count
+        except Exception as e:
+            print(e)
+            pass
         pdf_list.append(f"{p['Key']}\t{page_count}\t{p['LastModified']}")
     return "\n".join(pdf_list)
 
