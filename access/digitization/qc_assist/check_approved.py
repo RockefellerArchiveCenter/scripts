@@ -2,12 +2,10 @@
 
 # Returns a list of packages and PDF files with page counts (where available) and last modified date
 
-import io
 import configparser
 import tarfile
 
 import boto3
-import pandas
 import pymupdf
 
 REFIDS = []
